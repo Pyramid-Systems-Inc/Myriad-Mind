@@ -1,230 +1,109 @@
-# Myriad Cognitive Architecture - Phase 1
+# Myriad Mind - Aligned MVP 2.0
 
-## Overview
+## Core Hypothesis
+Intelligence can emerge from the orchestration of minimalist, specialized agents, where each agent contributes a piece of reasoned knowledge, rather than being a dumb data store.
 
-The Myriad Cognitive Architecture is a distributed AI system where specialized microservice agents collaborate to answer queries. This implementation represents **Phase 1: Foundation & Core Component Setup** of the MVP development roadmap.
+## MVP Target Query
+"Define a lightbulb and explain its limitation."
 
-## Architecture
+## Architecture Overview
 
-The system consists of:
+This project implements the Myriad Cognitive Architecture with the following key principles:
 
-- **Central Orchestrator**: Routes queries to appropriate agents and manages the AI registry
-- **Specialized Agents**: Microservices that handle specific domains of knowledge
-- **Agent Registry**: Maps keywords to agent addresses for query routing
+- **Specialized Agents**: Each agent handles specific intents and performs cognitive reasoning internally
+- **Dumb Orchestrator**: The orchestrator only routes tasks and collects results without reasoning
+- **Clear Data Protocols**: Standardized JSON communication between all components
+- **Microservice Architecture**: Each agent runs as an independent containerized service
 
-## Phase 1 Components
+## Project Structure
 
-### 1. Project Structure
 ```
-Myriad-Mind/
-├── orchestrator/
-│   └── orchestrator.py          # Central orchestration logic
-├── agents/
-│   └── Lightbulb_AI/           # First specialized agent
-│       ├── agent_app.py        # Flask application
-│       ├── Dockerfile          # Container definition
-│       ├── requirements.txt    # Python dependencies
-│       ├── run.sh             # Linux/macOS run script
-│       └── run.bat            # Windows run script
-├── common/                     # Shared utilities (future use)
-├── tests/                      # Test files (future use)
-├── main.py                     # Main entry point
-├── requirements.txt            # Root dependencies
-└── README.md                   # This file
+/project_myriad
+|-- /agents
+|   |-- /lightbulb_definition_ai     # Handles "define" intent
+|   |-- /lightbulb_function_ai       # Handles "explain_limitation" intent
+|-- /orchestration                   # Task routing and result collection
+|-- /processing
+|   |-- /input_processor            # Query parsing and task list generation
+|   |-- /output_processor           # Result synthesis
+|-- /tests                          # Unit tests
+|-- docker-compose.yml              # Service orchestration
+|-- PROTOCOLS.md                    # Data communication protocols
+|-- README.md                       # This file
+|-- requirements.txt                # Python dependencies
 ```
 
-### 2. Central Orchestrator
-- **File**: [`orchestrator/orchestrator.py`](orchestrator/orchestrator.py)
-- **Features**:
-  - AI_REGISTRY with hardcoded agent addresses
-  - Core orchestration logic for keyword-based routing
-  - Comprehensive logging of orchestrator state
-  - Agent health checking capabilities
+## Data Flow
 
-### 3. Lightbulb_AI Agent
-- **Directory**: [`agents/Lightbulb_AI/`](agents/Lightbulb_AI/)
-- **Features**:
-  - Flask web service with `/query` endpoint
-  - Dockerized for independent deployment
-  - Currently returns hardcoded success message
-  - Health check and info endpoints
+1. **Input Processing**: Raw query → Task List (JSON)
+2. **Orchestration**: Task List → Individual Agent Jobs
+3. **Agent Processing**: Agent Jobs → Reasoned Results
+4. **Output Processing**: Collected Results → Final Response
 
-## Prerequisites
+## Communication Protocols
 
-- **Python 3.11+**
-- **Docker** (for running agents)
-- **Git** (for version control)
+All inter-component communication uses standardized JSON protocols defined in [`PROTOCOLS.md`](PROTOCOLS.md:1):
 
-## Quick Start
+- **Processor-to-Orchestrator**: Task List format
+- **Orchestrator-to-Agent**: Agent Job format  
+- **Agent-to-Orchestrator**: Agent Result format
 
-### 1. Clone and Setup
+## Current Status: Phase 1 Complete
+
+✅ Project initialization and directory structure
+✅ Core data protocols defined
+✅ Docker Compose configuration
+✅ Clean foundation for cognitive agents
+
+## Next Steps (Phase 2)
+
+- Implement `lightbulb_definition_ai` Flask service
+- Implement `lightbulb_function_ai` Flask service with cognitive reasoning
+- Create Docker containers for each agent
+- Network testing between services
+
+## Development Setup
+
+### Prerequisites
+- Python 3.8+
+- Docker & Docker Compose
+- Git
+
+### Installation
+1. Clone the repository
+2. Create virtual environment: `python -m venv venv`
+3. Activate environment: `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
+4. Install dependencies: `pip install -r requirements.txt`
+
+### Running the System
 ```bash
-git clone <repository-url>
-cd Myriad-Mind
+# Start all services
+docker-compose up --build
 
-# Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+# The agents will be available at:
+# - lightbulb_definition_ai: http://localhost:5001
+# - lightbulb_function_ai: http://localhost:5002
 ```
 
-### 2. Start the Lightbulb_AI Agent
+## Key Design Principles
 
-**On Windows:**
+1. **Cognitive Processing in Agents**: The "thinking" happens within specialized agents, not in central processors
+2. **Minimal Orchestration**: The orchestrator is intentionally simple - just routing and collection
+3. **Clear Separation of Concerns**: Each component has a single, well-defined responsibility
+4. **Testable Architecture**: Every component can be unit tested independently
+5. **Scalable Design**: New agents can be easily added to handle additional intents
+
+## Testing
+
+Run tests with:
 ```bash
-cd agents/Lightbulb_AI
-run.bat
+pytest tests/
 ```
 
-**On Linux/macOS:**
-```bash
-cd agents/Lightbulb_AI
-chmod +x run.sh
-./run.sh
-```
+## Architecture Validation
 
-This will:
-- Build the Docker image for Lightbulb_AI
-- Start the container on port 5001
-- Display available endpoints
-
-### 3. Test the System
-
-**Check agent status:**
-```bash
-python main.py --status
-```
-
-**Run a test query:**
-```bash
-python main.py --test
-```
-
-**Process a custom query:**
-```bash
-python main.py --query "Why was the lightbulb important for factories?"
-```
-
-## Usage Examples
-
-### Basic Commands
-
-```bash
-# Check system status
-python main.py --status
-
-# Run test orchestration
-python main.py --test
-
-# Process a query
-python main.py --query "lightbulb and factories"
-
-# Enable verbose logging
-python main.py --query "test query" --verbose
-
-# Show help
-python main.py --help
-```
-
-### Agent Endpoints
-
-Once the Lightbulb_AI agent is running, you can access:
-
-- **Health Check**: http://localhost:5001/health
-- **Query Endpoint**: http://localhost:5001/query
-- **Agent Info**: http://localhost:5001/info
-- **Root Status**: http://localhost:5001/
-
-### Example Query Flow
-
-1. **Input**: `"Why was the lightbulb important for factories?"`
-2. **Keyword Extraction**: `["lightbulb", "important", "factories"]`
-3. **Agent Selection**: Routes to `Lightbulb_AI` based on "lightbulb" keyword
-4. **Agent Query**: Sends request to `http://localhost:5001/query`
-5. **Response**: Agent returns status information (Phase 1 implementation)
-
-## Development
-
-### Adding New Agents
-
-To add a new agent (e.g., Factory_AI):
-
-1. Create directory: `agents/Factory_AI/`
-2. Copy and modify agent template from `agents/Lightbulb_AI/`
-3. Update port number in Dockerfile and run scripts
-4. Add agent to `AI_REGISTRY` in [`orchestrator.py`](orchestrator/orchestrator.py)
-
-### Testing
-
-```bash
-# Test orchestrator directly
-cd orchestrator
-python orchestrator.py
-
-# Test agent directly
-cd agents/Lightbulb_AI
-python agent_app.py
-```
-
-### Logs
-
-- **Orchestrator logs**: `orchestrator.log`
-- **Agent logs**: `docker logs lightbulb_ai`
-
-## Phase 1 Success Criteria
-
-✅ **Completed Features:**
-
-1. **Project Structure**: Organized directories for orchestrator, agents, common, and tests
-2. **Central Orchestrator**: 
-   - AI_REGISTRY with hardcoded agent addresses
-   - Core orchestration logic with keyword routing
-   - Comprehensive logging system
-3. **Lightbulb_AI Agent**:
-   - Flask app with `/query` endpoint
-   - Dockerized microservice
-   - Returns hardcoded success message
-   - Runs on port 5001
-4. **Entry Point**: `main.py` with command-line interface
-5. **Infrastructure**: Requirements, Docker setup, run scripts
-
-## Next Steps (Future Phases)
-
-- **Phase 2**: Implement actual agent intelligence and communication protocols
-- **Phase 3**: Add input parsing and output synthesis
-- **Phase 4+**: Advanced features, scaling, and new agent types
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Docker not found**: Ensure Docker is installed and running
-2. **Port already in use**: Stop existing containers with `docker stop lightbulb_ai`
-3. **Connection refused**: Verify agent container is running with `docker ps`
-4. **Module not found**: Ensure virtual environment is activated and dependencies installed
-
-### Debug Commands
-
-```bash
-# Check running containers
-docker ps
-
-# View agent logs
-docker logs lightbulb_ai
-
-# Check agent health
-curl http://localhost:5001/health
-
-# Stop agent
-docker stop lightbulb_ai
-```
-
-## License
-
-[License information to be added]
-
-## Contributing
-
-[Contribution guidelines to be added]
+The system logs will demonstrate:
+- Task distribution from orchestrator to appropriate agents
+- Cognitive reasoning happening within agents (not in processors)
+- Proper data flow through all components
+- Emergence of intelligence from agent orchestration
