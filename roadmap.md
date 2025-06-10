@@ -1,102 +1,175 @@
-Of course. A detailed roadmap is essential for turning the design document into a real project. This roadmap breaks down the MVP development into clear, sequential phases, steps, and tasks. It assumes a small team (or a single developer) and prioritizes proving the core concept above all else.
+Excellent. Let's build the definitive, highly-detailed roadmap for the **Aligned MVP 2.0**. This plan is meticulously structured to ensure that every step we take directly serves the core principles of the Myriad Architecture.
+
+The focus is on **process and proof**. We need to see in our logs that the "thinking" is happening where it's supposed to: within the specialized agents.
 
 ---
 
-### **MVP Development Roadmap: Project Myriad (or Neutrino)**
+### **Aligned MVP 2.0 Development Roadmap: Project Myriad**
 
-**Project Goal:** To build a functional prototype that validates the core architecture of orchestrating multiple, minimalist, specialized AI agents to answer a query.
-**Target Query for MVP:** "Why was the lightbulb important for factories?"
+**Core Hypothesis to Validate:** Intelligence can emerge from the orchestration of minimalist, specialized agents, where each agent contributes a piece of reasoned knowledge, rather than being a dumb data store.
 
----
-
-### **Phase 1: Foundation & Core Component Setup (Weeks 1-2)**
-
-**Goal:** Establish the project structure, development environment, and build the non-intelligent "scaffolding" of the system. This phase is all about creating the "nervous system" before the "neurons" are intelligent.
-
-*   **Step 1.1: Environment and Project Initialization**
-    *   **Task 1.1.1:** Initialize a Git repository for version control.
-    *   **Task 1.1.2:** Create a project structure with directories: `/orchestrator`, `/agents`, `/common`, `/tests`.
-    *   **Task 1.1.3:** Set up a virtual environment (e.g., venv, conda) and create a `requirements.txt` file.
-    *   **Task 1.1.4:** Install initial dependencies: `Python`, `Flask` (or `FastAPI`), `requests`.
-
-*   **Step 1.2: Build the Central Orchestrator Skeleton**
-    *   **Task 1.2.1:** Create the main `orchestrator.py` script.
-    *   **Task 1.2.2:** Implement the `AI_REGISTRY` dictionary, hardcoding the future addresses of the agents (e.g., `http://localhost:5001`).
-    *   **Task 1.2.3:** Write the core orchestration logic: a function that takes a list of keywords, iterates the registry, and prepares to make API calls. For now, these calls will fail, which is expected.
-    *   **Task 1.2.4:** Add comprehensive logging to track the orchestrator's state (e.g., "Received keywords," "Querying Lightbulb_AI," "Received response").
-
-*   **Step 1.3: Develop the Simplest Small Agent (The Template)**
-    *   **Task 1.3.1:** In the `/agents` directory, create a `Lightbulb_AI` folder.
-    *   **Task 1.3.2:** Inside, create a Flask/FastAPI app (`agent_app.py`).
-    *   **Task 1.3.3:** Create a single `/query` endpoint that, for now, just returns a hardcoded success message: `{"status": "Lightbulb_AI is online"}`.
-    *   **Task 1.3.4:** Create a `Dockerfile` for the agent. This containerizes the agent, making it an independent microservice and preparing for future scalability.
-    *   **Task 1.3.5:** Write a simple `run.sh` script to build the Docker image and run the container on a specific port (e.g., 5001).
-
-**Phase 1 Deliverable:** A runnable orchestrator script that can successfully ping a single, non-intelligent agent running in a Docker container and log the interaction.
+**MVP Target Query:** "Define a lightbulb and explain its limitation."
 
 ---
 
-### **Phase 2: Implementing Agent Intelligence & Communication (Week 3)**
+### **Phase 1: Architecture & Environment Setup (Est. Time: 3-4 days)**
 
-**Goal:** Populate the agents with their specialized knowledge and establish a working data flow from the Orchestrator to the agents and back.
+**Goal:** Lay a robust and clean foundation. This is the "measure twice, cut once" phase. All components will be skeletons, but the communication paths and data structures will be clearly defined.
 
-*   **Step 2.1: Define the Standard Communication Protocol**
-    *   **Task 2.1.1:** Formally decide on the JSON structure for all communication.
-        *   Request: `{ "query": "core_info" }`
-        *   Response: `{ "source_agent": "AgentName", "data": { ... } }`
-    *   **Task 2.1.2:** Document this protocol in a `PROTOCOL.md` file in the project root.
+*   **Step 1.1: Project Initialization & Version Control**
+    *   **Task 1.1.1:** `git init` a new repository.
+    *   **Task 1.1.2:** Create the directory structure:
+        ```
+        /project_myriad
+        |-- /agents
+        |   |-- /lightbulb_definition_ai
+        |   |-- /lightbulb_function_ai
+        |-- /orchestration
+        |-- /processing
+        |   |-- /input_processor
+        |   |-- /output_processor
+        |-- /tests
+        |-- docker-compose.yml
+        |-- README.md
+        |-- .gitignore
+        ```
+    *   **Task 1.1.3:** Initialize Python virtual environment and `requirements.txt` with `flask`, `requests`, `pytest`.
 
-*   **Step 2.2: Implement Intelligence for `Lightbulb_AI`**
-    *   **Task 2.2.1:** Modify the `Lightbulb_AI`'s `/query` endpoint.
-    *   **Task 2.2.2:** Add the hardcoded knowledge dictionary as described in the design document.
-    *   **Task 2.2.3:** Update the endpoint to return this dictionary as the `data` payload in the standardized JSON response.
-    *   **Task 2.2.4:** Write a unit test to verify the `/query` endpoint returns the correct data structure and content.
+*   **Step 1.2: Define the Core Data Protocols**
+    *   **Task 1.2.1:** Create a `PROTOCOLS.md` file.
+    *   **Task 1.2.2:** Define the **Processor-to-Orchestrator Protocol (The "Task List")**:
+        ```json
+        // Sent from Input Processor to Orchestrator
+        {
+          "query_id": "xyz-123",
+          "tasks": [
+            { "task_id": 1, "intent": "define", "concept": "lightbulb", "args": {} },
+            { "task_id": 2, "intent": "explain_limitation", "concept": "lightbulb", "args": {} }
+          ]
+        }
+        ```
+    *   **Task 1.2.3:** Define the **Orchestrator-to-Agent Protocol (The "Agent Job")**:
+        ```json
+        // Sent from Orchestrator to an Agent
+        { "intent": "define" } // or { "intent": "explain_limitation" }
+        ```
+    *   **Task 1.2.4:** Define the **Agent-to-Orchestrator Protocol (The "Agent Result")**:
+        ```json
+        // Sent from Agent back to Orchestrator
+        {
+          "agent_name": "Lightbulb_Definition_AI",
+          "status": "success",
+          "data": "an electric device that produces light via an incandescent filament"
+        }
+        ```
 
-*   **Step 2.3: Clone and Specialize for `Factory_AI`**
-    *   **Task 2.3.1:** Duplicate the `Lightbulb_AI` directory and rename it to `Factory_AI`.
-    *   **Task 2.3.2:** Modify its Flask app to run on a different port (e.g., 5002).
-    *   **Task 2.3.3:** Replace the knowledge dictionary with the factory-specific information.
-    *   **Task 2.3.4:** Update its Dockerfile and `run.sh` script for the new port.
-    *   **Task 2.3.5:** Write a unit test for the `Factory_AI`'s endpoint.
+*   **Step 1.3: Docker Compose Setup**
+    *   **Task 1.3.1:** Create a `docker-compose.yml` file.
+    *   **Task 1.3.2:** Define services for the two agents (`lightbulb_definition_ai`, `lightbulb_function_ai`), exposing their respective ports (e.g., 5001, 5002). This allows us to launch the entire agent network with one command: `docker-compose up`.
 
-*   **Step 2.4: Integrate into the Orchestrator**
-    *   **Task 2.4.1:** Update the `Orchestrator`'s logic to make real `requests.get()` calls to the agents.
-    *   **Task 2.4.2:** Implement error handling (e.g., what if an agent is offline or returns an error?).
-    *   **Task 2.4.3:** Update the logging to show the actual data being received from each agent.
-
-**Phase 2 Deliverable:** The Orchestrator can now successfully query two distinct, intelligent agents running in separate containers and collect their specialized knowledge packets.
+**Phase 1 Deliverable:** A structured project repository with clearly defined data contracts and a `docker-compose.yml` that is ready to run the (not yet built) agent services.
 
 ---
 
-### **Phase 3: Parsing, Synthesis, and Final Output (Week 4)**
+### **Phase 2: Agent Implementation & Cognitive Logic (Est. Time: 4-5 days)**
 
-**Goal:** Complete the full data-flow loop by processing the initial user input and synthesizing the collected agent data into a coherent final answer.
+**Goal:** Build the specialized "neurons" of our system. The focus here is on embedding the reasoning *inside* the agents.
 
-*   **Step 3.1: Build the Input Parser**
-    *   **Task 3.1.1:** Create the `InputParser` module (`parser.py`).
-    *   **Task 3.1.2:** Implement the simple keyword-extraction logic based on the MVP's target query.
-    *   **Task 3.1.3:** Write unit tests for the parser (e.g., `test_parser("...lightbulb and factories...")` should return `['lightbulb', 'factories']`).
-    *   **Task 3.1.4:** Integrate the parser into the main `orchestrator.py` script. The system can now take the raw query string as input.
+*   **Step 2.1: Implement `Lightbulb_Definition_AI` (Type A Fact-Base)**
+    *   **Task 2.1.1:** Inside `/agents/lightbulb_definition_ai`, create a simple Flask app.
+    *   **Task 2.1.2:** Create a `/query` endpoint that accepts POST requests.
+    *   **Task 2.1.3:** Implement logic: If `request.json['intent'] == 'define'`, return the hardcoded definition in the standard "Agent Result" format.
+    *   **Task 2.1.4:** Create a `Dockerfile` for this agent.
+    *   **Task 2.1.5:** Write a unit test using `pytest` to call the endpoint and verify the correct data is returned for the "define" intent.
 
-*   **Step 3.2: Build the Output Synthesizer**
-    *   **Task 3.2.1:** Create the `OutputSynthesizer` module (`synthesizer.py`).
-    *   **Task 3.2.2:** Implement the simple, rule-based logic for combining the data from the `Lightbulb_AI` and `Factory_AI` into a single sentence.
-    *   **Task 3.2.3:** The function should take a list of JSON objects (the agent responses) and return a final string.
-    *   **Task 3.2.4:** Write unit tests for the synthesizer to ensure it correctly combines the expected inputs.
+*   **Step 2.2: Implement `Lightbulb_Function_AI` (Type B Function-Executor)**
+    *   **Task 2.2.1:** Inside `/agents/lightbulb_function_ai`, create a similar Flask app.
+    *   **Task 2.2.2:** Create a `/query` endpoint.
+    *   **Task 2.2.3:** **CRITICAL TASK:** Implement the cognitive logic:
+        ```python
+        if request.json['intent'] == 'explain_limitation':
+            # This is the "thinking" happening inside the agent
+            reasoned_limitation = "it generates significant waste heat, making it inefficient."
+            return jsonify({ "agent_name": "Lightbulb_Function_AI", "status": "success", "data": reasoned_limitation })
+        ```
+    *   **Task 2.2.4:** Create a `Dockerfile` for this agent.
+    *   **Task 2.2.5:** Write a unit test to specifically validate that the "explain_limitation" intent returns the reasoned data.
 
-*   **Step 3.3: Final Assembly and End-to-End Test**
-    *   **Task 3.3.1:** In the `Orchestrator`, after collecting the agent responses, pass them to the `OutputSynthesizer`.
-    *   **Task 3.3.2:** The final output of the `Orchestrator` should now be the human-readable sentence.
-    *   **Task 3.3.3:** Create a `main.py` entry point that allows a user to run the entire system from one command.
-    *   **Task 3.3.4:** Perform a full, end-to-end test: run the two agent containers, then run `main.py` with the target query, and verify the final output is correct.
-    *   **Task 3.3.5:** Write a comprehensive `README.md` file explaining how to set up and run the MVP.
+*   **Step 2.3: Network Test**
+    *   **Task 2.3.1:** Run `docker-compose up --build`.
+    *   **Task 2.3.2:** From your local machine (outside of Docker), use a tool like `curl` or Postman to manually send requests to `localhost:5001` and `localhost:5002` to confirm both agents are online and responding correctly.
 
-**Phase 3 Deliverable:** A fully functional MVP prototype. When executed, it takes the target query as input and produces the correct, synthesized sentence as output, with all components working in concert.
+**Phase 2 Deliverable:** Two independent, containerized microservice agents, each responding correctly to their specialized intent. We have proven that the cognitive logic resides within the specialist agent.
 
 ---
 
-**Post-MVP (Phase 4 and Beyond):**
+### **Phase 3: Building the Central Nervous System (Est. Time: 4-5 days)**
 
-*   **Step 4.1: Refactor & Harden:** Clean up code, improve error handling, and add more robust testing.
-*   **Step 4.2: Demonstrate Ambiguity:** Implement the "drive" example with an `Ambiguity_Resolution_AI` as the next proof-of-concept.
-*   **Step 4.3: Explore Dynamic Instantiation:** Begin research and development on a "factory for factories"—an AI that can create and register a new agent on the fly.
+**Goal:** Create the routing and processing layers that manage the flow of information.
+
+*   **Step 3.1: Implement the Input Processor**
+    *   **Task 3.1.1:** Create a Python module in `/processing/input_processor`.
+    *   **Task 3.1.2:** Write a function `process_query(text: str) -> dict`.
+    *   **Task 3.1.3:** Implement the logic to parse the MVP query string. This can be rule-based for the MVP (e.g., using regex or `if 'define' in text and 'limitation' in text`).
+    *   **Task 3.1.4:** The function must return the correctly structured "Task List" JSON object as defined in the protocol.
+    *   **Task 3.1.5:** Write unit tests to ensure the parser correctly translates the MVP query into the Task List object.
+
+*   **Step 3.2: Implement the Orchestrator**
+    *   **Task 3.2.1:** Create the main script in `/orchestration`.
+    *   **Task 3.2.2:** Implement the Agent Registry: a dictionary mapping (`concept`, `intent`) tuples to agent URLs.
+        ```python
+        REGISTRY = {
+            ('lightbulb', 'define'): 'http://lightbulb_definition_ai:5001/query',
+            ('lightbulb', 'explain_limitation'): 'http://lightbulb_function_ai:5002/query'
+        }
+        # Note: We use the service name from docker-compose, not localhost.
+        ```
+    *   **Task 3.2.3:** Write the main orchestration loop:
+        1.  Accepts a "Task List" object.
+        2.  Initializes an empty dictionary `results = {}`.
+        3.  Iterates through each `task` in the list.
+        4.  Looks up the correct agent URL from the `REGISTRY`.
+        5.  Makes a `requests.post()` call to that agent with the correct "Agent Job" payload.
+        6.  Stores the agent's response in the `results` dictionary, keyed by `task_id`.
+    *   **Task 3.2.4:** Implement robust logging for every step (e.g., "Dispatching task 1 to Lightbulb_Definition_AI...").
+
+*   **Step 3.3: Implement the Output Processor**
+    *   **Task 3.3.1:** Create a Python module in `/processing/output_processor`.
+    *   **Task 3.3.2:** Write a function `synthesize_output(results: dict) -> str`.
+    *   **Task 3.3.3:** Implement simple assembly logic. This should be "dumb" string formatting, not reasoning.
+        ```python
+        # Example logic
+        definition = results['1']['data']
+        limitation = results['2']['data']
+        return f"A lightbulb is defined as: '{definition}'. A key limitation is that {limitation}"
+        ```
+    *   **Task 3.3.4:** Write a unit test for the synthesizer, giving it a mock `results` dictionary and asserting the output string is correct.
+
+**Phase 3 Deliverable:** A complete, testable set of orchestration and processing modules. They are not yet connected, but each part is individually verified.
+
+---
+
+### **Phase 4: Integration, End-to-End Testing & Validation (Est. Time: 2-3 days)**
+
+**Goal:** Connect all the pieces, run the full system, and formally validate the core hypothesis.
+
+*   **Step 4.1: Create the Main Application Entrypoint**
+    *   **Task 4.1.1:** Create a `main.py` at the project root.
+    *   **Task 4.1.2:** This script will:
+        1.  Take the raw query string as an argument.
+        2.  Call the `InputProcessor` to get the Task List.
+        3.  Pass the Task List to the `Orchestrator` to get the results.
+        4.  Pass the results to the `OutputProcessor` to get the final sentence.
+        5.  Print the final sentence to the console.
+
+*   **Step 4.2: The Full System Test**
+    *   **Task 4.2.1:** Run `docker-compose up` to start the agent network.
+    *   **Task 4.2.2:** In a separate terminal, run `python main.py "Define a lightbulb and explain its limitation."`
+    *   **Task 4.2.3:** **VALIDATION STEP:**
+        *   **Check 1 (Correctness):** Does the final output sentence match the expected result?
+        *   **Check 2 (Architectural Purity):** Review the Orchestrator's logs. Do they clearly show it dispatching two separate tasks to two different agents? Do they show the reasoned data ("...waste heat...") coming *from* the `Lightbulb_Function_AI` and *not* being created by the `OutputProcessor`?
+
+*   **Step 4.3: Documentation**
+    *   **Task 4.3.1:** Thoroughly update the `README.md` with a project description, architecture overview, and step-by-step instructions on how to run the MVP.
+
+**Phase 4 Deliverable:** A fully functional and documented MVP that successfully demonstrates the core principles of the Myriad Cognitive Architecture. We have tangible proof that our design is viable.
