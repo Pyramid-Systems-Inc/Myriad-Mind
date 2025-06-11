@@ -72,18 +72,15 @@ The focus is on **process and proof**. We need to see in our logs that the "thin
     *   **Task 2.1.4:** ✅ Created [`Dockerfile`](agents/lightbulb_definition_ai/Dockerfile:1) for this agent
     *   **Task 2.1.5:** ✅ Written comprehensive unit tests in [`test_app.py`](agents/lightbulb_definition_ai/test_app.py:1) using `pytest` - all 4 tests pass
 
-*   **Step 2.2: Implement `Lightbulb_Function_AI` (Type B Function-Executor)**
-    *   **Task 2.2.1:** Inside `/agents/lightbulb_function_ai`, create a similar Flask app.
-    *   **Task 2.2.2:** Create a `/query` endpoint.
-    *   **Task 2.2.3:** **CRITICAL TASK:** Implement the cognitive logic:
-        ```python
-        if request.json['intent'] == 'explain_limitation':
-            # This is the "thinking" happening inside the agent
-            reasoned_limitation = "it generates significant waste heat, making it inefficient."
-            return jsonify({ "agent_name": "Lightbulb_Function_AI", "status": "success", "data": reasoned_limitation })
-        ```
-    *   **Task 2.2.4:** Create a `Dockerfile` for this agent.
-    *   **Task 2.2.5:** Write a unit test to specifically validate that the "explain_limitation" intent returns the reasoned data.
+*   **Step 2.2: Implement `Lightbulb_Function_AI` (Type B Function-Executor)** ✅ **COMPLETED**
+    *   **Task 2.2.1:** ✅ Inside [`/agents/lightbulb_function_ai`](agents/lightbulb_function_ai/app.py:1), created Flask application
+    *   **Task 2.2.2:** ✅ Created [`/query`](agents/lightbulb_function_ai/app.py:13) endpoint that accepts POST requests
+    *   **Task 2.2.3:** ✅ **CRITICAL TASK:** Implemented the cognitive logic:
+        - [`'explain_limitation'`](agents/lightbulb_function_ai/app.py:23) intent returns reasoned limitation: "it generates significant waste heat, making it inefficient."
+        - Additional function intents: [`'turn_on'`](agents/lightbulb_function_ai/app.py:31), [`'turn_off'`](agents/lightbulb_function_ai/app.py:39), [`'dim'`](agents/lightbulb_function_ai/app.py:47), [`'status'`](agents/lightbulb_function_ai/app.py:73)
+        - Internal state management for simulated lightbulb (on/off, brightness level)
+    *   **Task 2.2.4:** ✅ Created [`Dockerfile`](agents/lightbulb_function_ai/Dockerfile:1) for this agent
+    *   **Task 2.2.5:** ✅ Written comprehensive unit tests in [`test_app.py`](agents/lightbulb_function_ai/test_app.py:1) with 16 test cases covering all intents and error scenarios
 
 *   **Step 2.3: Network Test**
     *   **Task 2.3.1:** Run `docker-compose up --build`.
