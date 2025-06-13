@@ -1,109 +1,88 @@
-# Myriad Mind - Aligned MVP 2.0
+# Project Myriad: A Myriad Cognitive Architecture
 
-## Core Hypothesis
-Intelligence can emerge from the orchestration of minimalist, specialized agents, where each agent contributes a piece of reasoned knowledge, rather than being a dumb data store.
+**A decentralized, emergent AI system built from a network of hyper-specialized, minimalist agents.**
 
-## MVP Target Query
-"Define a lightbulb and explain its limitation."
+This project explores a departure from monolithic AI models. Instead of a single, all-knowing entity, intelligence emerges from the collaboration of countless, computationally inexpensive agents, each an expert in a single, narrow domain.
 
-## Architecture Overview
+## Core Concept
 
-This project implements the Myriad Cognitive Architecture with the following key principles:
+The Myriad architecture is inspired by neurobiology. Each "Myriad Agent" is like a neuron—a simple, specialized unit of knowledge or function. Complex reasoning isn't performed by any single agent; it's an **emergent property** of the network.
 
-- **Specialized Agents**: Each agent handles specific intents and performs cognitive reasoning internally
-- **Dumb Orchestrator**: The orchestrator only routes tasks and collects results without reasoning
-- **Clear Data Protocols**: Standardized JSON communication between all components
-- **Microservice Architecture**: Each agent runs as an independent containerized service
+-   **Radical Specialization:** An agent for "the concept of gravity" only knows about gravity.
+-   **Emergent Intelligence:** Complex answers are synthesized from the simple outputs of many collaborating agents.
+-   **Dynamic Growth ("Neurogenesis"):** The system learns by creating and integrating new agents, not by retraining a massive model.
 
-## Project Structure
+## High-Level Architecture
 
-```
-/project_myriad
-|-- /agents
-|   |-- /lightbulb_definition_ai     # Handles "define" intent
-|   |-- /lightbulb_function_ai       # Handles "explain_limitation" intent
-|-- /orchestration                   # Task routing and result collection
-|-- /processing
-|   |-- /input_processor            # Query parsing and task list generation
-|   |-- /output_processor           # Result synthesis
-|-- /tests                          # Unit tests
-|-- docker-compose.yml              # Service orchestration
-|-- PROTOCOLS.md                    # Data communication protocols
-|-- README.md                       # This file
-|-- requirements.txt                # Python dependencies
-```
+The system routes a user query to a network of agents, synthesizes their responses, and generates a final answer.
 
-## Data Flow
+```mermaid
+graph LR
+    subgraph Input/Output Layer
+        UserInput(User Query) --> IP[Input Processor];
+        OP[Output Processor] --> FinalAnswer(Formatted Answer);
+    end
 
-1. **Input Processing**: Raw query → Task List (JSON)
-2. **Orchestration**: Task List → Individual Agent Jobs
-3. **Agent Processing**: Agent Jobs → Reasoned Results
-4. **Output Processing**: Collected Results → Final Response
+    subgraph Core Cognitive Layer
+        IP -- Parsed & Routed Query --> O(Orchestrator);
+        O -- "Activate Agent A" --> A1(Agent A);
+        O -- "Activate Agent B" --> A2(Agent B);
+        A1 -- {data} --> S(Synthesizer);
+        A2 -- {data} --> S;
+        S -- Synthesized Data --> OP;
+    end
 
-## Communication Protocols
-
-All inter-component communication uses standardized JSON protocols defined in [`PROTOCOLS.md`](PROTOCOLS.md:1):
-
-- **Processor-to-Orchestrator**: Task List format
-- **Orchestrator-to-Agent**: Agent Job format  
-- **Agent-to-Orchestrator**: Agent Result format
-
-## Current Status: Phase 1 Complete
-
-✅ Project initialization and directory structure
-✅ Core data protocols defined
-✅ Docker Compose configuration
-✅ Clean foundation for cognitive agents
-
-## Next Steps (Phase 2)
-
-- Implement `lightbulb_definition_ai` Flask service
-- Implement `lightbulb_function_ai` Flask service with cognitive reasoning
-- Create Docker containers for each agent
-- Network testing between services
-
-## Development Setup
-
-### Prerequisites
-- Python 3.8+
-- Docker & Docker Compose
-- Git
-
-### Installation
-1. Clone the repository
-2. Create virtual environment: `python -m venv venv`
-3. Activate environment: `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
-4. Install dependencies: `pip install -r requirements.txt`
-
-### Running the System
-```bash
-# Start all services
-docker-compose up --build
-
-# The agents will be available at:
-# - lightbulb_definition_ai: http://localhost:5001
-# - lightbulb_function_ai: http://localhost:5002
+    subgraph Agent Network
+        A1("Specialized Agent")
+        A2("Specialized Agent")
+    end
 ```
 
-## Key Design Principles
+## Key Components
 
-1. **Cognitive Processing in Agents**: The "thinking" happens within specialized agents, not in central processors
-2. **Minimal Orchestration**: The orchestrator is intentionally simple - just routing and collection
-3. **Clear Separation of Concerns**: Each component has a single, well-defined responsibility
-4. **Testable Architecture**: Every component can be unit tested independently
-5. **Scalable Design**: New agents can be easily added to handle additional intents
+-   **Input Processor:** Deconstructs the user's natural language query into keywords and intent for the system.
+-   **Orchestrator:** The central nervous system. It is **intentionally unintelligent**. It receives keywords, looks up the required agents in the `Agent Registry`, and dispatches requests to them.
+-   **Myriad Agents:** The heart of the system. These are independent microservices, each embodying a single concept. For the MVP, they are simple Flask apps with hardcoded knowledge.
+-   **Output Processor / Synthesizer:** Receives data packets from the agents and assembles them into a single, coherent, human-readable answer based on the original query's intent.
+-   **Lifecycle Manager (Future Goal):** The module responsible for "neurogenesis"—creating, registering, and populating new agents on the fly when the system encounters a novel concept.
 
-## Testing
+## Development Status & Vision
 
-Run tests with:
-```bash
-pytest tests/
-```
+The project is currently following a detailed roadmap to build an initial MVP, followed by a phased evolution towards a more powerful, decentralized, and brain-like system.
 
-## Architecture Validation
+**Target Query for MVP:** `"Why was the lightbulb important for factories?"`
 
-The system logs will demonstrate:
-- Task distribution from orchestrator to appropriate agents
-- Cognitive reasoning happening within agents (not in processors)
-- Proper data flow through all components
-- Emergence of intelligence from agent orchestration
+This will be answered by orchestrating two minimalist agents:
+1.  `Lightbulb_AI`: Knows facts about the lightbulb.
+2.  `Factory_AI`: Knows facts about pre-electrical factories.
+
+For a detailed breakdown of the development plan, see the [**MVP Development Roadmap (roadmap.md)**](./roadmap.md).
+
+For the complete architectural blueprint and the project's long-term evolutionary vision, see the [**Architectural Blueprint (design and concept.md)**](./design%20and%20concept.md).
+
+## How to Run the MVP
+
+*(This section will be completed as per Task 3.3.5 in the roadmap).*
+
+1.  **Prerequisites:**
+    -   Docker
+    -   Python 3.9+
+
+2.  **Setup:**
+    ```bash
+    # Clone the repository
+    git clone https://github.com/your-username/myriad.git
+    cd myriad
+
+    # Create and activate a virtual environment
+    python -m venv venv
+    source venv/bin/activate
+
+    # Install dependencies
+    pip install -r requirements.txt
+    ```
+
+3.  **Run the System:**
+    ```bash
+    # (Instructions to launch agent containers and run the main script will go here)
+    ```
