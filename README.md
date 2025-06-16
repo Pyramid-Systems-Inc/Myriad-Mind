@@ -11,6 +11,7 @@ The Myriad architecture is inspired by neurobiology. Each "Myriad Agent" is like
 -   **Radical Specialization:** An agent for "the concept of gravity" only knows about gravity.
 -   **Emergent Intelligence:** Complex answers are synthesized from the simple outputs of many collaborating agents.
 -   **Dynamic Growth ("Neurogenesis"):** The system learns by creating and integrating new agents, not by retraining a massive model.
+-   **Efficiency and Resource Frugality:** The system must be computationally efficient. Querying "What is 2+2?" should activate a tiny, near-instantaneous function agent, not a multi-billion parameter LLM.
 
 ## High-Level Architecture
 
@@ -33,8 +34,15 @@ graph LR
     end
 
     subgraph Agent Network
-        A1("Specialized Agent")
-        A2("Specialized Agent")
+        A1("Agent A") <--> A2("Agent B");
+        A1 <--> A3("Agent C");
+        A2 <--> A4("Agent D");
+    end
+
+    subgraph System Management
+        O -- "Create New Agent" --> LM(Lifecycle Manager);
+        LM -- Instantiates --> A_new(New_Concept_AI);
+        O -- "Register New Agent" --> R(Agent Registry);
     end
 ```
 
@@ -44,7 +52,7 @@ graph LR
 -   **Orchestrator:** The central nervous system. It is **intentionally unintelligent**. It receives keywords, looks up the required agents in the `Agent Registry`, and dispatches requests to them.
 -   **Myriad Agents:** The heart of the system. These are independent microservices, each embodying a single concept. For the MVP, they are simple Flask apps with hardcoded knowledge.
 -   **Output Processor / Synthesizer:** Receives data packets from the agents and assembles them into a single, coherent, human-readable answer based on the original query's intent.
--   **Lifecycle Manager (Future Goal):** The module responsible for "neurogenesis"—creating, registering, and populating new agents on the fly when the system encounters a novel concept.
+-   **Lifecycle Manager:** This is a crucial module responsible for **Neurogenesis**—creating, registering, and populating new agents on the fly when the system encounters a novel concept. It is integral to the v1.0 architecture.
 
 ## Development Status & Vision
 
