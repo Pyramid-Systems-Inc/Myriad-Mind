@@ -71,7 +71,7 @@ def test_turn_off_intent_success(client):
 
 def test_dim_intent_success(client):
     """Test that the lightbulb brightness can be set"""
-    payload = {"intent": "dim", "brightness": 75}
+    payload = {"intent": "dim", "args": {"brightness": 75}}
     
     response = client.post('/query',
                           data=json.dumps(payload),
@@ -85,8 +85,8 @@ def test_dim_intent_success(client):
     assert "75%" in response_data["data"]
 
 def test_dim_intent_default_brightness(client):
-    """Test that dim intent uses default brightness when not specified"""
-    payload = {"intent": "dim"}
+    """Test that dim intent uses default brightness when not specified (missing args key)"""
+    payload = {"intent": "dim"} # Tests data.get('args', {}).get('brightness', 50) when 'args' is missing
     
     response = client.post('/query',
                           data=json.dumps(payload),
@@ -101,7 +101,7 @@ def test_dim_intent_default_brightness(client):
 
 def test_dim_intent_invalid_brightness_high(client):
     """Test that dim intent rejects brightness values above 100"""
-    payload = {"intent": "dim", "brightness": 150}
+    payload = {"intent": "dim", "args": {"brightness": 150}}
     
     response = client.post('/query',
                           data=json.dumps(payload),
@@ -116,7 +116,7 @@ def test_dim_intent_invalid_brightness_high(client):
 
 def test_dim_intent_invalid_brightness_low(client):
     """Test that dim intent rejects brightness values below 0"""
-    payload = {"intent": "dim", "brightness": -10}
+    payload = {"intent": "dim", "args": {"brightness": -10}}
     
     response = client.post('/query',
                           data=json.dumps(payload),
@@ -131,7 +131,7 @@ def test_dim_intent_invalid_brightness_low(client):
 
 def test_dim_intent_invalid_brightness_type(client):
     """Test that dim intent rejects non-numeric brightness values"""
-    payload = {"intent": "dim", "brightness": "invalid"}
+    payload = {"intent": "dim", "args": {"brightness": "invalid"}}
     
     response = client.post('/query',
                           data=json.dumps(payload),
@@ -206,6 +206,40 @@ def test_missing_intent_error(client):
     assert response_data["agent_name"] == "Lightbulb_Function_AI"
     assert response_data["status"] == "error"
     assert "Missing 'intent'" in response_data["data"]
+
+def test_dim_intent_brightness_zero(client):
+    """Test dimming to 0, which should turn the light off."""
+    payload = {"intent": "dim", "args": {"brightness": 0}}
+    
+    response = client.post('/query',
+                          data=json.dumps(payload),
+                          content_type='application/json')
+    
+    assert response.status_code == 200
+    response_data = json.loads(response.data)
+    
+    assert response_data["agent_name"] == "Lightbulb_Function_AI"
+    assert response_data["status"] == "success"
+    assert "Lightbulb brightness set to 0%" in response_data["data"]
+    assert lightbulb_state["is_on"] == False
+    assert lightbulb_state["brightness"] == 0
+
+def test_dim_intent_empty_args_object(client):
+    """Test dim intent with an empty args object, should use default brightness."""
+    payload = {"intent": "dim", "args": {}} # Tests data.get('args', {}).get('brightness', 50) when 'args' is an empty dict
+    
+    response = client.post('/query',
+                          data=json.dumps(payload),
+                          content_type='application/json')
+    
+    assert response.status_code == 200
+    response_data = json.loads(response.data)
+    
+    assert response_data["agent_name"] == "Lightbulb_Function_AI"
+    assert response_data["status"] == "success"
+    assert "Lightbulb brightness set to 50%" in response_data["data"] # Default brightness
+    assert lightbulb_state["is_on"] == True
+    assert lightbulb_state["brightness"] == 50
 
 def test_health_endpoint(client):
     """Test the health check endpoint"""

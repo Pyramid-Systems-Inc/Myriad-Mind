@@ -58,7 +58,7 @@ def query():
             
         elif intent == 'dim':
             # Set brightness level
-            brightness = data.get('brightness', 50)  # Default to 50% if not specified
+            brightness = data.get('args', {}).get('brightness', 50)  # Default to 50% if not specified
             try:
                 brightness = int(brightness)
                 if brightness < 0 or brightness > 100:
