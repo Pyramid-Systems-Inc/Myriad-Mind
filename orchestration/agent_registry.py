@@ -2,8 +2,24 @@ from typing import Dict, Tuple, Optional
 
 # Agent Registry: Maps (concept, intent) to agent URL
 AGENT_REGISTRY: Dict[Tuple[str, str], str] = {
-    ('lightbulb', 'define'): 'http://lightbulb_definition_ai:5001/query',
-    ('lightbulb', 'explain_limitation'): 'http://lightbulb_function_ai:5002/query'
+    # Lightbulb Definition AI - handles definitions and basic facts
+    ('lightbulb', 'define'): 'http://localhost:5001/query',
+    ('lightbulb', 'explain_impact'): 'http://localhost:5001/query',
+    ('lightbulb', 'analyze_historical_context'): 'http://localhost:5001/query',
+
+    # Lightbulb Function AI - handles applications and impact
+    ('lightbulb', 'explain_limitation'): 'http://localhost:5002/query',
+    ('factories', 'explain_impact'): 'http://localhost:5002/query',
+    ('factory', 'explain_impact'): 'http://localhost:5002/query',
+    ('industrial', 'explain_impact'): 'http://localhost:5002/query',
+
+    # Complex queries - route to Function AI for impact analysis
+    ('why was the lightbulb important for factories', 'explain_impact'): 'http://localhost:5002/query',
+    ('compare the impact of lightbulbs versus candles in factory settings', 'compare'): 'http://localhost:5002/query',
+    ('compare the impact of lightbulbs versus candles in factory settings_factory_relationship', 'compare'): 'http://localhost:5002/query',
+
+    # Synthesis tasks - route to Function AI as it handles complex reasoning
+    ('multi_concept_synthesis', 'synthesize_response'): 'http://localhost:5002/query'
 }
 
 def register_agent(concept: str, intent: str, url: str) -> None:

@@ -35,6 +35,41 @@ def query():
                 "status": "success",
                 "data": reasoned_limitation
             })
+
+        elif intent == 'explain_impact':
+            # Explain the impact of lightbulbs, especially in industrial/factory contexts
+            concept = data.get('concept', '').lower()
+            if 'factor' in concept or 'industrial' in concept:
+                impact = "Lightbulbs revolutionized factory work by extending productive hours beyond daylight, improving worker safety through better illumination, and enabling 24-hour industrial operations that dramatically increased productivity."
+            else:
+                impact = "The lightbulb transformed society by extending usable hours, improving safety through better lighting, and enabling new forms of work and social activities after dark."
+            return jsonify({
+                "agent_name": "Lightbulb_Function_AI",
+                "status": "success",
+                "data": impact
+            })
+
+        elif intent == 'compare':
+            # Handle comparison queries
+            concept = data.get('concept', '').lower()
+            if 'candle' in concept or 'versus' in concept:
+                comparison = "Lightbulbs provided consistent, bright illumination without fire hazards, smoke, or the need for constant replacement like candles. In factories, this meant safer working conditions, no risk of fires from open flames, and reliable lighting that didn't dim over time."
+            else:
+                comparison = "Lightbulbs offer superior brightness, safety, and reliability compared to traditional lighting methods."
+            return jsonify({
+                "agent_name": "Lightbulb_Function_AI",
+                "status": "success",
+                "data": comparison
+            })
+
+        elif intent == 'synthesize_response':
+            # Handle synthesis requests for complex multi-concept queries
+            synthesis = "The lightbulb's importance for factories stemmed from its ability to provide safe, reliable illumination that extended working hours, improved productivity, and reduced fire hazards compared to gas or candle lighting."
+            return jsonify({
+                "agent_name": "Lightbulb_Function_AI",
+                "status": "success",
+                "data": synthesis
+            })
             
         elif intent == 'turn_on':
             # Turn the lightbulb on
