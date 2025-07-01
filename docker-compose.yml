@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./agents/lightbulb_definition_ai/Dockerfile
     ports:
-      - "5001:5001"
+      - '5001:5001'
     container_name: lightbulb_definition_ai
     networks:
       - myriad_network
@@ -19,13 +19,26 @@ services:
       context: .
       dockerfile: ./agents/lightbulb_function_ai/Dockerfile
     ports:
-      - "5002:5002"
+      - '5002:5002'
     container_name: lightbulb_function_ai
     networks:
       - myriad_network
     environment:
       - FLASK_ENV=development
       - FLASK_APP=app.py
+
+  input_processor:
+    build:
+      context: .
+      dockerfile: ./processing/input_processor/Dockerfile
+    ports:
+      - '5003:5003'
+    container_name: input_processor
+    networks:
+      - myriad_network
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=processing.input_processor.app
 
 networks:
   myriad_network:
