@@ -40,6 +40,19 @@ services:
       - FLASK_ENV=development
       - FLASK_APP=processing.input_processor.app
 
+  output_processor:
+    build:
+      context: .
+      dockerfile: ./processing/output_processor/Dockerfile
+    ports:
+      - '5004:5004'
+    container_name: output_processor
+    networks:
+      - myriad_network
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=processing.output_processor.app
+
 networks:
   myriad_network:
     driver: bridge
