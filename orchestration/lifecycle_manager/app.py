@@ -1,23 +1,44 @@
+import os
+import shutil
+import docker
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+# Initialize Docker client
+# This will work inside the container because we mount the docker.sock
+try:
+    docker_client = docker.from_env()
+except docker.errors.DockerException:
+    print("WARNING: Could not connect to Docker daemon. Agent deployment will be disabled.")
+    docker_client = None
+
+
+# In a real system, port allocation would be more sophisticated.
+# This is NOT safe for concurrent requests.
+PORT_COUNTER = 5005 
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint for the Lifecycle Manager."""
+    docker_status = "connected" if docker_client else "disconnected"
     return jsonify({
         "status": "healthy",
         "service": "Lifecycle Manager",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "docker_status": docker_status
     })
 
 @app.route('/create_agent', methods=['POST'])
 def create_agent():
     """
     Endpoint to handle agent creation requests.
-    Initially, this will be a mocked response.
-    Implements "Orchestrator-to-LifecycleManager (Agent Creation Request)" protocol.
+    This version scaffolds files, builds the Docker image, and runs the container.
     """
+    global PORT_COUNTER
+    if not docker_client:
+        return jsonify({"status": "error", "message": "Docker client not available."}), 503
+
     try:
         data = request.get_json()
         if not data or 'concept_name' not in data or 'agent_type' not in data:
@@ -28,22 +49,78 @@ def create_agent():
 
         concept_name = data['concept_name']
         agent_type = data['agent_type']
+        
+        # --- Scaffolding Logic ---
+        agent_name = f"{concept_name.replace(' ', '_').capitalize()}_{agent_type}_AI"
+        agent_name_lower = agent_name.lower()
+        agent_dir_relative = os.path.join('agents', agent_name_lower)
+        agent_dir_absolute = os.path.abspath(agent_dir_relative)
 
-        # Mocked response for now. In the future, this will trigger scaffolding.
-        new_agent_name = f"{concept_name.replace(' ', '_').capitalize()}_{agent_type}_AI"
-        mocked_endpoint = f"http://{new_agent_name.lower()}:5005/query"
+        if os.path.exists(agent_dir_absolute):
+            return jsonify({
+                "status": "error",
+                "message": f"Agent '{agent_name}' already exists."
+            }), 409
 
-        # Implements "LifecycleManager-to-Orchestrator (Agent Creation Confirmation)"
+        os.makedirs(agent_dir_absolute, exist_ok=True)
+        
+        if agent_type != 'FactBase':
+            return jsonify({"status": "error", "message": f"Agent type '{agent_type}' not supported."}), 400
+
+        PORT_COUNTER += 1
+        new_port = PORT_COUNTER
+        template_path = os.path.join(os.path.dirname(__file__), 'templates/fact_base_template.py')
+
+        with open(template_path, 'r') as f:
+            template_content = f.read()
+
+        content = template_content.replace('{{CONCEPT_NAME}}', concept_name)
+        content = content.replace('{{AGENT_NAME}}', agent_name)
+        content = content.replace('{{PORT}}', str(new_port))
+
+        with open(os.path.join(agent_dir_absolute, 'app.py'), 'w') as f:
+            f.write(content)
+            
+        generic_dockerfile_path = 'agents/lightbulb_definition_ai/Dockerfile'
+        shutil.copyfile(generic_dockerfile_path, os.path.join(agent_dir_absolute, 'Dockerfile'))
+
+        # --- Docker Deployment Logic ---
+        print(f"Building image for {agent_name_lower}...")
+        image, build_logs = docker_client.images.build(
+            path=agent_dir_absolute,
+            tag=agent_name_lower,
+            rm=True
+        )
+        print(f"Image '{image.tags[0]}' built successfully.")
+
+        print(f"Running container for {agent_name_lower}...")
+        container = docker_client.containers.run(
+            agent_name_lower,
+            detach=True,
+            name=agent_name_lower,
+            ports={f'{new_port}/tcp': new_port},
+            network='myriad-mind_myriad_network' # Assumes default docker-compose network name
+        )
+        print(f"Container '{container.name}' started successfully.")
+        
+        # --- Response ---
         response_payload = {
-            "agent_name": new_agent_name,
+            "agent_name": agent_name,
             "status": "success",
-            "endpoint": mocked_endpoint,
-            "message": "Mocked: Agent creation process initiated."
+            "container_id": container.id,
+            "endpoint": f"http://localhost:{new_port}/query",
+            "port": new_port,
+            "message": f"Agent '{agent_name}' deployed successfully."
         }
         
-        return jsonify(response_payload), 202 # 202 Accepted, as creation is not instant
+        return jsonify(response_payload), 201
 
+    except docker.errors.BuildError as e:
+        return jsonify({"status": "error", "message": "Docker build failed.", "logs": str(e)}), 500
     except Exception as e:
+        # Clean up created directory on failure
+        if 'agent_dir_absolute' in locals() and os.path.exists(agent_dir_absolute):
+             shutil.rmtree(agent_dir_absolute)
         return jsonify({
             "status": "error",
             "message": str(e)

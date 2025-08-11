@@ -62,6 +62,9 @@ services:
     container_name: lifecycle_manager
     networks:
       - myriad_network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./agents:/app/agents
     environment:
       - FLASK_ENV=development
       - FLASK_APP=orchestration.lifecycle_manager.app
