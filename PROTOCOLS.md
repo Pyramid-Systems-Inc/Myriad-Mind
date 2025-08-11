@@ -590,6 +590,14 @@ graph TB
 
 ### 2.1 Agent-to-Agent Direct Communication
 
+**Example Use Case (Reflex Arc):**
+1. The `Orchestrator` sends a task to `Lightbulb_Definition_AI` with the intent `analyze_historical_context`.
+2. The `Lightbulb_Definition_AI` determines that to provide a complete answer, it needs functional impact data.
+3. It uses its internal configuration or the `Agent Registry Service` to discover the `Lightbulb_Function_AI`.
+4. It constructs a `Direct Query Protocol` message with a `specific_request` for `explain_impact` in the context of `factories`.
+5. The `Lightbulb_Function_AI` receives this peer request, processes it, and returns a `Direct Response Protocol` message containing the impact analysis.
+6. The `Lightbulb_Definition_AI` integrates this peer response into its own knowledge base before sending its final, enriched `Agent Result` back to the `Orchestrator`.
+
 **Purpose**: Enable agents to communicate directly without orchestrator mediation
 
 **Direct Query Protocol**: `Agent A → Agent B`

@@ -148,6 +148,19 @@
 
 * **Step 4.1: Direct Agent-to-Agent Communication**
   * **Task 4.1.1:** Implement Agent-to-Agent Direct Communication protocol per [`PROTOCOLS.md`](PROTOCOLS.md:574)
+        * Implement the existing `Direct Query Protocol` to facilitate peer-to-peer requests between agents.
+  * **Task 4.1.2:** Implement Two-Way "Explicit Connection" between Definition and Function AIs.
+   * **Sub-task 4.1.2.1 (`Definition -> Function`):**
+      * In `lightbulb_definition_ai`, add a `known_collaborators` configuration pointing to the `lightbulb_function_ai`.
+      * When handling an `analyze_historical_context` intent, the agent will make a direct API call to the Function AI to get data on "factory impact".
+      * The agent will enrich its own factual response with the context received before replying to the Orchestrator.
+    * **Sub-task 4.1.2.2 (`Function -> Definition`):**
+      * In `lightbulb_function_ai`, add a `known_collaborators` configuration pointing to the `lightbulb_definition_ai`.
+      * When handling an `explain_impact` intent, the agent will make a direct API call to the Definition AI to get a technical definition.
+      * The agent will prepend the definition to its own functional explanation to create a more comprehensive response.
+  * **Task 4.1.3:** Validate the "Reflex Arc"
+    * The successful implementation of the two-way communication in the previous task constitutes the system's first "reflex arc".
+    * Write an integration test to verify that a single query to one agent correctly triggers this background collaboration and results in an enriched final answer.
     * Enable [`direct_communication`](PROTOCOLS.md:582) with peer query capabilities
     * Implement [`source_agent`](PROTOCOLS.md:585) and [`target_agent`](PROTOCOLS.md:589) identification
     * Support [`query_context`](PROTOCOLS.md:593) with collaboration reasoning and original query tracking
