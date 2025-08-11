@@ -69,6 +69,19 @@ services:
       - FLASK_ENV=development
       - FLASK_APP=orchestration.lifecycle_manager.app
 
+  agent_registry_service:
+    build:
+      context: .
+      dockerfile: ./orchestration/agent_registry_service/Dockerfile
+    ports:
+      - '5006:5006'
+    container_name: agent_registry_service
+    networks:
+      - myriad_network
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=orchestration.agent_registry_service.app
+
 networks:
   myriad_network:
     driver: bridge
