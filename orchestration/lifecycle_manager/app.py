@@ -1,3 +1,4 @@
+# orchestration/lifecycle_manager/app.py
 import os
 import shutil
 import docker
@@ -13,10 +14,7 @@ except docker.errors.DockerException:
     print("WARNING: Could not connect to Docker daemon. Agent deployment will be disabled.")
     docker_client = None
 
-
-# In a real system, port allocation would be more sophisticated.
-# This is NOT safe for concurrent requests.
-PORT_COUNTER = 5005 
+PORT_COUNTER = 5006 # Start after registry
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -42,10 +40,7 @@ def create_agent():
     try:
         data = request.get_json()
         if not data or 'concept_name' not in data or 'agent_type' not in data:
-            return jsonify({
-                "status": "error",
-                "message": "Missing 'concept_name' or 'agent_type' in request"
-            }), 400
+            return jsonify({"status": "error", "message": "Missing 'concept_name' or 'agent_type' in request"}), 400
 
         concept_name = data['concept_name']
         agent_type = data['agent_type']
@@ -57,10 +52,7 @@ def create_agent():
         agent_dir_absolute = os.path.abspath(agent_dir_relative)
 
         if os.path.exists(agent_dir_absolute):
-            return jsonify({
-                "status": "error",
-                "message": f"Agent '{agent_name}' already exists."
-            }), 409
+            return jsonify({"status": "error", "message": f"Agent '{agent_name}' already exists."}), 409
 
         os.makedirs(agent_dir_absolute, exist_ok=True)
         
@@ -70,7 +62,7 @@ def create_agent():
         PORT_COUNTER += 1
         new_port = PORT_COUNTER
         template_path = os.path.join(os.path.dirname(__file__), 'templates/fact_base_template.py')
-
+        
         with open(template_path, 'r') as f:
             template_content = f.read()
 
@@ -81,35 +73,23 @@ def create_agent():
         with open(os.path.join(agent_dir_absolute, 'app.py'), 'w') as f:
             f.write(content)
             
-        generic_dockerfile_path = 'agents/lightbulb_definition_ai/Dockerfile'
-        shutil.copyfile(generic_dockerfile_path, os.path.join(agent_dir_absolute, 'Dockerfile'))
+        shutil.copyfile('agents/lightbulb_definition_ai/Dockerfile', os.path.join(agent_dir_absolute, 'Dockerfile'))
 
-        # --- Docker Deployment Logic ---
-        print(f"Building image for {agent_name_lower}...")
-        image, build_logs = docker_client.images.build(
-            path=agent_dir_absolute,
-            tag=agent_name_lower,
-            rm=True
-        )
-        print(f"Image '{image.tags[0]}' built successfully.")
-
-        print(f"Running container for {agent_name_lower}...")
+        image, _ = docker_client.images.build(path=agent_dir_absolute, tag=agent_name_lower, rm=True)
         container = docker_client.containers.run(
-            agent_name_lower,
-            detach=True,
-            name=agent_name_lower,
-            ports={f'{new_port}/tcp': new_port},
-            network='myriad-mind_myriad_network' # Assumes default docker-compose network name
+            agent_name_lower, detach=True, name=agent_name_lower,
+            ports={f'{new_port}/tcp': new_port}, network='myriad-mind_myriad_network'
         )
-        print(f"Container '{container.name}' started successfully.")
         
-        # --- Response ---
+        intent_map = {"define": "/query", "get_facts": "/query"}
+
         response_payload = {
             "agent_name": agent_name,
             "status": "success",
             "container_id": container.id,
-            "endpoint": f"http://localhost:{new_port}/query",
+            "endpoint": f"http://{agent_name_lower}:{new_port}",
             "port": new_port,
+            "intent_map": intent_map,
             "message": f"Agent '{agent_name}' deployed successfully."
         }
         
@@ -121,10 +101,7 @@ def create_agent():
         # Clean up created directory on failure
         if 'agent_dir_absolute' in locals() and os.path.exists(agent_dir_absolute):
              shutil.rmtree(agent_dir_absolute)
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5005, debug=True)

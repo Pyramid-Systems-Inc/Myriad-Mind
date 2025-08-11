@@ -1,113 +1,102 @@
 import requests
 import time
-from orchestration.agent_registry import get_agent_url, register_agent
 
 LIFECYCLE_MANAGER_URL = "http://lifecycle_manager:5005/create_agent"
+AGENT_REGISTRY_URL = "http://agent_registry_service:5006"
 
-def trigger_neurogenesis(concept: str) -> str | None:
-    """
-    Calls the Lifecycle Manager to create a new agent for an unknown concept.
-    """
+def discover_agent_endpoint(concept: str, intent: str) -> str | None:
+    """Calls the Agent Registry Service to discover an agent's endpoint."""
+    try:
+        payload = {"concept": concept, "intent": intent}
+        response = requests.post(f"{AGENT_REGISTRY_URL}/discover", json=payload, timeout=5)
+        if response.status_code == 200:
+            return response.json().get("endpoint")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error discovering agent for ({concept}, {intent}): {e}")
+        return None
+
+def register_new_agent(agent_data: dict) -> bool:
+    """Calls the Agent Registry Service to register a newly created agent."""
+    try:
+        payload = {
+            "agent_name": agent_data["agent_name"],
+            "concept": agent_data["concept_name"],
+            "intent_map": agent_data["intent_map"],
+            "endpoint": agent_data["endpoint"]
+        }
+        response = requests.post(f"{AGENT_REGISTRY_URL}/register", json=payload, timeout=5)
+        response.raise_for_status()
+        return response.status_code == 201
+    except requests.exceptions.RequestException as e:
+        print(f"Error registering new agent '{agent_data.get('agent_name')}': {e}")
+        return False
+
+def trigger_neurogenesis(concept: str) -> bool:
+    """Calls the Lifecycle Manager and then registers the new agent."""
     print(f"Triggering neurogenesis for concept: '{concept}'...")
     try:
         # For now, we default to creating a FactBase agent.
         # Future versions could infer the required agent_type.
         payload = {"concept_name": concept, "agent_type": "FactBase"}
-        response = requests.post(LIFECYCLE_MANAGER_URL, json=payload, timeout=30) # Increased timeout for build
-        
+        response = requests.post(LIFECYCLE_MANAGER_URL, json=payload, timeout=45)
         response.raise_for_status()
-        data = response.json()
+        new_agent_data = response.json()
 
-        if data.get("status") == "success":
-            agent_name = data["agent_name"]
-            new_endpoint = data["endpoint"]
-            port = data["port"]
-            
-            # The new agent's endpoint inside the docker network is via its name
-            network_endpoint = f"http://{agent_name.lower()}:{port}/query"
-
-            print(f"Neurogenesis successful. New agent '{agent_name}' created.")
-            
-            # Dynamically register the new agent's capabilities.
-            # The template supports 'define' and 'get_facts'.
-            register_agent(concept, 'define', network_endpoint)
-            register_agent(concept, 'get_facts', network_endpoint)
-            print(f"Agent '{agent_name}' registered for intents: define, get_facts")
-
-            # Wait a moment for the new container to be fully responsive
-            time.sleep(3)
-            
-            return network_endpoint
+        if new_agent_data.get("status") == "success":
+            print(f"Neurogenesis successful. New agent '{new_agent_data['agent_name']}' created.")
+            new_agent_data['concept_name'] = concept
+            if register_new_agent(new_agent_data):
+                print(f"Agent '{new_agent_data['agent_name']}' registered successfully.")
+                time.sleep(3)
+                return True
+            else:
+                print(f"Agent '{new_agent_data['agent_name']}' created but failed to register.")
+                return False
         else:
-            print(f"Error from Lifecycle Manager: {data.get('message')}")
-            return None
-
+            print(f"Error from Lifecycle Manager: {new_agent_data.get('message')}")
+            return False
     except requests.exceptions.RequestException as e:
         print(f"Failed to trigger neurogenesis: {e}")
-        return None
+        return False
 
 def send_task_to_agent(task: dict) -> dict | None:
-    """
-    Sends a single task to the appropriate agent.
-    If the agent doesn't exist, it triggers neurogenesis to create it.
-    """
-    agent_url = get_agent_url(task['concept'], task['intent'])
+    """Sends a single task to the appropriate agent."""
+    concept, intent = task['concept'], task['intent']
+    agent_url = discover_agent_endpoint(concept, intent)
 
     if not agent_url:
-        print(f"No agent found for concept '{task['concept']}' and intent '{task['intent']}'.")
-        # Attempt to create a new agent for the concept
-        new_agent_url = trigger_neurogenesis(task['concept'])
-        
-        if new_agent_url:
-            # Retry getting the URL for the specific intent
-            agent_url = get_agent_url(task['concept'], task['intent'])
+        print(f"No agent found for concept '{concept}' and intent '{intent}'.")
+        if trigger_neurogenesis(concept):
+            agent_url = discover_agent_endpoint(concept, intent)
         else:
             return {"task_id": task["task_id"], "status": "error", "error_message": "Agent not found and neurogenesis failed."}
 
     if agent_url:
-        agent_job_payload = {
-            "task_id": task["task_id"],
-            "intent": task["intent"],
-            "concept": task["concept"],
-            "args": task.get("args", {})
-        }
-        print(f"Dispatching Agent Job to {agent_url}: {agent_job_payload}")
+        payload = {"task_id": task["task_id"], "intent": intent, "concept": concept, "args": task.get("args", {})}
+        print(f"Dispatching Agent Job to {agent_url}: {payload}")
         try:
-            response = requests.post(agent_url, json=agent_job_payload, timeout=10)
+            response = requests.post(agent_url, json=payload, timeout=10)
             response.raise_for_status()
-            agent_result = response.json()
-            print(f"Received Agent Result: {agent_result}")
-            return agent_result
+            return response.json()
         except requests.exceptions.RequestException as e:
-            print(f"Error sending task {task['task_id']} to agent: {e}")
             return {"task_id": task["task_id"], "status": "error", "error_message": str(e)}
     else:
-        print(f"Error: Agent for '{task['concept']}' created, but intent '{task['intent']}' not supported.")
-        return {"task_id": task["task_id"], "status": "error", "error_message": f"Agent for '{task['concept']}' does not support intent '{task['intent']}'"}
+        return {"task_id": task["task_id"], "status": "error", "error_message": f"Agent for '{concept}' created, but intent '{intent}' not supported."}
 
 def process_tasks(tasks: list) -> dict:
-    """
-    Processes a list of tasks by sending them to agents and collecting results.
-    """
+    """Processes a list of tasks by sending them to agents and collecting results."""
+    # This bootstrap registration is temporary. In a mature system, agents would self-register.
+    initial_agents = [
+        {"agent_name": "Lightbulb_Definition_AI", "concept_name": "lightbulb", "endpoint": "http://lightbulb_definition_ai:5001", "intent_map": {"define": "/query", "explain_impact": "/query", "analyze_historical_context": "/query"}},
+        {"agent_name": "Lightbulb_Function_AI", "concept_name": "lightbulb", "endpoint": "http://lightbulb_function_ai:5002", "intent_map": {"explain_limitation": "/query", "compare": "/query", "synthesize_response": "/query"}},
+        {"agent_name": "Lightbulb_Function_AI", "concept_name": "factories", "endpoint": "http://lightbulb_function_ai:5002", "intent_map": {"explain_impact": "/query"}}
+    ]
+    for agent in initial_agents:
+        register_new_agent(agent)
+    
     all_results = {}
     for task in tasks:
         result = send_task_to_agent(task)
-        if result:
-            all_results[str(task["task_id"])] = result
-        else:
-            all_results[str(task["task_id"])] = {"task_id": task["task_id"], "status": "error", "error_message": "Failed to process task, no result from agent."}
+        all_results[str(task["task_id"])] = result or {"task_id": task["task_id"], "status": "error", "error_message": "Failed to process task."}
     return all_results
-
-if __name__ == '__main__':
-    # Example usage for direct testing, now including neurogenesis
-    sample_tasks_for_orchestrator_test = [
-        {"task_id": 101, "intent": "define", "concept": "lightbulb", "args": {}},
-        {"task_id": 102, "intent": "define", "concept": "philosophy", "args": {}}, # This should trigger neurogenesis
-        {"task_id": 103, "intent": "get_facts", "concept": "philosophy", "args": {}} # This should use the new agent
-    ]
-    print("--- Testing orchestrator.py directly with neurogenesis ---")
-    results = process_tasks(sample_tasks_for_orchestrator_test)
-    print("\n--- Orchestrator Test Results ---")
-    for task_id, result in results.items():
-        print(f"Task {task_id}: {result}")
-    print("--- End of orchestrator.py direct test ---")
