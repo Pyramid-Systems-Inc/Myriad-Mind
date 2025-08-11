@@ -78,7 +78,17 @@ graph LR
 
 - **Agent Registry:** Intelligent discovery and clustering system for managing the growing agent network.
 
+- **New: Diversity_Checker_AI and Consensus_AI** for bias mitigation and dispute resolution.
+
+- **Enhanced UI:** Interactive dashboard with query refinements, visualizations, and feedback forms.
+
+- **Monitoring:** Prometheus/Grafana for alerts on coherence/low performance.
+
+- **Benchmarks:** Comparative tests vs. LLMs.
+
 ## Development Status & Vision
+
+*(Updated: Added community guidelines section.)*
 
 The project is currently following a detailed roadmap to build an initial MVP, followed by a phased evolution towards a more powerful, decentralized, and brain-like system.
 
@@ -91,6 +101,11 @@ This will be answered by orchestrating two minimalist agents:
 For a detailed breakdown of the development plan, see the [**MVP Development Roadmap (roadmap.md)**](./roadmap.md).
 
 For the complete architectural blueprint and the project's long-term evolutionary vision, see the [**Architectural Blueprint (design and concept.md)**](./design%20and%20concept.md).
+
+### Contribution Guidelines
+- Submit new agents via PRs.
+- Focus on specialization; test for efficiency.
+- Report biases/ethics issues.
 
 ## How to Run the Enhanced System
 

@@ -1,6 +1,7 @@
 # Myriad Cognitive Architecture Communication Protocols
 
-**Version**: 2.0  
+**Version**: 2.1  
+*(Updated for ethics, resilience, and monitoring.)*  
 **Based on**: [design and concept.md](design%20and%20concept.md) - Myriad Cognitive Architecture Blueprint  
 **Last Updated**: 2024-01-01
 
@@ -1114,6 +1115,72 @@ graph TB
 }
 ```
 
+### 4.4 Bias Mitigation Protocol
+
+**Purpose**: Evaluate sources for balance during learning.
+
+**Bias Check Request**: `Ingestor → Diversity_Checker_AI`
+
+```json
+{
+  "check_request": {
+    "sources": ["url1", "url2"],
+    "concept": "topic",
+    "diversity_threshold": 0.7
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "bias_report": {
+    "score": 0.85,
+    "suggestions": ["Add diverse viewpoint from source X"]
+  }
+}
+```
+
+### 4.5 Dispute Arbitration Protocol
+
+**Purpose**: Automated resolution of contradictions.
+
+**Arbitration Request**: `Feedback_Processor → Consensus_AI`
+
+```json
+{
+  "dispute": {
+    "conflicting_facts": ["factA", "factB"],
+    "sources": ["source1", "source2"]
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "resolution": "factA",
+  "confidence": 0.92,
+  "reason": "Higher source credibility"
+}
+```
+
+### 4.6 Audit Logging Protocol
+
+**Purpose**: Traceability for learning events.
+
+**Log Event**: `LifecycleManager → Audit_Log`
+
+```json
+{
+  "event": {
+    "type": "neurogenesis",
+    "concept": "new_concept",
+    "provenance": ["source_url", "confidence:0.9"]
+  }
+}
+```
+
 ---
 
 ## Implementation Guidelines
@@ -1125,6 +1192,7 @@ graph TB
 - **Migration Path**: Gradual phase-in with dual protocol support
 
 ### Error Handling
+*(Enhanced with circuit breakers and fallbacks.)*
 
 ```json
 {
@@ -1139,24 +1207,32 @@ graph TB
       "cached_response": "available",
       "partial_response": "possible",
       "estimated_accuracy": 0.75
-    }
+    },
+    "circuit_breaker_status": "half_open",
+    "fallback_cache_available": true
   }
 }
 ```
 
 ### Security Considerations
+*(Added: Anonymization for user data; guardrails for exploration.)*
 
 - **Authentication**: Agent-to-agent JWT tokens
 - **Authorization**: Capability-based access control
 - **Data Privacy**: Encrypt sensitive context information
 - **Rate Limiting**: Per-agent request throttling
+- **User Data Anonymization**: Strip PII from feedback loops
+- **Exploration Guardrails**: Forbidden topic filters and content screening
 
 ### Performance Optimization
+*(Added: Alerts for metrics; pruning underused agents.)*
 
 - **Caching Strategy**: Frequent collaboration results
 - **Connection Pooling**: Persistent agent connections
 - **Load Balancing**: Cluster-aware request distribution
 - **Circuit Breakers**: Automatic failure isolation
+- **Monitoring & Alerts**: Performance degradation and coherence warnings
+- **Agent Pruning**: Auto-removal of underutilized agents based on metrics
 
 ---
 

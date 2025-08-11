@@ -117,3 +117,18 @@ The v1.0 architecture is a pragmatic blueprint for a functional MVP. The long-te
 *   **Neurogenesis (Dynamic Instantiation):** This remains a core principle. The `Lifecycle Manager`'s ability to create and scaffold new agents on the fly when encountering unknown concepts is the system's primary method of large-scale learning.
 *   **Synaptic Strengthening (Hebbian Learning):** This principle is formalized. When agents are frequently co-activated to answer a query successfully, the weight of the edge connecting them in the graph database is increased. This is a direct implementation of the "neurons that fire together, wire together" rule, making the system learn common associations and become faster over time.
 *   **Agent Fine-Tuning (Micro-learning):** For agents that are small, trainable models (Type C/D), user feedback can be used to perform targeted fine-tuning. If a `Sentiment_AI` misclassifies a sentence, the feedback loop can trigger a single training step on *that agent alone*, subtly improving its performance without the cost of retraining the entire system. This is analogous to refining a specific neural pathway through experience.
+*   **Advanced Optimization:** Implement distributed caching (e.g., etcd) for registry lookups and auto-scaling with Kubernetes for handling large agent networks.
+*   **Multi-Modality Depth:** Extend neurogenesis to include video and other sensory data.
+*   **Cost Management:** Track compute costs per agent/query to prune inefficiencies.
+
+##### **5.4. Ethical Considerations & Bias Mitigation (New Section)**
+
+To ensure responsible AI, incorporate:
+* **Bias Detection:** A Diversity_Checker_AI evaluates sources during ingestion for balanced viewpoints.
+* **Guardrails:** Protocols to avoid forbidden topics in exploration and anonymize user data.
+* **Auditability:** Log all learning events with provenance for traceability.
+
+##### **5.5. Evaluation & Metrics (New Section)**
+
+* **Holistic Metrics:** Measure emergent intelligence via knowledge retention, adaptation speed, and coherence over time.
+* **Simulation & Benchmarks:** Run idle simulations and compare against monolithic models (e.g., GPT) for efficiency and accuracy.
