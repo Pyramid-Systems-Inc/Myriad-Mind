@@ -53,6 +53,19 @@ services:
       - FLASK_ENV=development
       - FLASK_APP=processing.output_processor.app
 
+  lifecycle_manager:
+    build:
+      context: .
+      dockerfile: ./orchestration/lifecycle_manager/Dockerfile
+    ports:
+      - '5005:5005'
+    container_name: lifecycle_manager
+    networks:
+      - myriad_network
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=orchestration.lifecycle_manager.app
+
 networks:
   myriad_network:
     driver: bridge
