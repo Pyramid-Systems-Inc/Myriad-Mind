@@ -3,6 +3,5 @@ requests
 pytest
 spacy
 nltk
-uuid
 docker
 neo4j

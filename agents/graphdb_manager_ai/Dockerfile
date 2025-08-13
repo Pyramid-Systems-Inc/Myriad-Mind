@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy requirements from the root
 COPY requirements.txt .
 
+# Install system dependencies required for building Python packages
+RUN apt-get update && apt-get install -y build-essential
+
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
