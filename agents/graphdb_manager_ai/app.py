@@ -116,6 +116,48 @@ def create_relationship():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/find_connected_nodes', methods=['POST'])
+def find_connected_nodes():
+    """Finds nodes connected to a start node by a specific relationship."""
+    if not driver:
+        return jsonify({"status": "error", "message": "Database not connected"}), 503
+        
+    data = request.get_json()
+    required_fields = ['start_node_label', 'start_node_properties', 'relationship_type']
+    if not data or not all(field in data for field in required_fields):
+        return jsonify({"status": "error", "message": f"Request must include {required_fields}"}), 400
+    
+    start_label = data['start_node_label']
+    start_props = data['start_node_properties']
+    rel_type = data['relationship_type']
+    target_label = data.get('target_node_label', '') # Optional: filter by target label
+    direction = data.get('relationship_direction', 'out') # 'out' or 'in'
+
+    # Build the relationship pattern based on direction
+    if direction == 'in':
+        rel_pattern = f"<-[r:{rel_type}]-"
+    else:
+        rel_pattern = f"-[r:{rel_type}]->"
+
+    try:
+        with driver.session() as session:
+            start_where_clause = " AND ".join([f"a.{key} = $start_props.{key}" for key in start_props])
+            
+            query = (
+                f"MATCH (a:{start_label}) WHERE {start_where_clause} "
+                f"MATCH (a){rel_pattern}(b:{target_label}) "
+                "RETURN b"
+            )
+
+            result = session.run(query, start_props=start_props)
+            nodes = [record["b"]._properties for record in result]
+            
+            return jsonify({"status": "success", "nodes": nodes})
+            
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 def close_driver():
     if driver:
         driver.close()
