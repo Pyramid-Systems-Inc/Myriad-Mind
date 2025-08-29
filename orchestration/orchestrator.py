@@ -3,6 +3,7 @@ import json
 import time
 import os
 import sys
+import urllib.parse
 from typing import Optional, Dict, Any, List
 
 # Add path for lifecycle manager and learning engine  
@@ -42,6 +43,17 @@ except ImportError as e:
     learning_engine = None
     LEARNING_ENGINE_AVAILABLE = False
     print(f"⚠️  Autonomous Learning Engine not available: {e}")
+
+# Import enhanced graph intelligence for smart agent selection
+try:
+    from intelligence.enhanced_graph_intelligence import get_enhanced_intelligence
+    enhanced_intelligence = get_enhanced_intelligence()
+    ENHANCED_INTELLIGENCE_AVAILABLE = True
+    print("🎯 Enhanced Graph Intelligence loaded successfully")
+except ImportError as e:
+    enhanced_intelligence = None
+    ENHANCED_INTELLIGENCE_AVAILABLE = False
+    print(f"⚠️  Enhanced Graph Intelligence not available: {e}")
 
 def check_concept_exists(concept: str) -> bool:
     """Check if a concept node already exists in the graph"""
@@ -342,6 +354,86 @@ def generate_learning_objectives(concept: str, intent: str, capabilities: List[s
     
     return objectives
 
+def _update_agent_performance_metrics(agent_url: str, concept: str, intent: str, 
+                                     start_time: float, result: dict, success: bool):
+    """Update agent performance metrics in Enhanced Graph Intelligence"""
+    
+    if not ENHANCED_INTELLIGENCE_AVAILABLE:
+        return
+    
+    try:
+        # Calculate performance metrics
+        response_time = time.time() - start_time
+        
+        # Extract agent ID from URL
+        agent_id = _extract_agent_id_from_url(agent_url)
+        if not agent_id:
+            return
+        
+        # Calculate performance scores
+        performance_data = {
+            'response_time': response_time,
+            'success_rate': 1.0 if success else 0.0,
+            'last_request_time': time.time()
+        }
+        
+        # Add quality scores based on result
+        if success and result:
+            status = result.get('status', 'unknown')
+            
+            if status == 'success':
+                performance_data['response_quality'] = 0.9
+                performance_data['accuracy'] = 0.85
+                performance_data['helpfulness'] = 0.8
+            elif status == 'partial':
+                performance_data['response_quality'] = 0.6
+                performance_data['accuracy'] = 0.7
+                performance_data['helpfulness'] = 0.6
+            else:
+                performance_data['response_quality'] = 0.3
+                performance_data['accuracy'] = 0.4
+                performance_data['helpfulness'] = 0.3
+        else:
+            # Failed request
+            performance_data['response_quality'] = 0.1
+            performance_data['accuracy'] = 0.1
+            performance_data['helpfulness'] = 0.1
+        
+        # Update Enhanced Graph Intelligence
+        enhanced_intelligence.update_agent_performance(agent_id, performance_data)
+        
+        print(f"📊 Updated performance metrics for {agent_id}: {performance_data.get('response_quality', 0):.2f} quality")
+        
+    except Exception as e:
+        print(f"⚠️  Could not update performance metrics: {e}")
+
+def _extract_agent_id_from_url(agent_url: str) -> Optional[str]:
+    """Extract agent ID from agent URL"""
+    
+    # Common patterns for agent URLs
+    # http://lightbulb_definition_ai:5001 -> Lightbulb_Definition_AI
+    # http://localhost:5001 -> None (can't determine)
+    
+    if not agent_url:
+        return None
+    
+    try:
+        # Extract hostname from URL
+        parsed = urllib.parse.urlparse(agent_url)
+        hostname = parsed.hostname
+        
+        if hostname and '_' in hostname:
+            # Convert hostname to agent ID format
+            # lightbulb_definition_ai -> Lightbulb_Definition_AI
+            parts = hostname.split('_')
+            agent_id = '_'.join(part.capitalize() for part in parts)
+            return agent_id
+        
+        return None
+        
+    except Exception:
+        return None
+
 def register_dynamic_agent_in_graph(agent, concept: str) -> bool:
     """Register a dynamically created agent in the graph database"""
     
@@ -453,10 +545,71 @@ def expand_concept(concept: str, intent: str) -> Dict[str, Any]:
     return expansion_result
 
 def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
-    """Discovers an agent by querying the knowledge graph."""
+    """Discovers an agent using Enhanced Graph Intelligence for optimal selection."""
+    
+    if ENHANCED_INTELLIGENCE_AVAILABLE:
+        # Use Enhanced Graph Intelligence for smart agent selection
+        try:
+            print(f"🎯 Using Enhanced Graph Intelligence for '{concept}' with intent '{intent}'")
+            
+            # Get intelligent agent recommendations
+            agent_scores = enhanced_intelligence.discover_intelligent_agents(
+                concept=concept,
+                intent=intent,
+                context={"query_source": "orchestrator"}
+            )
+            
+            if agent_scores:
+                # Select the highest scoring agent
+                best_agent = agent_scores[0]
+                
+                print(f"  🧠 Selected agent: {best_agent.agent_id}")
+                print(f"     Relevance score: {best_agent.relevance_score:.3f}")
+                print(f"     Reasoning: {', '.join(best_agent.reasoning[:2])}")  # Show top 2 reasons
+                
+                # Get endpoint from agent profile
+                agent_profile = enhanced_intelligence.agent_profiles.get(best_agent.agent_id)
+                if agent_profile and agent_profile.endpoint:
+                    return agent_profile.endpoint
+                else:
+                    # Fallback to basic discovery for endpoint
+                    return _discover_agent_endpoint_fallback(best_agent.agent_id)
+            else:
+                print(f"  ⚠️  Enhanced Intelligence found no suitable agents for '{concept}'")
+                return None
+                
+        except Exception as e:
+            print(f"  ⚠️  Enhanced Intelligence error: {e}")
+            print(f"  🔄 Falling back to basic graph discovery")
+            return _discover_agent_basic_fallback(concept, intent)
+    else:
+        # Fallback to basic graph discovery
+        return _discover_agent_basic_fallback(concept, intent)
+
+def _discover_agent_endpoint_fallback(agent_id: str) -> Optional[str]:
+    """Fallback method to discover agent endpoint from graph"""
     try:
-        # For now, we assume the intent maps to a generic 'HANDLES_CONCEPT' relationship.
-        # This will become more sophisticated later.
+        payload = {
+            "start_node_label": "Agent",
+            "start_node_properties": {"name": agent_id},
+            "relationship_type": "*",
+            "relationship_direction": "both",
+            "target_node_label": "*"
+        }
+        response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            agent_data = data.get("source_node", {})
+            return agent_data.get("endpoint")
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"    ⚠️  Endpoint fallback error: {e}")
+        return None
+
+def _discover_agent_basic_fallback(concept: str, intent: str) -> Optional[str]:
+    """Basic fallback agent discovery method"""
+    try:
         payload = {
             "start_node_label": "Concept",
             "start_node_properties": {"name": concept.lower()},
@@ -469,18 +622,19 @@ def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
         if response.status_code == 200:
             data = response.json()
             if data.get("nodes"):
-                # Just return the first agent found for now.
-                # Future logic could select the best agent based on properties.
                 agent_node = data["nodes"][0]
                 return agent_node.get("endpoint")
         return None
     except requests.exceptions.RequestException as e:
-        print(f"Error discovering agent for '{concept}' via graph: {e}")
+        print(f"Error in basic agent discovery for '{concept}': {e}")
         return None
 
 def send_task_to_agent(task: dict) -> Optional[dict]:
     """Sends a single task to the appropriate agent discovered via the graph."""
     concept, intent = task['concept'], task['intent']
+    start_time = time.time()
+    
+    # Use Enhanced Graph Intelligence for agent discovery
     agent_url = discover_agent_via_graph(concept, intent)
     
     if agent_url:
@@ -490,9 +644,19 @@ def send_task_to_agent(task: dict) -> Optional[dict]:
         try:
             response = requests.post(agent_url, json=payload, timeout=10)
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            
+            # Track performance for Enhanced Graph Intelligence
+            _update_agent_performance_metrics(agent_url, concept, intent, start_time, result, success=True)
+            
+            return result
         except requests.exceptions.RequestException as e:
-            return {"task_id": task["task_id"], "status": "error", "error_message": str(e)}
+            error_result = {"task_id": task["task_id"], "status": "error", "error_message": str(e)}
+            
+            # Track failure for Enhanced Graph Intelligence
+            _update_agent_performance_metrics(agent_url, concept, intent, start_time, error_result, success=False)
+            
+            return error_result
     else:
         # 🧠 NEUROGENESIS TRIGGER: No agent found for concept
         print(f"🧠 NEUROGENESIS TRIGGERED: No agent found for concept '{concept}' with intent '{intent}'")
