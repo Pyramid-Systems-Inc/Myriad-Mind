@@ -1,6 +1,51 @@
 from flask import Flask, request, jsonify
+import requests
+import os
+from typing import Optional, Dict, Any
 
 app = Flask(__name__)
+
+# Agent-to-Agent Communication Configuration
+GRAPHDB_MANAGER_URL = os.environ.get("GRAPHDB_MANAGER_URL", "http://graphdb_manager_ai:5008")
+AGENT_NAME = "Lightbulb_Function_AI"
+AGENT_TYPE = "FunctionExecutor"
+PRIMARY_CONCEPTS = ["lightbulb", "factories"]
+
+def discover_peer_agents(concept: str) -> list:
+    """Discover other agents that handle a specific concept via graph traversal"""
+    try:
+        payload = {
+            "start_node_label": "Concept",
+            "start_node_properties": {"name": concept.lower()},
+            "relationship_type": "HANDLES_CONCEPT",
+            "relationship_direction": "in",
+            "target_node_label": "Agent"
+        }
+        response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("nodes"):
+                # Filter out self to avoid circular calls
+                return [node for node in data["nodes"] 
+                       if node.get("properties", {}).get("name") != AGENT_NAME]
+        return []
+    except requests.exceptions.RequestException as e:
+        print(f"Error discovering peer agents for '{concept}': {e}")
+        return []
+
+def request_peer_collaboration(peer_endpoint: str, collaboration_request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Send a collaboration request to a peer agent"""
+    try:
+        response = requests.post(f"{peer_endpoint}/collaborate", json=collaboration_request, timeout=8)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Peer collaboration failed with status {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error collaborating with peer at {peer_endpoint}: {e}")
+        return None
 
 # Internal state for the simulated lightbulb
 lightbulb_state = {
@@ -145,6 +190,189 @@ def query():
             "status": "error",
             "data": str(e)
         }), 500
+
+@app.route('/collaborate', methods=['POST'])
+def collaborate():
+    """
+    Agent-to-Agent collaboration endpoint.
+    Enables direct peer-to-peer communication without orchestrator mediation.
+    """
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                "agent_name": AGENT_NAME,
+                "status": "error", 
+                "data": "Missing collaboration request data"
+            }), 400
+
+        # Extract collaboration request details
+        source_agent = data.get('source_agent', {})
+        collaboration_type = data.get('collaboration_type', 'knowledge_request')
+        target_concept = data.get('target_concept', '')
+        specific_request = data.get('specific_request', {})
+        context = data.get('context', {})
+
+        print(f"🤝 Collaboration request from {source_agent.get('name', 'unknown')} for concept '{target_concept}'")
+
+        # Handle different types of collaboration
+        if collaboration_type == 'knowledge_request':
+            return handle_knowledge_request(target_concept, specific_request, context, source_agent)
+        elif collaboration_type == 'context_sharing':
+            return handle_context_sharing(target_concept, specific_request, context, source_agent)
+        elif collaboration_type == 'function_execution':
+            return handle_function_execution(target_concept, specific_request, context, source_agent)
+        else:
+            return jsonify({
+                "agent_name": AGENT_NAME,
+                "status": "error",
+                "data": f"Unknown collaboration type: {collaboration_type}"
+            }), 400
+
+    except Exception as e:
+        return jsonify({
+            "agent_name": AGENT_NAME,
+            "status": "error",
+            "data": f"Collaboration error: {str(e)}"
+        }), 500
+
+def handle_knowledge_request(concept: str, request_details: Dict[str, Any], context: Dict[str, Any], source_agent: Dict[str, Any]) -> tuple:
+    """Handle knowledge requests from peer agents"""
+    
+    # Check if we can help with this concept
+    if concept.lower() not in [c.lower() for c in PRIMARY_CONCEPTS]:
+        return jsonify({
+            "agent_name": AGENT_NAME,
+            "status": "no_expertise",
+            "data": f"I don't have expertise in '{concept}'. My expertise is in: {PRIMARY_CONCEPTS}"
+        }), 200
+
+    # Extract what kind of knowledge is requested
+    knowledge_type = request_details.get('knowledge_type', 'impact')
+    
+    if knowledge_type == 'industrial_impact':
+        knowledge = "Lightbulbs revolutionized factory work by extending productive hours beyond daylight, improving worker safety through better illumination, and enabling 24-hour industrial operations that dramatically increased productivity."
+    elif knowledge_type == 'limitations':
+        knowledge = "it generates significant waste heat, making it inefficient."
+    elif knowledge_type == 'factory_applications':
+        knowledge = "In factories, lightbulbs enabled night shifts, improved precision work visibility, reduced fire hazards from gas/candle lighting, and allowed for better quality control through consistent illumination."
+    elif knowledge_type == 'historical_timeline':
+        # Let's collaborate with Definition AI for historical context
+        definition_agents = discover_peer_agents('lightbulb')
+        historical_info = None
+        for agent in definition_agents:
+            if 'definition' in agent.get('properties', {}).get('name', '').lower():
+                collaboration_request = {
+                    "source_agent": {"name": AGENT_NAME, "type": AGENT_TYPE},
+                    "collaboration_type": "knowledge_request",
+                    "target_concept": "lightbulb",
+                    "specific_request": {
+                        "knowledge_type": "historical_context",
+                        "detail_level": "brief"
+                    },
+                    "context": {"requesting_for": source_agent.get('name')}
+                }
+                peer_response = request_peer_collaboration(agent.get('properties', {}).get('endpoint'), collaboration_request)
+                if peer_response and peer_response.get('status') == 'success':
+                    historical_info = peer_response.get('data', {}).get('primary_knowledge')
+                break
+        
+        if historical_info:
+            knowledge = f"From a functional perspective: {historical_info} The adoption in factories was rapid due to immediate productivity benefits."
+        else:
+            knowledge = "Factory adoption of lightbulbs occurred rapidly in the 1880s due to immediate productivity and safety benefits."
+    else:
+        knowledge = "Lightbulbs transformed factory operations by enabling extended working hours and improving workplace safety."
+
+    response_data = {
+        "primary_knowledge": knowledge,
+        "knowledge_type": knowledge_type,
+        "confidence": 0.90,
+        "source": AGENT_NAME,
+        "functional_perspective": True
+    }
+
+    return jsonify({
+        "agent_name": AGENT_NAME,
+        "status": "success",
+        "data": response_data,
+        "collaboration_metadata": {
+            "response_to": source_agent.get('name'),
+            "collaboration_type": "knowledge_sharing",
+            "timestamp": "2024-01-01T12:00:00Z"
+        }
+    }), 200
+
+def handle_context_sharing(concept: str, request_details: Dict[str, Any], context: Dict[str, Any], source_agent: Dict[str, Any]) -> tuple:
+    """Handle context sharing requests from peer agents"""
+    
+    if concept.lower() not in [c.lower() for c in PRIMARY_CONCEPTS]:
+        return jsonify({
+            "agent_name": AGENT_NAME,
+            "status": "no_context",
+            "data": f"I don't have context for '{concept}'"
+        }), 200
+
+    # Share functional and application-focused context
+    shared_context = {
+        "functional_relationships": ["factories", "productivity", "working_hours", "safety"],
+        "key_impacts": ["extended_hours", "improved_safety", "increased_productivity", "quality_control"],
+        "application_domains": ["industrial", "manufacturing", "night_operations"],
+        "performance_metrics": ["productivity_increase", "accident_reduction", "operational_hours"]
+    }
+
+    return jsonify({
+        "agent_name": AGENT_NAME,
+        "status": "success", 
+        "data": shared_context,
+        "collaboration_metadata": {
+            "response_to": source_agent.get('name'),
+            "collaboration_type": "context_sharing",
+            "timestamp": "2024-01-01T12:00:00Z"
+        }
+    }), 200
+
+def handle_function_execution(concept: str, request_details: Dict[str, Any], context: Dict[str, Any], source_agent: Dict[str, Any]) -> tuple:
+    """Handle function execution requests from peer agents"""
+    
+    function_type = request_details.get('function_type', 'analyze')
+    
+    if function_type == 'impact_analysis':
+        # Perform impact analysis for the requesting agent
+        analysis_result = {
+            "impact_category": "industrial_transformation",
+            "primary_benefits": [
+                "Extended operational hours (8-12 to 16-24 hours)",
+                "Improved worker safety (reduced fire hazards)",
+                "Enhanced precision work capability",
+                "Increased overall productivity (20-40% improvement)"
+            ],
+            "quantitative_estimates": {
+                "productivity_increase": "20-40%",
+                "operational_hour_extension": "100-200%",
+                "safety_improvement": "significant_reduction_in_fire_incidents"
+            },
+            "analysis_confidence": 0.85
+        }
+        
+        return jsonify({
+            "agent_name": AGENT_NAME,
+            "status": "success",
+            "data": analysis_result,
+            "collaboration_metadata": {
+                "response_to": source_agent.get('name'),
+                "collaboration_type": "function_execution",
+                "function_performed": "impact_analysis",
+                "timestamp": "2024-01-01T12:00:00Z"
+            }
+        }), 200
+    
+    else:
+        return jsonify({
+            "agent_name": AGENT_NAME,
+            "status": "function_not_supported",
+            "data": f"Function type '{function_type}' not supported. Available functions: impact_analysis"
+        }), 200
 
 @app.route('/health', methods=['GET'])
 def health():
