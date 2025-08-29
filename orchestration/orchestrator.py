@@ -55,8 +55,92 @@ except ImportError as e:
     ENHANCED_INTELLIGENCE_AVAILABLE = False
     print(f"⚠️  Enhanced Graph Intelligence not available: {e}")
 
+# Import performance optimization engine for maximum performance
+try:
+    from optimization.performance_engine import get_performance_engine
+    performance_engine = get_performance_engine()
+    PERFORMANCE_OPTIMIZATION_AVAILABLE = True
+    print("🚀 Performance Optimization Engine loaded successfully")
+except ImportError as e:
+    performance_engine = None
+    PERFORMANCE_OPTIMIZATION_AVAILABLE = False
+    print(f"⚠️  Performance Optimization Engine not available: {e}")
+
+async def optimized_graph_query(operation: str, endpoint: str, payload: Dict[str, Any], 
+                               cache_key: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+    """Execute optimized graph database query with performance optimizations"""
+    
+    if PERFORMANCE_OPTIMIZATION_AVAILABLE and cache_key:
+        try:
+            # Use optimized query with caching and performance tracking
+            result = await performance_engine.optimized_query(
+                operation=operation,
+                query=f"HTTP_REQUEST:{endpoint}",  # Virtual query for tracking
+                parameters=payload,
+                cache_key_data=cache_key,
+                use_cache=True
+            )
+            
+            # The performance engine expects Neo4j queries, but we need HTTP requests
+            # So we'll use it for caching and monitoring, but still make HTTP calls
+            if result.get('cached'):
+                return result['data']
+                
+        except Exception as e:
+            print(f"⚠️ Performance optimization error, falling back to direct query: {e}")
+    
+    # Fallback to direct HTTP request
+    try:
+        response = requests.post(f"{GRAPHDB_MANAGER_URL}{endpoint}", json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Cache the result if performance optimization is available
+            if PERFORMANCE_OPTIMIZATION_AVAILABLE and cache_key:
+                try:
+                    await performance_engine.cache.set(
+                        "graph_query", 
+                        cache_key, 
+                        data
+                    )
+                except:
+                    pass  # Cache error doesn't affect functionality
+            
+            return data
+        return None
+    except requests.exceptions.RequestException as e:
+        print(f"Graph query error for {operation}: {e}")
+        return None
+
 def check_concept_exists(concept: str) -> bool:
-    """Check if a concept node already exists in the graph"""
+    """Check if a concept node already exists in the graph (optimized)"""
+    
+    cache_key = {
+        "operation": "concept_exists",
+        "concept": concept.lower(),
+        "query_type": "existence_check"
+    }
+    
+    async def _check_concept():
+        result = await optimized_graph_query(
+            operation="check_concept_exists",
+            endpoint="/find_connected_nodes",
+            payload={
+                "start_node_label": "Concept",
+                "start_node_properties": {"name": concept.lower()},
+                "relationship_type": "HANDLES_CONCEPT",
+                "relationship_direction": "in",
+                "target_node_label": "Agent"
+            },
+            cache_key=cache_key
+        )
+        
+        if result:
+            return len(result.get("nodes", [])) > 0
+        return False
+    
+    # For now, we'll use synchronous version with future async optimization
     try:
         payload = {
             "start_node_label": "Concept",
@@ -65,13 +149,45 @@ def check_concept_exists(concept: str) -> bool:
             "relationship_direction": "in",
             "target_node_label": "Agent"
         }
+        
+        start_time = time.time()
         response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
-            return len(data.get("nodes", [])) > 0
+            exists = len(data.get("nodes", [])) > 0
+            
+            # Track performance if available
+            if PERFORMANCE_OPTIMIZATION_AVAILABLE:
+                try:
+                    performance_engine.monitor.record_metric(
+                        operation="check_concept_exists",
+                        response_time=time.time() - start_time,
+                        cache_hit=False,
+                        query_complexity=1,
+                        compression_ratio=1.0,
+                        error_count=0
+                    )
+                except:
+                    pass
+            
+            return exists
         return False
     except requests.exceptions.RequestException as e:
+        # Track error if performance engine available
+        if PERFORMANCE_OPTIMIZATION_AVAILABLE:
+            try:
+                performance_engine.monitor.record_metric(
+                    operation="check_concept_exists",
+                    response_time=time.time() - start_time if 'start_time' in locals() else 0.0,
+                    cache_hit=False,
+                    query_complexity=1,
+                    compression_ratio=1.0,
+                    error_count=1
+                )
+            except:
+                pass
+                
         print(f"Error checking concept existence for '{concept}': {e}")
         return False
 
