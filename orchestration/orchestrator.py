@@ -1,5 +1,6 @@
 import requests
 import time
+from typing import Optional
 
 # The Orchestrator now communicates with the GraphDB Manager, not the old registry.
 GRAPHDB_MANAGER_URL = "http://graphdb_manager_ai:5008"
@@ -41,7 +42,7 @@ def populate_initial_graph():
     print("✅ Initial knowledge graph populated.")
 
 
-def discover_agent_via_graph(concept: str, intent: str) -> str | None:
+def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
     """Discovers an agent by querying the knowledge graph."""
     try:
         # For now, we assume the intent maps to a generic 'HANDLES_CONCEPT' relationship.
@@ -67,7 +68,7 @@ def discover_agent_via_graph(concept: str, intent: str) -> str | None:
         print(f"Error discovering agent for '{concept}' via graph: {e}")
         return None
 
-def send_task_to_agent(task: dict) -> dict | None:
+def send_task_to_agent(task: dict) -> Optional[dict]:
     """Sends a single task to the appropriate agent discovered via the graph."""
     concept, intent = task['concept'], task['intent']
     agent_url = discover_agent_via_graph(concept, intent)
