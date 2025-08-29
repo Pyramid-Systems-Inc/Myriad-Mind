@@ -87,20 +87,28 @@ def create_relationship():
 
     try:
         with driver.session() as session:
-            # Match source and target nodes and create the relationship
+            # Fix: Dynamically build WHERE clauses for robust property matching.
+            # This is the correct and safe way to match nodes by a subset of properties.
+            source_where_clause = " AND ".join([f"a.{key} = $source_props.{key}" for key in data['source_properties']])
+            target_where_clause = " AND ".join([f"b.{key} = $target_props.{key}" for key in data['target_properties']])
+
             query = (
-                f"MATCH (a:{data['source_label']}), (b:{data['target_label']}) "
-                "WHERE a = $source_props AND b = $target_props "
+                f"MATCH (a:{data['source_label']}) WHERE {source_where_clause} "
+                f"MATCH (b:{data['target_label']}) WHERE {target_where_clause} "
                 f"CREATE (a)-[r:{rel_type} $rel_props]->(b) "
                 "RETURN elementId(r) AS id"
             )
-            result = session.run(
-                query, 
-                source_props=data['source_properties'], 
-                target_props=data['target_properties'], 
-                rel_props=rel_props
-            )
+            
+            # Combine all parameters into a single dictionary for the driver
+            params = {
+                "source_props": data['source_properties'],
+                "target_props": data['target_properties'],
+                "rel_props": rel_props
+            }
+
+            result = session.run(query, params)
             rel_id = result.single()
+            
             if rel_id:
                 return jsonify({"status": "success", "relationship_id": rel_id['id']}), 201
             else:
