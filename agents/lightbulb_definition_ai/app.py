@@ -11,6 +11,38 @@ AGENT_NAME = "Lightbulb_Definition_AI"
 AGENT_TYPE = "FactBase"
 PRIMARY_CONCEPTS = ["lightbulb"]
 
+def handle_concept_research(concept: str, request_details: Dict[str, Any], context: Dict[str, Any]) -> str:
+    """Handle concept research requests for unknown concepts (neurogenesis support)"""
+    
+    # Check if this concept might be related to our expertise
+    concept_lower = concept.lower()
+    related_terms = ["light", "bulb", "lamp", "illumination", "electric", "edison", "incandescent", "electricity"]
+    
+    is_related = any(term in concept_lower for term in related_terms)
+    
+    if is_related:
+        # Provide research based on our knowledge domain
+        if any(term in concept_lower for term in ["led", "fluorescent", "halogen"]):
+            return f"Based on my lighting expertise: {concept} appears to be a type of lighting technology. Like traditional incandescent lightbulbs, it likely converts electrical energy into light, but may use different mechanisms for illumination. Modern lighting technologies often improve upon the basic incandescent principle of heating a filament to produce light."
+        
+        elif any(term in concept_lower for term in ["solar", "renewable", "green"]):
+            return f"From a lighting perspective: {concept} may relate to sustainable lighting solutions. Traditional incandescent lightbulbs are inefficient, and {concept} might represent an improvement in energy efficiency or renewable energy integration for lighting systems."
+            
+        elif any(term in concept_lower for term in ["smart", "iot", "connected"]):
+            return f"Based on lighting technology knowledge: {concept} likely represents an advancement beyond basic incandescent lightbulbs. Smart lighting typically adds connectivity, programmability, and energy efficiency to traditional lighting functions."
+            
+        else:
+            return f"Drawing from lighting expertise: {concept} appears related to illumination technology. While I specialize in traditional incandescent lightbulbs, {concept} may represent a variation, improvement, or related application of electrical lighting principles."
+    
+    else:
+        # Concept not obviously related to lighting - provide general research approach
+        research_depth = request_details.get('research_depth', 'basic')
+        
+        if research_depth == 'comprehensive':
+            return f"From a definitional research perspective: {concept} requires specialized knowledge outside my lighting expertise. However, I can suggest that like any technical concept, {concept} likely has: 1) A specific definition and purpose, 2) Key characteristics or properties, 3) Applications or use cases, 4) Historical development, and 5) Relationships to other concepts. Further research would require domain experts."
+        else:
+            return f"Research note: {concept} falls outside my specialized knowledge of lighting technology. This concept would benefit from investigation by domain experts or specialized agents with relevant expertise."
+
 def discover_peer_agents(concept: str) -> list:
     """Discover other agents that handle a specific concept via graph traversal"""
     try:
@@ -167,6 +199,9 @@ def handle_knowledge_request(concept: str, request_details: Dict[str, Any], cont
         knowledge = "The incandescent lightbulb was perfected by Thomas Edison in 1879, marking a pivotal moment in the transition from gas and candle lighting to electric illumination."
     elif knowledge_type == 'properties':
         knowledge = "Key properties: electrical resistance creates heat and light, requires power source, produces both illumination and waste heat, standardized fittings for easy replacement"
+    elif knowledge_type == 'concept_research':
+        # Handle neurogenesis research requests
+        knowledge = handle_concept_research(concept, request_details, context)
     else:
         knowledge = "an electric device that produces light via an incandescent filament"
 

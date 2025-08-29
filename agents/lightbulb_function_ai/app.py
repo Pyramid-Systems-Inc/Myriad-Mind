@@ -11,6 +11,44 @@ AGENT_NAME = "Lightbulb_Function_AI"
 AGENT_TYPE = "FunctionExecutor"
 PRIMARY_CONCEPTS = ["lightbulb", "factories"]
 
+def handle_concept_research(concept: str, request_details: Dict[str, Any], context: Dict[str, Any]) -> str:
+    """Handle concept research requests for unknown concepts (neurogenesis support)"""
+    
+    # Check if this concept might be related to our expertise areas
+    concept_lower = concept.lower()
+    
+    # Check for industrial/factory-related terms
+    industrial_terms = ["factory", "industrial", "manufacturing", "production", "worker", "safety", "efficiency", "productivity"]
+    lighting_terms = ["light", "bulb", "lamp", "illumination", "electric", "lighting"]
+    technology_terms = ["automation", "machinery", "equipment", "system", "process", "innovation"]
+    
+    is_industrial = any(term in concept_lower for term in industrial_terms)
+    is_lighting = any(term in concept_lower for term in lighting_terms)
+    is_technology = any(term in concept_lower for term in technology_terms)
+    
+    if is_industrial or is_lighting:
+        # Provide research based on our functional and industrial expertise
+        if is_industrial and is_lighting:
+            return f"From an industrial lighting perspective: {concept} likely relates to illumination in manufacturing or production environments. Like lightbulbs in factories, {concept} probably impacts worker productivity, safety, and operational efficiency. Industrial lighting solutions typically need to address durability, energy efficiency, and workplace safety requirements."
+        
+        elif is_industrial:
+            return f"Based on industrial applications knowledge: {concept} appears to be an industrial or manufacturing concept. From my experience with factory operations, {concept} likely affects productivity, worker conditions, or operational efficiency. Industrial concepts often involve considerations of safety, cost-effectiveness, and scalability."
+            
+        elif is_lighting:
+            return f"From a lighting functionality perspective: {concept} seems related to illumination technology. Like lightbulbs, {concept} probably serves to provide light for specific applications, though it may use different technologies or target different use cases than traditional incandescent lighting."
+            
+    elif is_technology:
+        return f"From a functional technology perspective: {concept} appears to be a technological concept that likely serves specific functional purposes. Like lightbulbs transformed factory operations, {concept} may represent an innovation that improves efficiency, functionality, or capabilities in its domain."
+    
+    else:
+        # Concept not obviously related to our expertise - provide functional analysis approach
+        research_depth = request_details.get('research_depth', 'basic')
+        
+        if research_depth == 'comprehensive':
+            return f"From a functional analysis perspective: {concept} requires investigation of its practical applications and impact. Key research areas would include: 1) Primary function and purpose, 2) Performance characteristics and limitations, 3) Applications and use cases, 4) Impact on efficiency or productivity, 5) Implementation requirements and costs. This would require domain-specific expertise."
+        else:
+            return f"Functional research note: {concept} falls outside my specialized areas of lighting applications and industrial functionality. This concept would benefit from analysis by experts familiar with its specific domain and applications."
+
 def discover_peer_agents(concept: str) -> list:
     """Discover other agents that handle a specific concept via graph traversal"""
     try:
@@ -281,6 +319,9 @@ def handle_knowledge_request(concept: str, request_details: Dict[str, Any], cont
             knowledge = f"From a functional perspective: {historical_info} The adoption in factories was rapid due to immediate productivity benefits."
         else:
             knowledge = "Factory adoption of lightbulbs occurred rapidly in the 1880s due to immediate productivity and safety benefits."
+    elif knowledge_type == 'concept_research':
+        # Handle neurogenesis research requests
+        knowledge = handle_concept_research(concept, request_details, context)
     else:
         knowledge = "Lightbulbs transformed factory operations by enabling extended working hours and improving workplace safety."
 
