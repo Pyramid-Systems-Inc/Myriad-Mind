@@ -190,6 +190,9 @@ def test_capability_development():
             timestamp=datetime.now()
         )
         
+        # Store the knowledge in the engine's knowledge base
+        engine.knowledge_base["robotics"] = knowledge
+        
         # Test capability development
         engine._develop_capabilities(session)
         
