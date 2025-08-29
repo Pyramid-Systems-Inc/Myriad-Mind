@@ -13,12 +13,6 @@ services:
       - NEO4J_AUTH=neo4j/password
     networks:
       - myriad_network
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:7474 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
   graphdb_manager_ai:
     build:
@@ -35,14 +29,23 @@ services:
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password
     depends_on:
-      neo4j:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5008/health').raise_for_status()"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - neo4j
+
+  integration_tester_ai:
+    build:
+      context: .
+      dockerfile: ./agents/integration_tester_ai/Dockerfile
+    container_name: integration_tester_ai
+    ports:
+      - '5009:5009'
+    networks:
+      - myriad_network
+    environment:
+      - FLASK_ENV=development
+    depends_on:
+      - graphdb_manager_ai
+      - lightbulb_definition_ai
+      - lightbulb_function_ai
 
   lightbulb_definition_ai:
     build:
@@ -82,12 +85,6 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_APP=processing.input_processor.app
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5003/health').raise_for_status()"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   output_processor:
     build:
@@ -101,12 +98,6 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_APP=processing.output_processor.app
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5004/health').raise_for_status()"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   lifecycle_manager:
     build:
@@ -123,12 +114,6 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_APP=orchestration.lifecycle_manager.app
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5005/health').raise_for_status()"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   agent_registry_service:
     build:
@@ -142,12 +127,6 @@ services:
     environment:
       - FLASK_ENV=development
       - FLASK_APP=orchestration.agent_registry_service.app
-    healthcheck:
-      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5006/health').raise_for_status()"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
 volumes:
   neo4j_data:

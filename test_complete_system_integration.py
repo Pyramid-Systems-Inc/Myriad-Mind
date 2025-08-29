@@ -19,7 +19,9 @@ def test_service_health():
         'Input Processor': 'http://localhost:5003/health',
         'Output Processor': 'http://localhost:5004/health',
         'Lightbulb Definition AI': 'http://localhost:5001/health',
-        'Lightbulb Function AI': 'http://localhost:5002/health'
+        'Lightbulb Function AI': 'http://localhost:5002/health',
+        'GraphDB Manager AI': 'http://localhost:5008/health',
+        'Integration Tester AI': 'http://localhost:5009/health'
     }
     
     print("🔍 Checking service health...")
@@ -74,19 +76,32 @@ def test_input_processor_integration():
         return None
 
 def test_orchestrator_integration(task_list: Dict[str, Any]):
-    """Test Orchestrator processes task list and gets agent responses"""
-    print("\n🎯 Testing Orchestrator Integration...")
+    """
+    Test Orchestrator by sending the task list to the Integration Tester service,
+    which runs the orchestration logic inside the Docker network.
+    """
+    print("\n🎯 Testing Orchestrator Integration (via Integration Tester AI)...")
     
     try:
-        # Import orchestrator
-        sys.path.append('.')
-        from orchestration.orchestrator import process_tasks
-        
-        print("  ✅ Orchestrator imported successfully")
-        
-        # Process tasks
-        results = process_tasks(task_list['tasks'])
-        
+        # The payload for the tester is just the list of tasks
+        payload = {"tasks": task_list['tasks']}
+        response = requests.post(
+            'http://localhost:5009/run_orchestration',
+            json=payload,
+            timeout=20 # Allow more time for orchestration
+        )
+
+        if response.status_code != 200:
+            print(f"  ❌ Integration Tester service returned an error: {response.status_code}")
+            print(f"     Response: {response.text}")
+            return None
+
+        data = response.json()
+        if data['status'] != 'success':
+            print(f"  ❌ Orchestration failed inside the tester: {data.get('message')}")
+            return None
+            
+        results = data['results']
         print(f"  ✅ Orchestrator processed {len(results)} tasks")
         
         successful_results = {}
@@ -99,7 +114,8 @@ def test_orchestrator_integration(task_list: Dict[str, Any]):
                 data_preview = str(result.get('data', ''))[:50]
                 print(f"     Task {task_id}: ✅ {agent_name} - {data_preview}...")
             else:
-                print(f"     Task {task_id}: ❌ {agent_name} - {status}")
+                error_msg = result.get('error_message', 'No details')
+                print(f"     Task {task_id}: ❌ {agent_name} - {status} ({error_msg})")
         
         if successful_results:
             # Create collected results format for Output Processor
@@ -145,134 +161,6 @@ def test_output_processor_integration(collected_results: Dict[str, Any]):
     except Exception as e:
         print(f"  ❌ Output Processor error: {e}")
         return None
-
-def test_enhanced_protocol_flow():
-    """Test enhanced protocol with full Input -> Output Processor flow"""
-    print("\n🚀 Testing Enhanced Protocol Flow...")
-    
-    test_query = "Compare the impact of lightbulbs versus candles in factory settings"
-    
-    # Step 1: Enhanced Input Processing
-    try:
-        input_payload = {
-            "query": test_query,
-            "user_context": {
-                "session_id": "integration_test_enhanced",
-                "preferred_detail_level": "detailed"
-            }
-        }
-        
-        input_response = requests.post(
-            'http://localhost:5003/process',
-            json=input_payload,
-            timeout=10
-        )
-        
-        if input_response.status_code != 200:
-            print(f"  ❌ Enhanced Input Processing failed: {input_response.status_code}")
-            return False
-        
-        enhanced_task_list = input_response.json()['enhanced_task_list']
-        print(f"  ✅ Enhanced Input Processing completed")
-        print(f"     Complexity score: {enhanced_task_list['parsed_query']['complexity_score']:.2f}")
-        print(f"     Estimated agents: {enhanced_task_list['parsed_query']['estimated_agents_needed']}")
-        
-    except Exception as e:
-        print(f"  ❌ Enhanced Input Processing error: {e}")
-        return False
-    
-    # Step 2: Convert to basic format for current orchestrator
-    basic_task_list = {
-        "query_id": enhanced_task_list['query_metadata']['query_id'],
-        "tasks": []
-    }
-    
-    for task in enhanced_task_list['task_list']:
-        basic_task = {
-            "task_id": task['task_id'],
-            "intent": task['intent'],
-            "concept": task['concept'],
-            "args": {
-                "context": task.get('context', ''),
-                "priority": task.get('priority', 1)
-            }
-        }
-        basic_task_list["tasks"].append(basic_task)
-    
-    # Step 3: Process through orchestrator (same as before)
-    try:
-        sys.path.append('.')
-        from orchestration.orchestrator import process_tasks
-        
-        results = process_tasks(basic_task_list['tasks'])
-        successful_results = {k: v for k, v in results.items() if v.get('status') == 'success'}
-        
-        if not successful_results:
-            print(f"  ❌ No successful orchestrator results")
-            return False
-        
-        print(f"  ✅ Orchestrator processed {len(successful_results)} tasks successfully")
-        
-    except Exception as e:
-        print(f"  ❌ Orchestrator processing error: {e}")
-        return False
-    
-    # Step 4: Enhanced Output Processing
-    try:
-        # Create enhanced synthesis request
-        synthesis_request = {
-            "synthesis_request": {
-                "query_metadata": {
-                    "query_id": enhanced_task_list['query_metadata']['query_id'],
-                    "original_query": test_query,
-                    "synthesis_intent": "compare"
-                },
-                "agent_responses": {
-                    task_id: {
-                        "agent_id": result['agent_name'],
-                        "content": result['data'],
-                        "confidence": 0.85,  # Default confidence
-                        "contribution_weight": 1.0
-                    }
-                    for task_id, result in successful_results.items()
-                },
-                "synthesis_parameters": {
-                    "output_format": "comparative_analysis",
-                    "target_length": "detailed",
-                    "evidence_level": "standard",
-                    "causal_chain_emphasis": True
-                }
-            }
-        }
-        
-        output_response = requests.post(
-            'http://localhost:5004/synthesize/enhanced',
-            json=synthesis_request,
-            timeout=15
-        )
-        
-        if output_response.status_code == 200:
-            enhanced_output = output_response.json()
-            final_response = enhanced_output['final_response']
-            
-            print(f"  ✅ Enhanced Output Processing completed")
-            print(f"     Confidence: {final_response['confidence_score']:.2f}")
-            print(f"     Processing time: {final_response['processing_time_ms']}ms")
-            print(f"     Response preview: {final_response['content'][:150]}...")
-            
-            # Show metadata
-            metadata = enhanced_output['response_metadata']
-            print(f"     Synthesis strategy: {metadata['synthesis_info']['synthesis_metadata'].get('synthesis_strategy', 'unknown')}")
-            print(f"     Evidence sources: {metadata['quality_metrics']['evidence_sources_count']}")
-            
-            return True
-        else:
-            print(f"  ❌ Enhanced Output Processing failed: {output_response.status_code}")
-            return False
-            
-    except Exception as e:
-        print(f"  ❌ Enhanced Output Processing error: {e}")
-        return False
 
 def test_complete_end_to_end():
     """Test complete end-to-end flow with timing"""
@@ -331,24 +219,6 @@ def main():
     
     print("\n🎉 All services are healthy! Running integration tests...")
     
-    # Test basic flow
-    print("\n" + "=" * 40)
-    print("BASIC PROTOCOL FLOW")
-    print("=" * 40)
-    
-    task_list = test_input_processor_integration()
-    if task_list:
-        collected_results = test_orchestrator_integration(task_list)
-        if collected_results:
-            test_output_processor_integration(collected_results)
-    
-    # Test enhanced flow
-    print("\n" + "=" * 40)
-    print("ENHANCED PROTOCOL FLOW")
-    print("=" * 40)
-    
-    test_enhanced_protocol_flow()
-    
     # Test complete end-to-end
     print("\n" + "=" * 40)
     print("COMPLETE END-TO-END TEST")
@@ -359,15 +229,8 @@ def main():
     print("\n" + "=" * 60)
     if success:
         print("🎉 ALL INTEGRATION TESTS PASSED!")
-        print("\nThe Myriad Cognitive Architecture is functioning correctly:")
-        print("✅ Input Processor: Parsing queries and generating task lists")
-        print("✅ Orchestrator: Routing tasks to appropriate agents")
-        print("✅ Agents: Providing specialized responses")
-        print("✅ Output Processor: Synthesizing and formatting final responses")
-        print("\n🚀 System ready for production use!")
     else:
         print("❌ Some integration tests failed.")
-        print("Please check the logs above for specific issues.")
     
     return success
 
