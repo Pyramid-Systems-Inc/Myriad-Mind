@@ -1,8 +1,8 @@
 # Myriad Cognitive Architecture - Complete Communication Protocols
 
-**Version**: 3.0 (Comprehensive Edition)  
+**Version**: 3.5 (Graph Database Implementation Edition)  
 **Date**: 2024-01-01  
-**Status**: Complete Protocol Specification
+**Status**: Graph-Based Protocols Active & Operational
 
 This document defines the comprehensive communication protocols for the Myriad Cognitive Architecture, supporting evolution from basic MVP functionality through advanced biomimetic features, autonomous learning, and cognitive self-awareness.
 
@@ -90,12 +90,15 @@ graph TB
 
 | Protocol Category | Phase 1 | Phase 2 | Phase 3 | Phase 4 | Phase 5 | Phase 6 | Phase 7 |
 |------------------|---------|---------|---------|---------|---------|---------|---------|
-| **Communication** | ✅ Basic REST | ⏳ Direct P2P | ⏳ Graph Routing | ⏳ Async Events | ⏳ Multi-Modal | ⏳ Learning Comms | ⏳ Autonomous |
-| **Agent Types** | ✅ 4 Base Types | ⏳ Specialization | ⏳ Dynamic Creation | ⏳ Fine-tuning | ⏳ Genesis Agents | ⏳ Learning Agents | ⏳ Cognitive Agents |
-| **Registry** | ✅ Simple Lookup | ⏳ Clustering | ⏳ Graph Database | ⏳ Smart Discovery | ⏳ Memory Tiers | ⏳ Curriculum | ⏳ Drives System |
-| **Learning** | ❌ Static | ❌ Static | ⏳ Hebbian Rules | ⏳ Continuous Adaptation | ⏳ Few-Shot | ⏳ Multi-Modal | ⏳ Autonomous |
+| **Communication** | ✅ Basic REST | ✅ Enhanced Processing | ✅ Graph Routing | ⏳ Async Events | ⏳ Multi-Modal | ⏳ Learning Comms | ⏳ Autonomous |
+| **Agent Types** | ✅ 4 Base Types | ✅ Specialization | ✅ Graph Integration | ⏳ Fine-tuning | ⏳ Genesis Agents | ⏳ Learning Agents | ⏳ Cognitive Agents |
+| **Registry** | ✅ Simple Lookup | ✅ Enhanced Protocols | ✅ Graph Database | ⏳ Smart Discovery | ⏳ Memory Tiers | ⏳ Curriculum | ⏳ Drives System |
+| **Learning** | ❌ Static | ❌ Static | ✅ Graph Foundation | ⏳ Continuous Adaptation | ⏳ Few-Shot | ⏳ Multi-Modal | ⏳ Autonomous |
 
-**Legend**: ✅ Ready for Implementation | ⏳ Future Phase | ❌ Not Implemented
+**Legend**: ✅ Implemented & Operational | ⏳ Future Phase | ❌ Not Implemented
+
+### 🎉 Current Implementation Status
+**Major Achievement**: The system has successfully implemented **Phase 1-3 protocols** plus core **Graph Database** infrastructure, representing the foundational "Neural Substrate" for biomimetic intelligence.
 
 ---
 
@@ -594,6 +597,155 @@ graph TB
   }
 }
 ```
+
+---
+
+## Phase 1.5: Graph Database Protocols (✅ IMPLEMENTED)
+
+*Core graph database operations for Neo4j integration and agent discovery*
+
+### GraphDB Manager AI Service Protocols
+
+**Purpose**: Interface between the Myriad system and Neo4j graph database for all graph operations
+
+#### Node Creation Protocol
+
+**Endpoint**: `POST /create_node`  
+**Purpose**: Create new nodes in the knowledge graph  
+
+**Request Format**:
+```json
+{
+  "label": "Agent",
+  "properties": {
+    "name": "Lightbulb_Definition_AI",
+    "endpoint": "http://lightbulb_definition_ai:5001/query",
+    "type": "FactBase"
+  }
+}
+```
+
+**Response Format**:
+```json
+{
+  "status": "success",
+  "node_id": "4:f79f1e3c-12a4-4b8a-9c8e-1234567890ab:123",
+  "label": "Agent",
+  "properties": {
+    "name": "Lightbulb_Definition_AI",
+    "endpoint": "http://lightbulb_definition_ai:5001/query",
+    "type": "FactBase"
+  }
+}
+```
+
+#### Relationship Creation Protocol
+
+**Endpoint**: `POST /create_relationship`  
+**Purpose**: Create relationships between existing nodes  
+
+**Request Format**:
+```json
+{
+  "source_label": "Agent",
+  "source_properties": {"name": "Lightbulb_Definition_AI"},
+  "target_label": "Concept",
+  "target_properties": {"name": "lightbulb"},
+  "type": "HANDLES_CONCEPT",
+  "properties": {"weight": 1.0}
+}
+```
+
+**Response Format**:
+```json
+{
+  "status": "success",
+  "relationship_id": "5:f79f1e3c-12a4-4b8a-9c8e-1234567890ab:456"
+}
+```
+
+#### Agent Discovery Protocol
+
+**Endpoint**: `POST /find_connected_nodes`  
+**Purpose**: Discover agents that handle specific concepts via graph traversal  
+
+**Request Format**:
+```json
+{
+  "start_node_label": "Concept",
+  "start_node_properties": {"name": "lightbulb"},
+  "relationship_type": "HANDLES_CONCEPT",
+  "relationship_direction": "in",
+  "target_node_label": "Agent"
+}
+```
+
+**Response Format**:
+```json
+{
+  "status": "success",
+  "nodes": [
+    {
+      "id": "4:f79f1e3c-12a4-4b8a-9c8e-1234567890ab:123",
+      "labels": ["Agent"],
+      "properties": {
+        "name": "Lightbulb_Definition_AI",
+        "endpoint": "http://lightbulb_definition_ai:5001/query",
+        "type": "FactBase"
+      }
+    }
+  ]
+}
+```
+
+### Graph-Based Orchestrator Protocol
+
+**Purpose**: Enhanced orchestrator using graph traversal for agent discovery instead of registry lookup
+
+**Internal Process**:
+1. Receive enhanced task list from Input Processor
+2. For each task concept, query GraphDB Manager AI for connected agents
+3. Select appropriate agent endpoint from graph results
+4. Dispatch task to discovered agent
+5. Collect and route responses to Output Processor
+
+**Integration Example**:
+```python
+def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
+    payload = {
+        "start_node_label": "Concept",
+        "start_node_properties": {"name": concept.lower()},
+        "relationship_type": "HANDLES_CONCEPT", 
+        "relationship_direction": "in",
+        "target_node_label": "Agent"
+    }
+    response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload)
+    # Return agent endpoint from graph results
+```
+
+### Migration System Protocol
+
+**Purpose**: Systematic population of the knowledge graph with agent and concept data
+
+**Configuration Format**:
+```json
+{
+  "agents": [
+    {
+      "name": "Lightbulb_Definition_AI",
+      "endpoint": "http://lightbulb_definition_ai:5001/query",
+      "type": "FactBase", 
+      "handled_concepts": ["lightbulb"]
+    }
+  ]
+}
+```
+
+**Migration Process**:
+1. Create all Concept nodes from handled_concepts
+2. Create all Agent nodes with endpoint and type information
+3. Create HANDLES_CONCEPT relationships with default weights
+4. Verify graph connectivity and agent reachability
 
 ---
 
