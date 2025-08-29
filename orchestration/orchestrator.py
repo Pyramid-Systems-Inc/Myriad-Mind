@@ -1,7 +1,12 @@
 import requests
 import json
 import time
+import os
+import sys
 from typing import Optional, Dict, Any, List
+
+# Add path for lifecycle manager
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # The Orchestrator now communicates with the GraphDB Manager, not the old registry.
 GRAPHDB_MANAGER_URL = "http://graphdb_manager_ai:5008"
@@ -9,6 +14,20 @@ GRAPHDB_MANAGER_URL = "http://graphdb_manager_ai:5008"
 # Agent endpoints for concept research
 LIGHTBULB_DEFINITION_AI_URL = "http://lightbulb_definition_ai:5001"
 LIGHTBULB_FUNCTION_AI_URL = "http://lightbulb_function_ai:5002"
+
+# Dynamic agent creation (Phase 2 Neurogenesis)
+ENABLE_DYNAMIC_AGENTS = os.environ.get("ENABLE_DYNAMIC_AGENTS", "true").lower() == "true"
+
+# Import lifecycle manager for dynamic agent creation
+try:
+    from lifecycle.dynamic_lifecycle_manager import get_lifecycle_manager
+    lifecycle_manager = get_lifecycle_manager()
+    LIFECYCLE_MANAGER_AVAILABLE = True
+    print("🧬 Dynamic Lifecycle Manager loaded successfully")
+except ImportError as e:
+    lifecycle_manager = None
+    LIFECYCLE_MANAGER_AVAILABLE = False
+    print(f"⚠️  Dynamic Lifecycle Manager not available: {e}")
 
 def check_concept_exists(concept: str) -> bool:
     """Check if a concept node already exists in the graph"""
@@ -196,26 +215,146 @@ def create_concept_node(concept: str, research_data: Dict[str, Any]) -> bool:
         print(f"  ❌ Error creating concept node: {e}")
         return False
 
+def create_dynamic_agent(concept: str, intent: str, research_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Create a dynamic agent for a concept (Phase 2 Neurogenesis)"""
+    
+    if not LIFECYCLE_MANAGER_AVAILABLE or not ENABLE_DYNAMIC_AGENTS:
+        print(f"  ⚠️  Dynamic agent creation disabled or unavailable")
+        return None
+    
+    print(f"🧬 PHASE 2 NEUROGENESIS: Creating dynamic agent for '{concept}'")
+    
+    try:
+        # Create the dynamic agent
+        agent = lifecycle_manager.create_agent(concept, intent, research_data)
+        
+        if agent:
+            print(f"  ✅ Dynamic agent created: {agent.agent_name}")
+            print(f"     Agent ID: {agent.agent_id}")
+            print(f"     Endpoint: {agent.endpoint}")
+            print(f"     Capabilities: {', '.join(agent.capabilities)}")
+            
+            # Register the agent in the graph database
+            agent_registration_success = register_dynamic_agent_in_graph(agent, concept)
+            
+            return {
+                "agent_id": agent.agent_id,
+                "agent_name": agent.agent_name,
+                "endpoint": agent.endpoint,
+                "status": agent.status.value,
+                "capabilities": agent.capabilities,
+                "graph_registered": agent_registration_success
+            }
+        else:
+            print(f"  ❌ Failed to create dynamic agent for '{concept}'")
+            return None
+            
+    except Exception as e:
+        print(f"  ❌ Dynamic agent creation error: {e}")
+        return None
+
+def register_dynamic_agent_in_graph(agent, concept: str) -> bool:
+    """Register a dynamically created agent in the graph database"""
+    
+    print(f"  📊 Registering dynamic agent in graph database...")
+    
+    try:
+        # Create agent node
+        agent_payload = {
+            "label": "Agent",
+            "properties": {
+                "name": agent.agent_name,
+                "type": agent.template_id,
+                "endpoint": agent.endpoint,
+                "port": agent.port,
+                "agent_id": agent.agent_id,
+                "creation_method": "dynamic_neurogenesis",
+                "creation_timestamp": agent.created_at,
+                "status": agent.status.value,
+                "capabilities": json.dumps(agent.capabilities),
+                "concept_specialization": concept.lower()
+            }
+        }
+        
+        agent_response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_node", 
+                                     json=agent_payload, timeout=10)
+        
+        if agent_response.status_code == 201:
+            agent_node_id = agent_response.json().get("node_id")
+            print(f"    ✅ Agent node created (ID: {agent_node_id})")
+            
+            # Create relationship between agent and concept
+            relationship_payload = {
+                "start_node_id": agent_node_id,
+                "end_node_label": "Concept",
+                "end_node_properties": {"name": concept.lower()},
+                "relationship_type": "HANDLES_CONCEPT",
+                "relationship_properties": {
+                    "specialization_level": "dynamic",
+                    "creation_timestamp": time.time(),
+                    "confidence": 0.8  # Dynamic agents start with good confidence
+                }
+            }
+            
+            rel_response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_relationship",
+                                       json=relationship_payload, timeout=10)
+            
+            if rel_response.status_code == 201:
+                print(f"    ✅ Agent-Concept relationship created")
+                return True
+            else:
+                print(f"    ⚠️  Failed to create agent-concept relationship: {rel_response.status_code}")
+                return False
+        else:
+            print(f"    ❌ Failed to create agent node: {agent_response.status_code}")
+            return False
+            
+    except Exception as e:
+        print(f"    ❌ Graph registration error: {e}")
+        return False
+
 def expand_concept(concept: str, intent: str) -> Dict[str, Any]:
-    """Complete concept expansion process: research + graph node creation"""
+    """Complete concept expansion process: research + graph node creation + optional agent creation"""
     print(f"🚀 CONCEPT EXPANSION: Starting expansion for '{concept}'")
     
     # Step 1: Research the concept
     research_data = research_unknown_concept(concept, intent)
     
     # Step 2: Create rich graph node
-    success = create_concept_node(concept, research_data)
+    node_success = create_concept_node(concept, research_data)
     
-    # Step 3: Return expansion result
+    # Step 3: Determine if we should create a dynamic agent
+    should_create_agent = False
+    confidence = research_data.get("confidence_score", 0.0)
+    research_sources = research_data.get("research_sources", [])
+    
+    # Create dynamic agent if:
+    # - Research confidence is reasonable (>0.3)
+    # - We have research sources
+    # - Dynamic agents are enabled
+    if confidence > 0.3 and research_sources and ENABLE_DYNAMIC_AGENTS:
+        should_create_agent = True
+        print(f"  🧬 Confidence {confidence:.2f} > 0.3 and sources available - triggering dynamic agent creation")
+    
+    agent_data = None
+    if should_create_agent:
+        agent_data = create_dynamic_agent(concept, intent, research_data)
+    
+    # Step 4: Return expansion result
     expansion_result = {
         "concept": concept,
-        "expansion_successful": success,
+        "expansion_successful": node_success,
         "research_data": research_data,
-        "expansion_method": "neurogenesis_phase1",
+        "expansion_method": "neurogenesis_phase2" if agent_data else "neurogenesis_phase1",
+        "dynamic_agent": agent_data,
         "can_retry": True
     }
     
-    if success:
+    if agent_data:
+        print(f"  🎉 FULL NEUROGENESIS: Concept '{concept}' now has dedicated agent!")
+        expansion_result["message"] = f"Successfully created specialized agent '{agent_data['agent_name']}' for '{concept}'. The agent is ready to handle future queries about this concept."
+        expansion_result["agent_endpoint"] = agent_data["endpoint"]
+    elif node_success:
         print(f"  🎉 Concept expansion completed successfully for '{concept}'!")
         expansion_result["message"] = f"Successfully expanded knowledge about '{concept}' through agent research and graph node creation."
     else:
@@ -278,21 +417,32 @@ def send_task_to_agent(task: dict) -> Optional[dict]:
             # Trigger concept expansion (Phase 1: Concept Expansion)
             expansion_result = expand_concept(concept, intent)
             
-            if expansion_result.get("expansion_successful"):
+            if expansion_result.get("expansion_successful") or expansion_result.get("dynamic_agent"):
                 # Concept expansion successful - return the researched knowledge
-                return {
+                response = {
                     "task_id": task["task_id"],
                     "status": "neurogenesis_success",
                     "data": expansion_result["message"],
                     "neurogenesis_data": {
                         "concept": concept,
-                        "expansion_method": "concept_research",
+                        "expansion_method": expansion_result.get("expansion_method", "concept_research"),
                         "research_summary": expansion_result["research_data"].get("primary_definition", ""),
                         "confidence": expansion_result["research_data"].get("confidence_score", 0.0),
                         "sources": expansion_result["research_data"].get("research_sources", [])
                     },
                     "agent_name": "Orchestrator_Neurogenesis"
                 }
+                
+                # Add dynamic agent information if created
+                if expansion_result.get("dynamic_agent"):
+                    agent_info = expansion_result["dynamic_agent"]
+                    response["neurogenesis_data"]["dynamic_agent_created"] = True
+                    response["neurogenesis_data"]["new_agent_name"] = agent_info["agent_name"]
+                    response["neurogenesis_data"]["new_agent_endpoint"] = agent_info["endpoint"]
+                    response["neurogenesis_data"]["new_agent_capabilities"] = agent_info["capabilities"]
+                    response["status"] = "neurogenesis_with_agent_creation"
+                
+                return response
             else:
                 # Concept expansion failed but we have research data
                 research_data = expansion_result.get("research_data", {})
