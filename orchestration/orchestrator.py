@@ -5,7 +5,7 @@ import os
 import sys
 from typing import Optional, Dict, Any, List
 
-# Add path for lifecycle manager
+# Add path for lifecycle manager and learning engine  
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # The Orchestrator now communicates with the GraphDB Manager, not the old registry.
@@ -18,6 +18,9 @@ LIGHTBULB_FUNCTION_AI_URL = "http://lightbulb_function_ai:5002"
 # Dynamic agent creation (Phase 2 Neurogenesis)
 ENABLE_DYNAMIC_AGENTS = os.environ.get("ENABLE_DYNAMIC_AGENTS", "true").lower() == "true"
 
+# Autonomous learning (Phase 3 Neurogenesis)
+ENABLE_AUTONOMOUS_LEARNING = os.environ.get("ENABLE_AUTONOMOUS_LEARNING", "true").lower() == "true"
+
 # Import lifecycle manager for dynamic agent creation
 try:
     from lifecycle.dynamic_lifecycle_manager import get_lifecycle_manager
@@ -28,6 +31,17 @@ except ImportError as e:
     lifecycle_manager = None
     LIFECYCLE_MANAGER_AVAILABLE = False
     print(f"⚠️  Dynamic Lifecycle Manager not available: {e}")
+
+# Import autonomous learning engine for Phase 3 neurogenesis
+try:
+    from learning.autonomous_learning_engine import get_learning_engine
+    learning_engine = get_learning_engine()
+    LEARNING_ENGINE_AVAILABLE = True
+    print("🧠 Autonomous Learning Engine loaded successfully")
+except ImportError as e:
+    learning_engine = None
+    LEARNING_ENGINE_AVAILABLE = False
+    print(f"⚠️  Autonomous Learning Engine not available: {e}")
 
 def check_concept_exists(concept: str) -> bool:
     """Check if a concept node already exists in the graph"""
@@ -237,13 +251,19 @@ def create_dynamic_agent(concept: str, intent: str, research_data: Dict[str, Any
             # Register the agent in the graph database
             agent_registration_success = register_dynamic_agent_in_graph(agent, concept)
             
+            # Start autonomous learning (Phase 3 Neurogenesis)
+            learning_session_id = None
+            if LEARNING_ENGINE_AVAILABLE and ENABLE_AUTONOMOUS_LEARNING:
+                learning_session_id = start_autonomous_learning(agent, concept, intent)
+            
             return {
                 "agent_id": agent.agent_id,
                 "agent_name": agent.agent_name,
                 "endpoint": agent.endpoint,
                 "status": agent.status.value,
                 "capabilities": agent.capabilities,
-                "graph_registered": agent_registration_success
+                "graph_registered": agent_registration_success,
+                "learning_session": learning_session_id
             }
         else:
             print(f"  ❌ Failed to create dynamic agent for '{concept}'")
@@ -252,6 +272,75 @@ def create_dynamic_agent(concept: str, intent: str, research_data: Dict[str, Any
     except Exception as e:
         print(f"  ❌ Dynamic agent creation error: {e}")
         return None
+
+def start_autonomous_learning(agent, concept: str, intent: str) -> Optional[str]:
+    """Start autonomous learning for a newly created agent (Phase 3 Neurogenesis)"""
+    
+    print(f"🧠 PHASE 3 NEUROGENESIS: Starting autonomous learning for '{agent.agent_name}'")
+    
+    try:
+        # Define learning objectives based on intent and agent type
+        learning_objectives = generate_learning_objectives(concept, intent, agent.capabilities)
+        
+        # Start autonomous learning session
+        session_id = learning_engine.initiate_autonomous_learning(
+            agent_name=agent.agent_name,
+            concept=concept,
+            learning_objectives=learning_objectives
+        )
+        
+        print(f"  ✅ Autonomous learning started: Session {session_id}")
+        print(f"     Learning objectives: {', '.join(learning_objectives)}")
+        
+        return session_id
+        
+    except Exception as e:
+        print(f"  ❌ Autonomous learning startup error: {e}")
+        return None
+
+def generate_learning_objectives(concept: str, intent: str, capabilities: List[str]) -> List[str]:
+    """Generate learning objectives for an agent based on its concept and capabilities"""
+    
+    objectives = []
+    
+    # Base objectives for all agents
+    objectives.extend([
+        "understand_core_definition",
+        "identify_key_principles",
+        "map_relationships"
+    ])
+    
+    # Intent-specific objectives
+    if intent in ["define", "explain"]:
+        objectives.extend([
+            "develop_explanation_skills",
+            "build_knowledge_depth"
+        ])
+    elif intent in ["analyze", "evaluate"]:
+        objectives.extend([
+            "develop_analytical_reasoning",
+            "understand_applications"
+        ])
+    elif intent in ["compare", "relate"]:
+        objectives.extend([
+            "identify_comparisons",
+            "understand_relationships"
+        ])
+    
+    # Capability-specific objectives
+    if "advanced_reasoning" in capabilities:
+        objectives.append("develop_complex_reasoning")
+    
+    if "expert_consultation" in capabilities:
+        objectives.append("achieve_expert_level_knowledge")
+    
+    if "use_case_analysis" in capabilities:
+        objectives.append("master_practical_applications")
+    
+    # Remove duplicates and limit to reasonable number
+    objectives = list(set(objectives))[:6]  # Limit to 6 objectives
+    
+    return objectives
 
 def register_dynamic_agent_in_graph(agent, concept: str) -> bool:
     """Register a dynamically created agent in the graph database"""

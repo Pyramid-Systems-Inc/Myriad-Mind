@@ -90,11 +90,12 @@ graph TB
 
 | Protocol Category | Phase 1 | Phase 2 | Phase 3 | Phase 4 | Phase 5 | Phase 6 | Phase 7 |
 |------------------|---------|---------|---------|---------|---------|---------|---------|
-| **Communication** | ✅ Basic REST | ✅ Enhanced Processing | ✅ Graph Routing | ✅ Agent Collaboration | ⏳ Multi-Modal | ⏳ Learning Comms | ⏳ Autonomous |
+| **Communication** | ✅ Basic REST | ✅ Enhanced Processing | ✅ Graph Routing | ✅ Agent Collaboration | ⏳ Async Events | ⏳ Learning Comms | ⏳ Autonomous |
 | **Agent Types** | ✅ 4 Base Types | ✅ Specialization | ✅ Graph Integration | ✅ Reflex Arcs | ✅ Genesis Agents | ⏳ Learning Agents | ⏳ Cognitive Agents |
 | **Registry** | ✅ Simple Lookup | ✅ Enhanced Protocols | ✅ Graph Database | ✅ Smart Discovery | ⏳ Memory Tiers | ⏳ Curriculum | ⏳ Drives System |
-| **Learning** | ❌ Static | ❌ Static | ✅ Graph Foundation | ✅ Template Creation | 🧬 Neurogenesis | ⏳ Multi-Modal | ⏳ Autonomous |
-| **🧬 Neurogenesis** | ❌ N/A | ❌ N/A | ✅ Research Pipeline | ✅ Template Agents | ✅ Dynamic Creation | ⏳ Autonomous Learning | ⏳ Self-Optimization |
+| **Learning** | ❌ Static | ❌ Static | ✅ Graph Foundation | ⏳ Continuous Adaptation | ⏳ Few-Shot Learning | ⏳ Multi-Modal | 🧬 Autonomous Learning |
+| **🧬 Neurogenesis** | ❌ N/A | ❌ N/A | ✅ Research Pipeline | ✅ Template Agents | ✅ Dynamic Creation | 🧬 Autonomous Learning | ⏳ Self-Optimization |
+| **Fine-tuning** | ❌ N/A | ❌ N/A | ❌ N/A | ⏳ Agent Specialization | ⏳ Performance Optimization | ⏳ Advanced Tuning | ⏳ Auto-Optimization |
 
 **Legend**: ✅ Implemented & Operational | 🧬 Revolutionary Breakthrough | ⏳ Future Phase | ❌ Not Implemented
 
