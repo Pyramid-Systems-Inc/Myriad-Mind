@@ -81,9 +81,9 @@ def create_relationship():
     rel_type = data['type']
     rel_props = data.get('properties', {})
     
-    # Basic validation
-    if not rel_type.isupper() or not rel_type.isalpha():
-         return jsonify({"status": "error", "message": "Relationship type must be uppercase letters"}), 400
+    # Fix: Corrected validation to allow underscores
+    if not rel_type.isupper() or not rel_type.replace('_', '').isalpha():
+         return jsonify({"status": "error", "message": "Relationship type must be uppercase and contain only letters and underscores."}), 400
 
     try:
         with driver.session() as session:
