@@ -45,24 +45,24 @@ The Myriad architecture is inspired by neurobiology, implementing **the first tr
 
 ```mermaid
 graph LR
-    subgraph User Interaction
-        UserInput(User Query) --> IP[Input Processor];
-        OP[Output Processor] --> FinalAnswer(Formatted Answer);
+    subgraph "User Interaction"
+        UserInput(User Query) --> IP[Input Processor]
+        OP[Output Processor] --> FinalAnswer(Formatted Answer)
     end
 
-    subgraph Core Cognitive Layer
-        IP -- Parsed Query --> O(Orchestrator);
-        O -- Traversal Query --> GDB[GraphDB Manager AI];
-        GDB <--> KG[(Knowledge Graph <br> Neo4j)];
-        O -- Activates --> FA(Function Agent);
-        GDB -- Returns Subgraph --> S(Synthesizer);
-        FA -- {data} --> S;
-        S -- Synthesized Data --> OP;
+    subgraph "Core Cognitive Layer"
+        IP --"Parsed Query"--> O(Orchestrator)
+        O --"Traversal Query"--> GDB[GraphDB Manager AI]
+        GDB <--> KG[(Knowledge Graph<br/>Neo4j)]
+        O --"Activates"--> FA(Function Agent)
+        GDB --"Returns Subgraph"--> S(Synthesizer)
+        FA --"data"--> S
+        S --"Synthesized Data"--> OP
     end
 
-    subgraph Agent Network (Logical)
-        A1(Concept A) -- HANDLES --> FA;
-        A2(Concept B) -- RELATED_TO --> A1;
+    subgraph "Agent Network (Logical)"
+        A1(Concept A) --"HANDLES"--> FA
+        A2(Concept B) --"RELATED_TO"--> A1
     end
 
     style GDB fill:#cceeff,stroke:#333
