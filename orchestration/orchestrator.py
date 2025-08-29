@@ -1,46 +1,8 @@
 import requests
-import time
 from typing import Optional
 
 # The Orchestrator now communicates with the GraphDB Manager, not the old registry.
 GRAPHDB_MANAGER_URL = "http://graphdb_manager_ai:5008"
-LIFECYCLE_MANAGER_URL = "http://lifecycle_manager:5005/create_agent"
-
-def populate_initial_graph():
-    """
-    Populates the graph database with the initial, known agents.
-    This replaces the old bootstrap registration process.
-    """
-    print("🧠 Populating initial knowledge graph...")
-    
-    initial_nodes = [
-        {"label": "Concept", "properties": {"name": "lightbulb"}},
-        {"label": "Concept", "properties": {"name": "factories"}},
-        {"label": "Agent", "properties": {"name": "Lightbulb_Definition_AI", "endpoint": "http://lightbulb_definition_ai:5001/query"}},
-        {"label": "Agent", "properties": {"name": "Lightbulb_Function_AI", "endpoint": "http://lightbulb_function_ai:5002/query"}}
-    ]
-    
-    for node in initial_nodes:
-        try:
-            requests.post(f"{GRAPHDB_MANAGER_URL}/create_node", json=node, timeout=5)
-        except requests.exceptions.RequestException:
-            # It might already exist from a previous run, which is fine.
-            pass
-            
-    initial_relationships = [
-        {"source_label": "Agent", "source_properties": {"name": "Lightbulb_Definition_AI"}, "target_label": "Concept", "target_properties": {"name": "lightbulb"}, "type": "HANDLES_CONCEPT"},
-        {"source_label": "Agent", "source_properties": {"name": "Lightbulb_Function_AI"}, "target_label": "Concept", "target_properties": {"name": "lightbulb"}, "type": "HANDLES_CONCEPT"},
-        {"source_label": "Agent", "source_properties": {"name": "Lightbulb_Function_AI"}, "target_label": "Concept", "target_properties": {"name": "factories"}, "type": "HANDLES_CONCEPT"}
-    ]
-    
-    for rel in initial_relationships:
-        try:
-            requests.post(f"{GRAPHDB_MANAGER_URL}/create_relationship", json=rel, timeout=5)
-        except requests.exceptions.RequestException:
-            pass
-    
-    print("✅ Initial knowledge graph populated.")
-
 
 def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
     """Discovers an agent by querying the knowledge graph."""
@@ -95,6 +57,3 @@ def process_tasks(tasks: list) -> dict:
         result = send_task_to_agent(task)
         all_results[str(task["task_id"])] = result or {"task_id": task["task_id"], "status": "error", "error_message": "Failed to process task."}
     return all_results
-
-# A one-time setup function to populate the graph when the module is first imported.
-populate_initial_graph()
