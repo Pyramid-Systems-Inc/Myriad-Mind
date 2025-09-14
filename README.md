@@ -20,6 +20,7 @@ This repository contains a decentralized, graph-based cognitive architecture imp
 - Graph registration for immediate discoverability
 
 ### Enhanced Graph Intelligence
+- **Hierarchical Agent Discovery**: A new "Cortical Column" model organizes agents into broad `Regions` (e.g., "Technology", "Science"). Agent discovery is now a highly efficient two-step process: the system first identifies the relevant region for a query, then performs detailed relevance scoring only on the agents within that region.
 - Multi‑criteria relevance scoring (expertise, capability, domain, performance, availability)
 - Context‑aware discovery (query complexity, domain indicators)
 - Dynamic agent clustering and background maintenance
@@ -62,7 +63,7 @@ graph TB
     end
 
     subgraph "Enhanced Graph Intelligence Layer"
-        IP --> EGI[Enhanced Graph Intelligence\nContext Analysis\nRelevance Scoring\nAgent Clustering]
+        IP --> EGI[Enhanced Graph Intelligence\nRegion-Based Discovery\nRelevance Scoring]
         EGI --> O[Orchestrator\nSmart Routing]
     end
 
@@ -123,6 +124,19 @@ graph TB
     style NDA fill:#fce4ec,stroke:#880e4f,stroke-width:3px
     style QCA fill:#fce4ec,stroke:#880e4f,stroke-width:2px
     style BCA fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+
+    subgraph "Cognitive Regions"
+        TECHNOLOGY[Region: Technology]
+        SCIENCE[Region: Science]
+        GENERAL[Region: General]
+    end
+
+    %% Region Connections
+    LDA --> TECHNOLOGY
+    LFA --> TECHNOLOGY
+    QCA --> SCIENCE
+    BCA --> SCIENCE
+    NDA --> GENERAL
 ```
 
 ## 🔧 Key Components

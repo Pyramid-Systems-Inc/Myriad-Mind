@@ -142,6 +142,14 @@ Our guiding principles are inspired by neurobiology:
 
 The Myriad architecture is a multi-tiered, decentralized system of microservices. The data flows through a series of specialized processors, activating concept agents as needed.
 
+The architecture is designed to mimic the hierarchical and specialized structure of a biological brain. At the highest level, the system is organized into **Cognitive Regions**—broad domains of knowledge like "Technology" or "Science." Each region contains a network of specialized agents.
+
+When a query is received, the `Orchestrator`, guided by the `Enhanced Graph Intelligence` layer, first performs **Region Routing** to identify the most relevant cognitive region. It then performs a more detailed **Agent Selection** process *within* that region, significantly reducing the search space and improving efficiency. This two-step discovery process is analogous to the brain activating a specific cortical area to handle a task.
+
+### Process Flow Diagram
+
+The following diagram illustrates the complete process flow, from query ingestion to agent discovery and neurogenesis.
+
 ```mermaid
 graph TB
     subgraph "User Interface Layer"
@@ -185,6 +193,26 @@ graph TB
         BCA -.->|Knowledge Refresh| GDB
     end
 
+    subgraph "Cognitive Regions"
+        TECHNOLOGY[Region: Technology]
+        SCIENCE[Region: Science]
+        GENERAL[Region: General]
+
+        subgraph "Technology Agents"
+            LDA --> TECHNOLOGY
+            LFA --> TECHNOLOGY
+        end
+
+        subgraph "Science Agents"
+            QCA --> SCIENCE
+            BCA --> SCIENCE
+        end
+
+        subgraph "New Agents"
+            NDA --> GENERAL
+        end
+    end
+
     subgraph "Autonomous Learning Engine"
         NDA --> ALE[Autonomous Learning\nKnowledge Acquisition\nCapability Development\nSelf-Optimization]
         ALE -.-> PT[Performance Tracking\nSuccess Metrics\nCollaboration History]
@@ -215,20 +243,10 @@ graph TB
     style NDA fill:#fce4ec,stroke:#880e4f,stroke-width:3px
     style QCA fill:#fce4ec,stroke:#880e4f,stroke-width:2px
     style BCA fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    style TECHNOLOGY fill:#ede7f6,stroke:#311b92
+    style SCIENCE fill:#ede7f6,stroke:#311b92
+    style GENERAL fill:#ede7f6,stroke:#311b92
 ```
-
-Neurogenesis: When the orchestrator encounters unknown concepts without existing agents, it triggers a pipeline that:
-
-1. **Research Phase**: Existing agents collaborate to research the unknown concept
-2. **Template Selection**: AI-driven selection of appropriate agent template (factbase, function, specialist)
-3. **Code Generation**: Dynamic creation of Flask application and Dockerfile for the new agent
-4. **Deployment**: Docker container instantiation and service startup
-5. **Graph Registration**: Automatic registration of new agent and concept relationships
-6. **Collaboration**: New agents immediately participate in the collaborative network
-
-This enables the system to grow specialized capabilities at runtime.
-
----
 
 ## Component Deep Dive
 

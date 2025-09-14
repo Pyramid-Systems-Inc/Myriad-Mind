@@ -210,6 +210,12 @@ The system implements biological-inspired neurogenesis, dynamically creating new
 
 ## 🏗️ Architecture Overview
 
+The system's architecture has been refactored to a hierarchical "Cortical Column" model. Agent discovery is now a two-step process: the `Orchestrator` first identifies a broad cognitive `Region` relevant to a query, then performs detailed relevance scoring on the agents within that region. This improves efficiency and scalability.
+
+### Neurogenesis Pipeline
+
+The neurogenesis pipeline is a six‑step process that enables the system to dynamically create specialized agents for unknown concepts.
+
 ```
 Raw Query → [Input Processor] → [Orchestrator] → [Graph DB] → [Agents] → [Output Processor] → Final Response
      ↓              ↓               ↓             ↓          ↓ ⟷ ↓              ↓
@@ -363,11 +369,16 @@ Hebbian Learning Integration (conceptual):
 - **Implemented**: Dynamic agents now periodically refresh their knowledge from the graph.
 - **Next Steps**: Introduce more sophisticated triggers for knowledge updates beyond a simple timer, such as event-based notifications.
 
+### Hierarchical Agent Discovery
+- **Implemented**: The "Cortical Column" model is now fully implemented.
+- **Impact**: Agent discovery is now significantly more efficient, especially as the number of agents grows.
+- **Next Steps**: Develop logic for the neurogenesis pipeline to intelligently assign new agents to the most appropriate region, rather than defaulting to "General."
+
 ## 🎉 Conclusion
 
-The Myriad Cognitive Architecture has successfully integrated several key systems: biomimetic neurogenesis, enhanced graph intelligence, performance optimization, and Hebbian learning. The system can dynamically grow new capabilities, intelligently route queries, adapt its internal connections based on experience, and operate at a production-ready performance level.
+The Myriad system is a production‑ready, biomimetic cognitive architecture. The successful implementation of neurogenesis, intelligent routing, Hebbian learning, and performance optimization establishes a robust foundation for future research in decentralized AI.
 
-This combination of features provides a robust foundation for further research into autonomous and adaptive AI systems. The architecture's modular, brain-inspired design allows for continued evolution toward more sophisticated cognitive behaviors.
+Next steps will focus on implementing an event-driven architecture and advancing the autonomous learning systems to further enhance the system's cognitive capabilities.
 
 ---
 
