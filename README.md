@@ -125,13 +125,13 @@ graph TB
     style BCA fill:#fce4ec,stroke:#880e4f,stroke-width:2px
 ```
 
-## 🔧 Revolutionary Key Components
+## 🔧 Key Components
 
 ### 🎯 **Enhanced Graph Intelligence Layer**
-- **🧠 Enhanced Graph Intelligence:** Revolutionary smart agent discovery with multi-criteria relevance scoring, context analysis, and dynamic agent clustering
+- **🧠 Enhanced Graph Intelligence:** Smart agent discovery with multi-criteria relevance scoring, context analysis, and dynamic agent clustering
 - **🎛️ Orchestrator:** Central nervous system with intelligent routing and neurogenesis triggering
 
-### 🧬 **Neurogenesis Pipeline (WORLD'S FIRST)**
+### 🧬 **Neurogenesis Pipeline**
 - **🧬 Neurogenesis Trigger:** Automatic unknown concept detection
 - **📚 Multi-Agent Research:** Collaborative concept exploration using existing agents
 - **🏗️ Template Selection:** AI-driven choice from 4 specialized agent templates
@@ -139,12 +139,12 @@ graph TB
 - **📊 Graph Registration:** Automatic agent discovery integration
 
 ### 🌊 **Neural Substrate**
-- **🗃️ GraphDB Manager AI (Port 5008):** The "Neural Connectome" - sole interface to Neo4j knowledge graph
-- **🧠 Knowledge Graph (Neo4j):** Brain-like neural network storing concepts, agents, and relationships
+- **🗃️ GraphDB Manager AI (Port 5008):** The sole interface to the Neo4j knowledge graph
+- **🧠 Knowledge Graph (Neo4j):** Stores concepts, agents, and the relationships between them
 
 ### 🤖 **Intelligent Agent Network**
 - **💡 Static Agents:** Original specialized agents (Lightbulb Definition AI, Function AI)
-- **🧬 Dynamic Agents:** Neurogenesis-created agents (Quantum Computing AI, Biomimetic Computing AI)
+- **🧬 Dynamic Agents:** Neurogenesis-created agents for new concepts
 - **🔗 Reflex Arcs:** Direct agent-to-agent communication without orchestrator mediation
 
 ### 🎓 **Autonomous Learning Engine**
@@ -170,7 +170,7 @@ graph TB
    ```
 2. **Populate the knowledge graph:**
    ```bash
-   python migration.py
+   PYTHONPATH=src python scripts/migration.py
    ```
 3. **Verify System Health:**
    ```bash
@@ -180,31 +180,32 @@ graph TB
    ```
 4. **Test the System:**
    ```bash
+   # Set the PYTHONPATH to include the src directory for all test commands
+   export PYTHONPATH=src 
+
    # Test basic integration
-   python test_complete_system_integration.py
+   python tests/test_complete_system_integration.py
    
    # Test agent-to-agent collaboration (reflex arcs)
-   python test_agent_collaboration.py
+   python tests/test_agent_collaboration.py
    
    # Test biomimetic neurogenesis (dynamic agent creation)
-   python test_neurogenesis_integration.py
+   python tests/test_neurogenesis_integration.py
    
    # Test Enhanced Graph Intelligence (smart agent discovery)
-   python test_enhanced_graph_intelligence.py
+   python tests/test_enhanced_graph_intelligence.py
    
    # Test Performance Optimization Engine (production-ready performance)
-   python test_performance_optimization.py
+   python tests/test_performance_optimization.py
    ```
 
 ## 🧬 **Neurogenesis Testing**
-
-**Experience True Biomimetic Intelligence in Action!**
 
 The neurogenesis system can be tested with unknown concepts to see dynamic agent creation:
 
 ```bash
 # Test neurogenesis with Integration Tester AI (recommended)
-python test_neurogenesis_integration.py
+PYTHONPATH=src python tests/test_neurogenesis_integration.py
 
 # Watch as the system:
 # 1. Detects unknown concepts (e.g., "Quantum Computer")
@@ -221,17 +222,13 @@ python test_neurogenesis_integration.py
 - 🤖 New specialized agents: Ready for future queries
 - ⚡ Reflex arcs: Direct peer-to-peer communication
 
-This demonstrates the **world's first working biomimetic neurogenesis** - watch AI literally grow new capabilities!
-
 ## 🎯 **Enhanced Graph Intelligence Testing**
-
-**Experience Revolutionary Smart Agent Discovery in Action!**
 
 The Enhanced Graph Intelligence system provides intelligent agent selection with multi-criteria relevance scoring:
 
 ```bash
 # Test Enhanced Graph Intelligence
-python test_enhanced_graph_intelligence.py
+PYTHONPATH=src python tests/test_enhanced_graph_intelligence.py
 
 # Watch as the system:
 # 1. Intelligently analyzes query context and complexity
@@ -250,17 +247,13 @@ python test_enhanced_graph_intelligence.py
 - 🧹 Cache management: TTL-based optimization
 - ⚡ Orchestrator integration: Seamless smart discovery
 
-This demonstrates the **world's first intelligent agent discovery system** - watch AI optimize collaboration patterns!
-
 ## 🚀 **Performance Optimization Testing**
-
-**Experience Revolutionary Production-Ready Performance in Action!**
 
 The Performance Optimization Engine provides enterprise-grade performance optimization:
 
 ```bash
 # Test Performance Optimization Engine
-python test_performance_optimization.py
+PYTHONPATH=src python tests/test_performance_optimization.py
 
 # Watch as the system:
 # 1. Implements Redis distributed caching with compression
@@ -280,8 +273,6 @@ python test_performance_optimization.py
 - 🎯 Orchestrator integration: Seamless performance optimization
 - ✅ Production readiness: Enterprise-grade performance validation
 
-This demonstrates the **world's first production-ready performance system** for biomimetic AI - watch enterprise-grade optimization in action!
-
 ## 🧠 Hebbian Learning (Neural Plasticity)
 
 The system implements experience-driven connection strengthening:
@@ -294,6 +285,6 @@ The system implements experience-driven connection strengthening:
 
 Run:
 ```bash
-python test_hebbian_learning.py
+PYTHONPATH=src python tests/test_hebbian_learning.py
 ```
 Expected: weights increase for successful agents and decay when triggered.

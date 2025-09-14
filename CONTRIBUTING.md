@@ -67,4 +67,18 @@ graph TD
 -   **Comments**: Use comments to explain *why* something is done, not *what* is being done. The code itself should be clear enough to explain the "what."
 -   **Docstrings**: All modules, classes, and functions should have clear and concise docstrings.
 
+## Project Structure
+
+The project is organized into the following structure to maintain clarity and separation of concerns:
+
+-   `src/myriad/`: The main source code for the Myriad application.
+    -   `agents/`: Contains the code for individual, specialized static agents.
+    -   `core/`: Shared libraries and core logic for intelligence, learning, lifecycle management, etc.
+    -   `services/`: The main deployable services, such as the `orchestrator` and `graphdb_manager`.
+-   `tests/`: Contains all the test scripts for the project.
+-   `scripts/`: Utility and maintenance scripts, such as `migration.py`.
+-   `doc/`: All project documentation files.
+-   `dynamic_agents/`: A directory created at runtime to store the code and Dockerfiles for dynamically generated agents.
+-   `docker-compose.yml`: Defines the services, networks, and volumes for the Docker-based deployment.
+
 By following these guidelines, you help us keep Project Myriad well-documented, maintainable, and accessible to everyone. Thank you for your contribution!
