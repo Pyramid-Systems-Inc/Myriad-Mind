@@ -39,8 +39,7 @@ services:
 
   graphdb_manager_ai:
     build:
-      context: .
-      dockerfile: ./agents/graphdb_manager_ai/Dockerfile
+      context: ./src/myriad/services/graphdb_manager
     container_name: graphdb_manager_ai
     ports:
       - '5008:5008'
@@ -60,8 +59,7 @@ services:
 
   integration_tester_ai:
     build:
-      context: .
-      dockerfile: ./agents/integration_tester_ai/Dockerfile
+      context: ./src/myriad/services/integration_tester
     container_name: integration_tester_ai
     ports:
       - '5009:5009'
@@ -78,8 +76,7 @@ services:
 
   lightbulb_definition_ai:
     build:
-      context: .
-      dockerfile: ./agents/lightbulb_definition_ai/Dockerfile
+      context: ./src/myriad/agents/lightbulb_definition
     ports:
       - '5001:5001'
     container_name: lightbulb_definition_ai
@@ -91,8 +88,7 @@ services:
 
   lightbulb_function_ai:
     build:
-      context: .
-      dockerfile: ./agents/lightbulb_function_ai/Dockerfile
+      context: ./src/myriad/agents/lightbulb_function
     ports:
       - '5002:5002'
     container_name: lightbulb_function_ai
@@ -104,8 +100,7 @@ services:
 
   input_processor:
     build:
-      context: .
-      dockerfile: ./processing/input_processor/Dockerfile
+      context: ./src/myriad/services/processing/input_processor
     ports:
       - '5003:5003'
     container_name: input_processor
@@ -117,8 +112,7 @@ services:
 
   output_processor:
     build:
-      context: .
-      dockerfile: ./processing/output_processor/Dockerfile
+      context: ./src/myriad/services/processing/output_processor
     ports:
       - '5004:5004'
     container_name: output_processor
