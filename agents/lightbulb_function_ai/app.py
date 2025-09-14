@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import os
 from typing import Optional, Dict, Any
 
@@ -10,6 +12,16 @@ GRAPHDB_MANAGER_URL = os.environ.get("GRAPHDB_MANAGER_URL", "http://graphdb_mana
 AGENT_NAME = "Lightbulb_Function_AI"
 AGENT_TYPE = "FunctionExecutor"
 PRIMARY_CONCEPTS = ["lightbulb", "factories"]
+
+# Persistent HTTP session with retries/backoff
+_session = requests.Session()
+_adapter = HTTPAdapter(
+    pool_connections=10,
+    pool_maxsize=10,
+    max_retries=Retry(total=3, backoff_factor=0.3, status_forcelist=[502, 503, 504], allowed_methods=["GET", "POST"]),
+)
+_session.mount("http://", _adapter)
+_session.mount("https://", _adapter)
 
 def handle_concept_research(concept: str, request_details: Dict[str, Any], context: Dict[str, Any]) -> str:
     """Handle concept research requests for unknown concepts (neurogenesis support)"""
@@ -59,7 +71,7 @@ def discover_peer_agents(concept: str) -> list:
             "relationship_direction": "in",
             "target_node_label": "Agent"
         }
-        response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
+        response = _session.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
@@ -75,7 +87,7 @@ def discover_peer_agents(concept: str) -> list:
 def request_peer_collaboration(peer_endpoint: str, collaboration_request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Send a collaboration request to a peer agent"""
     try:
-        response = requests.post(f"{peer_endpoint}/collaborate", json=collaboration_request, timeout=8)
+        response = _session.post(f"{peer_endpoint}/collaborate", json=collaboration_request, timeout=8)
         if response.status_code == 200:
             return response.json()
         else:

@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import json
 import time
 import os
@@ -11,6 +13,27 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # The Orchestrator now communicates with the GraphDB Manager, not the old registry.
 GRAPHDB_MANAGER_URL = "http://graphdb_manager_ai:5008"
+
+# Persistent HTTP session with retries/backoff (env-tunable)
+SESSION_RETRIES = int(os.environ.get("HTTP_RETRIES", "3"))
+SESSION_BACKOFF = float(os.environ.get("HTTP_BACKOFF", "0.3"))
+SESSION_POOL_MAX = int(os.environ.get("HTTP_POOL_MAX", "20"))
+
+_http_session = requests.Session()
+_adapter = HTTPAdapter(
+    pool_connections=SESSION_POOL_MAX,
+    pool_maxsize=SESSION_POOL_MAX,
+    max_retries=Retry(
+        total=SESSION_RETRIES,
+        connect=SESSION_RETRIES,
+        read=SESSION_RETRIES,
+        backoff_factor=SESSION_BACKOFF,
+        status_forcelist=[502, 503, 504],
+        allowed_methods=["GET", "POST"]
+    ),
+)
+_http_session.mount("http://", _adapter)
+_http_session.mount("https://", _adapter)
 
 # Agent endpoints for concept research
 LIGHTBULB_DEFINITION_AI_URL = "http://lightbulb_definition_ai:5001"
@@ -91,7 +114,7 @@ async def optimized_graph_query(operation: str, endpoint: str, payload: Dict[str
     
     # Fallback to direct HTTP request
     try:
-        response = requests.post(f"{GRAPHDB_MANAGER_URL}{endpoint}", json=payload, timeout=10)
+        response = _http_session.post(f"{GRAPHDB_MANAGER_URL}{endpoint}", json=payload, timeout=10)
         
         if response.status_code == 200:
             data = response.json()
@@ -151,7 +174,7 @@ def check_concept_exists(concept: str) -> bool:
         }
         
         start_time = time.time()
-        response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
+        response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
@@ -244,7 +267,7 @@ def request_concept_research(agent: Dict[str, str], concept: str, intent: str) -
     }
     
     try:
-        response = requests.post(f"{agent['url']}/collaborate", json=collaboration_request, timeout=10)
+        response = _http_session.post(f"{agent['url']}/collaborate", json=collaboration_request, timeout=10)
         if response.status_code == 200:
             result = response.json()
             if result.get("status") == "success":
@@ -341,7 +364,7 @@ def create_concept_node(concept: str, research_data: Dict[str, Any]) -> bool:
             "properties": node_properties
         }
         
-        response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_node", json=create_payload, timeout=10)
+        response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/create_node", json=create_payload, timeout=10)
         
         if response.status_code == 201:
             result = response.json()
@@ -527,7 +550,7 @@ def _update_agent_performance_metrics(agent_url: str, concept: str, intent: str,
                 "concept": concept.lower(),
                 "success": bool(success)
             }
-            requests.post(f"{GRAPHDB_MANAGER_URL}/hebbian/strengthen", json=payload, timeout=5)
+            _http_session.post(f"{GRAPHDB_MANAGER_URL}/hebbian/strengthen", json=payload, timeout=5)
         except Exception as he:
             print(f"⚠️  Hebbian update failed: {he}")
 
@@ -584,7 +607,7 @@ def register_dynamic_agent_in_graph(agent, concept: str) -> bool:
             }
         }
         
-        agent_response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_node", 
+        agent_response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/create_node", 
                                      json=agent_payload, timeout=10)
         
         if agent_response.status_code == 201:
@@ -604,7 +627,7 @@ def register_dynamic_agent_in_graph(agent, concept: str) -> bool:
                 }
             }
             
-            rel_response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_relationship",
+            rel_response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/create_relationship",
                                        json=relationship_payload, timeout=10)
             
             if rel_response.status_code == 201:
@@ -723,7 +746,7 @@ def _discover_agent_endpoint_fallback(agent_id: str) -> Optional[str]:
             "relationship_direction": "both",
             "target_node_label": "*"
         }
-        response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
+        response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", json=payload, timeout=5)
         
         if response.status_code == 200:
             data = response.json()
@@ -769,7 +792,7 @@ def send_task_to_agent(task: dict) -> Optional[dict]:
         payload = {"task_id": task["task_id"], "intent": intent, "concept": concept, "args": task.get("args", {})}
         print(f"Dispatching Agent Job to {agent_url} (discovered via graph): {payload}")
         try:
-            response = requests.post(agent_url, json=payload, timeout=10)
+            response = _http_session.post(agent_url, json=payload, timeout=10)
             response.raise_for_status()
             result = response.json()
             

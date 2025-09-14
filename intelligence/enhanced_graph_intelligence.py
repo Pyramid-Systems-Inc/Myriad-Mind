@@ -20,6 +20,8 @@ Date: 2025-01-01
 import json
 import time
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import logging
 import threading
 from typing import Dict, List, Any, Optional, Tuple, Set
@@ -116,6 +118,16 @@ class EnhancedGraphIntelligence:
         
         # GraphDB connection
         self.graphdb_url = "http://graphdb_manager_ai:5008"
+
+        # Persistent HTTP session with retries/backoff
+        self._session = requests.Session()
+        _adapter = HTTPAdapter(
+            pool_connections=20,
+            pool_maxsize=20,
+            max_retries=Retry(total=3, backoff_factor=0.3, status_forcelist=[502, 503, 504], allowed_methods=["GET", "POST"]),
+        )
+        self._session.mount("http://", _adapter)
+        self._session.mount("https://", _adapter)
         
         # Background tasks
         self._start_background_tasks()
@@ -142,7 +154,7 @@ class EnhancedGraphIntelligence:
     def _fetch_hebbian_weight(self, agent_name: str, concept: str) -> float:
         """Fetch Hebbian weight for (Agent)-[HANDLES_CONCEPT]->(Concept). Defaults to 0.5."""
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.graphdb_url}/get_agents_for_concept",
                 json={"concept": concept, "relationship_type": "HANDLES_CONCEPT"},
                 timeout=8
@@ -328,7 +340,7 @@ class EnhancedGraphIntelligence:
         """Find agents that directly handle the concept"""
         
         try:
-            response = requests.post(
+            response = self._session.post(
                 f"{self.graphdb_url}/find_connected_nodes",
                 json={
                     "node_name": concept,
@@ -837,7 +849,7 @@ class EnhancedGraphIntelligence:
         
         try:
             # Query all agents from graph database
-            response = requests.post(
+            response = self._session.post(
                 f"{self.graphdb_url}/query_nodes",
                 json={"node_type": "Agent"},
                 timeout=15
