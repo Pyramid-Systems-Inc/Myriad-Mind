@@ -272,6 +272,52 @@ def get_agents_for_concept():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/regions/get_for_concept', methods=['POST'])
+def get_region_for_concept():
+    """Finds the Region a Concept belongs to."""
+    if not driver:
+        return jsonify({"status": "error", "message": "Database not connected"}), 503
+
+    data = request.get_json() or {}
+    concept_name = (data.get('concept_name') or '').strip().lower()
+    if not concept_name:
+        return jsonify({"status": "error", "message": "Request must include 'concept_name'"}), 400
+
+    try:
+        with driver.session() as session:
+            query = (
+                "MATCH (c:Concept {name: $concept_name})-[:BELONGS_TO]->(r:Region) "
+                "RETURN r"
+            )
+            result = session.run(query, concept_name=concept_name)
+            regions = [record["r"]._properties for record in result]
+            return jsonify({"status": "success", "regions": regions})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/regions/get_agents', methods=['POST'])
+def get_agents_in_region():
+    """Finds all Agents that belong to a specific Region."""
+    if not driver:
+        return jsonify({"status": "error", "message": "Database not connected"}), 503
+
+    data = request.get_json() or {}
+    region_name = (data.get('region_name') or '').strip()
+    if not region_name:
+        return jsonify({"status": "error", "message": "Request must include 'region_name'"}), 400
+
+    try:
+        with driver.session() as session:
+            query = (
+                "MATCH (a:Agent)-[:BELONGS_TO]->(r:Region {name: $region_name}) "
+                "RETURN a"
+            )
+            result = session.run(query, region_name=region_name)
+            agents = [record["a"]._properties for record in result]
+            return jsonify({"status": "success", "agents": agents})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/hebbian/strengthen', methods=['POST'])
 def hebbian_strengthen():
     """Strengthen or weaken the relationship weight between Agent and Concept based on outcome."""

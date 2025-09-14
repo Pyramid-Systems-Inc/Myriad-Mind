@@ -1,0 +1,136 @@
+{
+  "nodes": [
+    {
+      "label": "Region",
+      "properties": {
+        "name": "Technology",
+        "description": "Concepts and agents related to the application of scientific knowledge for practical purposes."
+      }
+    },
+    {
+      "label": "Region",
+      "properties": {
+        "name": "General",
+        "description": "Broad concepts and foundational agents."
+      }
+    },
+    {
+      "label": "Concept",
+      "properties": {
+        "name": "lightbulb",
+        "primary_definition": "An electric device that produces light via an incandescent filament."
+      }
+    },
+    {
+      "label": "Concept",
+      "properties": {
+        "name": "factories",
+        "primary_definition": "A building or group of buildings where goods are manufactured or assembled chiefly by machine."
+      }
+    },
+    {
+      "label": "Agent",
+      "properties": {
+        "name": "Lightbulb_Definition_AI",
+        "endpoint": "http://lightbulb_definition_ai:5001/query",
+        "type": "FactBase"
+      }
+    },
+    {
+      "label": "Agent",
+      "properties": {
+        "name": "Lightbulb_Function_AI",
+        "endpoint": "http://lightbulb_function_ai:5002/query",
+        "type": "FunctionExecutor"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "start_node_label": "Agent",
+      "start_node_properties": {
+        "name": "Lightbulb_Definition_AI"
+      },
+      "end_node_label": "Region",
+      "end_node_properties": {
+        "name": "Technology"
+      },
+      "type": "BELONGS_TO"
+    },
+    {
+      "start_node_label": "Agent",
+      "start_node_properties": {
+        "name": "Lightbulb_Function_AI"
+      },
+      "end_node_label": "Region",
+      "end_node_properties": {
+        "name": "Technology"
+      },
+      "type": "BELONGS_TO"
+    },
+    {
+      "start_node_label": "Concept",
+      "start_node_properties": {
+        "name": "lightbulb"
+      },
+      "end_node_label": "Region",
+      "end_node_properties": {
+        "name": "Technology"
+      },
+      "type": "BELONGS_TO"
+    },
+    {
+      "start_node_label": "Concept",
+      "start_node_properties": {
+        "name": "factories"
+      },
+      "end_node_label": "Region",
+      "end_node_properties": {
+        "name": "General"
+      },
+      "type": "BELONGS_TO"
+    },
+    {
+      "start_node_label": "Agent",
+      "start_node_properties": {
+        "name": "Lightbulb_Definition_AI"
+      },
+      "end_node_label": "Concept",
+      "end_node_properties": {
+        "name": "lightbulb"
+      },
+      "type": "HANDLES_CONCEPT",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "start_node_label": "Agent",
+      "start_node_properties": {
+        "name": "Lightbulb_Function_AI"
+      },
+      "end_node_label": "Concept",
+      "end_node_properties": {
+        "name": "lightbulb"
+      },
+      "type": "HANDLES_CONCEPT",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "start_node_label": "Agent",
+      "start_node_properties": {
+        "name": "Lightbulb_Function_AI"
+      },
+      "end_node_label": "Concept",
+      "end_node_properties": {
+        "name": "factories"
+      },
+      "type": "HANDLES_CONCEPT",
+      "properties": {
+        "weight": 1.0
+      }
+    }
+  ]
+}

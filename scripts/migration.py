@@ -1,106 +1,93 @@
 import requests
 import json
+import os
 
-# Configuration for all known agents in the system
-AGENT_CONFIG = {
-    "agents": [
-        {
-            "name": "Lightbulb_Definition_AI",
-            "endpoint": "http://lightbulb_definition_ai:5001/query",
-            "type": "FactBase",
-            "handled_concepts": ["lightbulb"]
-        },
-        {
-            "name": "Lightbulb_Function_AI",
-            "endpoint": "http://lightbulb_function_ai:5002/query",
-            "type": "FunctionExecutor",
-            "handled_concepts": ["lightbulb", "factories"]
-        }
-    ]
-}
-
-GRAPHDB_MANAGER_URL = "http://localhost:5008"
+GRAPHDB_MANAGER_URL = os.environ.get("GRAPHDB_MANAGER_URL", "http://localhost:5008")
+KNOWLEDGE_BASE_FILE = os.path.join(os.path.dirname(__file__), 'knowledge_base.json')
 
 def clear_graph():
     """Clears the entire graph to ensure a clean slate."""
-    print("🔥 Clearing all existing nodes and relationships from the graph...")
+    # This is a destructive operation and should be used with caution.
+    # The graphdb_manager does not expose this by default; it would need to be added for a migration script.
+    # For now, we assume the user can manually clear the DB if needed.
+    print("SKIPPING: Graph clearing. Please manually clear Neo4j if a fresh start is needed.")
+    pass
+
+def migrate_knowledge_to_graph():
+    """
+    Reads the knowledge_base.json file and populates the Neo4j database
+    in a two-pass process: nodes first, then relationships.
+    """
+    print("🚀 Starting migration of knowledge base to the graph...")
+
     try:
-        with requests.post(f"{GRAPHDB_MANAGER_URL}/_internal/clear", timeout=10) as response:
-            response.raise_for_status()
-            print("✅ Graph cleared successfully.")
-    except requests.exceptions.RequestException as e:
-        print(f"⚠️  Could not clear graph. It might be empty already. Error: {e}")
+        with open(KNOWLEDGE_BASE_FILE, 'r') as f:
+            knowledge_base = json.load(f)
+    except FileNotFoundError:
+        print(f"❌ ERROR: Knowledge base file not found at '{KNOWLEDGE_BASE_FILE}'")
+        return
+    except json.JSONDecodeError:
+        print(f"❌ ERROR: Could not parse '{KNOWLEDGE_BASE_FILE}'. Please check for valid JSON.")
+        return
 
-
-def migrate_agents_to_graph():
-    """
-    Reads the AGENT_CONFIG and populates the Neo4j database.
-    This script is the definitive way to register agents in the new architecture.
-    """
-    print("🚀 Starting migration of agents to the knowledge graph...")
-
-    all_concepts = set()
-    for agent in AGENT_CONFIG["agents"]:
-        for concept in agent["handled_concepts"]:
-            all_concepts.add(concept)
-
-    # 1. Create all Concept nodes
-    print("\n--- Step 1: Creating Concept Nodes ---")
-    for concept_name in all_concepts:
-        node_payload = {
-            "label": "Concept",
-            "properties": {"name": concept_name}
-        }
-        try:
-            print(f"Creating Concept node: '{concept_name}'")
-            response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_node", json=node_payload, timeout=5)
-            response.raise_for_status()
-            print(f"  -> Success (ID: {response.json().get('node_id')})")
-        except requests.exceptions.RequestException as e:
-            print(f"  -> Error creating concept node '{concept_name}': {e}")
-
-    # 2. Create all Agent nodes
-    print("\n--- Step 2: Creating Agent Nodes ---")
-    for agent in AGENT_CONFIG["agents"]:
-        node_payload = {
-            "label": "Agent",
-            "properties": {
-                "name": agent["name"],
-                "endpoint": agent["endpoint"],
-                "type": agent["type"]
-            }
-        }
-        try:
-            print(f"Creating Agent node: '{agent['name']}'")
-            response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_node", json=node_payload, timeout=5)
-            response.raise_for_status()
-            print(f"  -> Success (ID: {response.json().get('node_id')})")
-        except requests.exceptions.RequestException as e:
-            print(f"  -> Error creating agent node '{agent['name']}': {e}")
-
-    # 3. Create all relationships
-    print("\n--- Step 3: Creating Relationships ---")
-    for agent in AGENT_CONFIG["agents"]:
-        for concept_name in agent["handled_concepts"]:
-            rel_payload = {
-                "source_label": "Agent",
-                "source_properties": {"name": agent["name"]},
-                "target_label": "Concept",
-                "target_properties": {"name": concept_name},
-                "type": "HANDLES_CONCEPT",
-                "properties": {"weight": 1.0} # Default weight
-            }
+    # 1. Create all Nodes
+    print("\n--- Step 1: Creating All Nodes ---")
+    nodes = knowledge_base.get("nodes", [])
+    if not nodes:
+        print("⚠️ No nodes found in knowledge base file.")
+    else:
+        for node_payload in nodes:
             try:
-                print(f"Linking '{agent['name']}' --[HANDLES_CONCEPT]--> '{concept_name}'")
-                response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_relationship", json=rel_payload, timeout=5)
+                label = node_payload.get('label')
+                props = node_payload.get('properties', {})
+                name = props.get('name', '[Unnamed]')
+                print(f"Creating {label} node: '{name}'")
+                response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_node", json=node_payload, timeout=5)
+                response.raise_for_status()
+                print(f"  -> Success (ID: {response.json().get('node_id')})")
+            except requests.exceptions.RequestException as e:
+                print(f"  -> ❌ Error creating node '{name}': {e}")
+                print(f"     Response: {e.response.text if e.response else 'No response'}")
+
+    # 2. Create all Relationships
+    print("\n--- Step 2: Creating All Relationships ---")
+    relationships = knowledge_base.get("relationships", [])
+    if not relationships:
+        print("⚠️ No relationships found in knowledge base file.")
+    else:
+        for rel_payload in relationships:
+            try:
+                start_label = rel_payload.get('start_node_label')
+                start_props = rel_payload.get('start_node_properties', {})
+                end_label = rel_payload.get('end_node_label')
+                end_props = rel_payload.get('end_node_properties', {})
+                rel_type = rel_payload.get('type')
+                
+                # The create_relationship endpoint expects different key names
+                api_payload = {
+                    "start_node_label": start_label,
+                    "start_node_properties": start_props,
+                    "end_node_label": end_label,
+                    "end_node_properties": end_props,
+                    "relationship_type": rel_type,
+                    "relationship_properties": rel_payload.get("properties", {})
+                }
+                
+                start_name = start_props.get('name', '[Unnamed]')
+                end_name = end_props.get('name', '[Unnamed]')
+                
+                print(f"Linking '{start_name}' --[{rel_type}]--> '{end_name}'")
+                response = requests.post(f"{GRAPHDB_MANAGER_URL}/create_relationship", json=api_payload, timeout=5)
                 response.raise_for_status()
                 print(f"  -> Success (ID: {response.json().get('relationship_id')})")
             except requests.exceptions.RequestException as e:
-                print(f"  -> Error creating relationship for '{agent['name']}': {e}")
+                print(f"  -> ❌ Error creating relationship: {e}")
+                print(f"     Response: {e.response.text if e.response else 'No response'}")
 
     print("\n🎉 Migration complete! The knowledge graph is populated.")
 
 if __name__ == "__main__":
-    # Optional: Add a small utility to the graph manager to clear the DB for clean migrations
-    # For now, we assume a fresh start or manual clearing.
-    migrate_agents_to_graph()
+    # In a real scenario, you might want to add argument parsing
+    # to, for example, clear the graph before migrating.
+    # clear_graph() 
+    migrate_knowledge_to_graph()

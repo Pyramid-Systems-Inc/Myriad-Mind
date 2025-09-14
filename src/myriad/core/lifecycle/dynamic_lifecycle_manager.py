@@ -454,15 +454,16 @@ class DynamicLifecycleManager:
         self.monitor_thread = None
         self.monitoring = False
         
-    def create_agent(self, concept: str, intent: str, research_data: Dict[str, Any]) -> Optional[DynamicAgent]:
+    def create_agent(self, concept: str, intent: str, research_data: Dict[str, Any], region: str = "General") -> Optional[DynamicAgent]:
         """Create a new dynamic agent for a concept"""
         
-        print(f"🧬 Creating dynamic agent for concept '{concept}'...")
+        print(f"🧬 Creating dynamic agent for concept '{concept}' in region '{region}'...")
         
         try:
             # Step 1: Select and customize template
             template_id = self.template_manager.suggest_template(concept, intent, research_data)
             agent_spec = self.template_manager.customize_template(template_id, concept, research_data)
+            agent_spec['region'] = region # Add region to the spec
             
             # Step 2: Generate unique identifiers
             agent_id = str(uuid.uuid4())[:8]

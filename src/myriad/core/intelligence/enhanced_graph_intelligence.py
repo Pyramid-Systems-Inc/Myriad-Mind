@@ -224,6 +224,42 @@ class EnhancedGraphIntelligence:
         
         return final_agents
     
+    def _discover_relevant_regions(self, concept: str) -> List[Dict[str, Any]]:
+        """Calls the graphdb manager to find which regions a concept belongs to."""
+        try:
+            response = self._session.post(
+                f"{self.graphdb_url}/regions/get_for_concept",
+                json={"concept_name": concept},
+                timeout=5
+            )
+            if response.status_code == 200:
+                return response.json().get("regions", [])
+        except requests.RequestException as e:
+            logger.warning(f"Could not discover regions for concept '{concept}': {e}")
+        return []
+
+    def _get_agents_in_regions(self, region_names: List[str]) -> List[AgentProfile]:
+        """Gets all agent profiles for a list of region names."""
+        agents = []
+        agent_ids = set() # To prevent duplicates
+
+        for region_name in region_names:
+            try:
+                response = self._session.post(
+                    f"{self.graphdb_url}/regions/get_agents",
+                    json={"region_name": region_name},
+                    timeout=8
+                )
+                if response.status_code == 200:
+                    for agent_data in response.json().get("agents", []):
+                        profile = self._create_agent_profile_from_graph_data(agent_data)
+                        if profile and profile.agent_id not in agent_ids:
+                            agents.append(profile)
+                            agent_ids.add(profile.agent_id)
+            except requests.RequestException as e:
+                logger.warning(f"Could not get agents for region '{region_name}': {e}")
+        return agents
+
     def _parse_query_context(self, concept: str, intent: str, context: Dict[str, Any]) -> QueryContext:
         """Parse and analyze query context for intelligent processing"""
         
@@ -311,30 +347,33 @@ class EnhancedGraphIntelligence:
         return intent_capability_map.get(intent.lower(), ['general_knowledge'])
     
     def _discover_candidate_agents(self, concept: str, context: QueryContext) -> List[AgentProfile]:
-        """Discover candidate agents using multiple strategies"""
+        """Discover candidate agents using the hierarchical region-based model."""
         
-        candidates = []
+        # Step 1: Discover relevant regions for the concept
+        regions = self._discover_relevant_regions(concept)
+        if not regions:
+            logger.warning(f"No regions found for concept '{concept}'. Falling back to all agents.")
+            # Fallback: search all agents if no region is found
+            return list(self.agent_profiles.values())
+
+        region_names = [r.get('name') for r in regions if r.get('name')]
+        logger.info(f"Found {len(region_names)} relevant regions: {region_names}")
+
+        # Step 2: Get all agents within those regions
+        candidate_agents = self._get_agents_in_regions(region_names)
         
-        # Strategy 1: Direct concept match
+        # As a fallback, we can also add agents that directly handle the concept,
+        # even if they are not in the discovered region. This adds robustness.
         direct_matches = self._find_direct_concept_agents(concept)
-        candidates.extend(direct_matches)
         
-        # Strategy 2: Domain-based discovery
-        domain_agents = self._find_domain_agents(context.domain_indicators)
-        candidates.extend(domain_agents)
-        
-        # Strategy 3: Capability-based discovery
-        capability_agents = self._find_capability_agents(context.required_capabilities)
-        candidates.extend(capability_agents)
-        
-        # Strategy 4: Cluster-based discovery
-        cluster_agents = self._find_cluster_agents(concept, context)
-        candidates.extend(cluster_agents)
-        
-        # Remove duplicates
-        unique_candidates = {agent.agent_id: agent for agent in candidates}
-        
-        return list(unique_candidates.values())
+        # Combine and deduplicate
+        all_candidates = {agent.agent_id: agent for agent in candidate_agents}
+        for agent in direct_matches:
+            if agent.agent_id not in all_candidates:
+                all_candidates[agent.agent_id] = agent
+
+        logger.info(f"Found {len(all_candidates)} candidate agents from regions and direct matches.")
+        return list(all_candidates.values())
     
     def _find_direct_concept_agents(self, concept: str) -> List[AgentProfile]:
         """Find agents that directly handle the concept"""

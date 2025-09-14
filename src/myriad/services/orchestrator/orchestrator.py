@@ -388,8 +388,8 @@ def create_dynamic_agent(concept: str, intent: str, research_data: Dict[str, Any
     print(f"🧬 PHASE 2 NEUROGENESIS: Creating dynamic agent for '{concept}'")
     
     try:
-        # Create the dynamic agent
-        agent = lifecycle_manager.create_agent(concept, intent, research_data)
+        # Create the dynamic agent, defaulting to the "General" region
+        agent = lifecycle_manager.create_agent(concept, intent, research_data, region="General")
         
         if agent:
             print(f"  ✅ Dynamic agent created: {agent.agent_name}")
@@ -612,8 +612,8 @@ def register_dynamic_agent_in_graph(agent, concept: str) -> bool:
             agent_node_id = agent_response.json().get("node_id")
             print(f"    ✅ Agent node created (ID: {agent_node_id})")
             
-            # Create relationship between agent and concept
-            relationship_payload = {
+            # Create HANDLES_CONCEPT relationship
+            concept_rel_payload = {
                 "start_node_id": agent_node_id,
                 "end_node_label": "Concept",
                 "end_node_properties": {"name": concept.lower()},
@@ -625,14 +625,27 @@ def register_dynamic_agent_in_graph(agent, concept: str) -> bool:
                 }
             }
             
-            rel_response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/create_relationship",
-                                       json=relationship_payload, timeout=10)
+            concept_rel_response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/create_relationship",
+                                       json=concept_rel_payload, timeout=10)
+
+            # Create BELONGS_TO relationship
+            region_rel_payload = {
+                "start_node_id": agent_node_id,
+                "end_node_label": "Region",
+                "end_node_properties": {"name": "General"}, # Default to General for now
+                "relationship_type": "BELONGS_TO"
+            }
+
+            region_rel_response = _http_session.post(f"{GRAPHDB_MANAGER_URL}/create_relationship",
+                                      json=region_rel_payload, timeout=10)
             
-            if rel_response.status_code == 201:
-                print(f"    ✅ Agent-Concept relationship created")
+            if concept_rel_response.status_code == 201 and region_rel_response.status_code == 201:
+                print(f"    ✅ Agent-Concept and Agent-Region relationships created")
                 return True
             else:
-                print(f"    ⚠️  Failed to create agent-concept relationship: {rel_response.status_code}")
+                print(f"    ⚠️  Failed to create agent relationships.")
+                print(f"       HANDLES_CONCEPT -> Status: {concept_rel_response.status_code}")
+                print(f"       BELONGS_TO -> Status: {region_rel_response.status_code}")
                 return False
         else:
             print(f"    ❌ Failed to create agent node: {agent_response.status_code}")
