@@ -143,62 +143,74 @@ Our guiding principles are inspired by neurobiology:
 The Myriad architecture is a multi-tiered, decentralized system of microservices. The data flows through a series of specialized processors, activating concept agents as needed.
 
 ```mermaid
-graph LR
-    subgraph Input/Output Layer
-        UserInput(Unknown Concept Query) --> IP[Input Processor];
-        OP[Output Processor] --> FinalAnswer(Enhanced Response);
+graph TB
+    subgraph "User Interface Layer"
+        UQ[User Query] --> IP[Input Processor\nAdvanced NLP]
+        OP[Output Processor\nSynthesis Engine] --> FR[Final Response]
     end
 
-    subgraph Core Cognitive Layer
-        IP -- Enhanced Task List --> O(Orchestrator);
-        O -- Graph Query --> GDB[(Neo4j Graph DB)];
-        GDB -- Agent Discovery --> GDM[GraphDB Manager AI];
-        GDM -- "No Agent Found" --> O;
-        O -- "NEUROGENESIS TRIGGERED" --> NG[Neurogenesis Pipeline];
+    subgraph "Enhanced Graph Intelligence Layer"
+        IP --> EGI[Enhanced Graph Intelligence\nContext Analysis\nRelevance Scoring\nAgent Clustering]
+        EGI --> O[Orchestrator\nSmart Routing]
     end
 
-    subgraph Neurogenesis Pipeline
-        NG -- "Research Request" --> A1(Lightbulb_Definition_AI);
-        NG -- "Research Request" --> A2(Lightbulb_Function_AI);
-        A1 -- Research Data --> NG;
-        A2 -- Research Data --> NG;
-        NG -- "Create Concept Node" --> GDM;
-        NG -- "Select Template" --> TM[Template Manager];
-        TM -- "Agent Spec" --> DLM[Dynamic Lifecycle Manager];
-        DLM -- "Generate Code" --> Docker[Docker Engine];
-        Docker -- "Deploy Container" --> NewAgent[New Specialized Agent];
-        NewAgent -- "Register in Graph" --> GDM;
+    subgraph "Neurogenesis Pipeline"
+        O -.->|Unknown Concept| NG[Neurogenesis Trigger\nConcept Detection]
+        NG --> MAR[Multi-Agent Research\nCollaborative Learning]
+        MAR --> TS[Template Selection\nPolicy]
+        TS --> DLM[Dynamic Lifecycle Manager\nAgent Creation]
+        DLM --> NDA[New Dynamic Agent\nSpecialized Capability]
+        NDA --> GR[Graph Registration\nAuto-Discovery]
     end
 
-    subgraph Knowledge Graph (Hebbian Plasticity)
-        GDB --> CN1[Concept: lightbulb];
-        GDB --> CN2[Concept: quantum_computer];
-        GDB --> CN3[Concept: smart_grid];
-        CN1 -- HANDLES_CONCEPT (weight, usage, success_rate) --> A1;
-        CN1 -- HANDLES_CONCEPT (weight, usage, success_rate) --> A2;
-        CN2 -- HANDLES_CONCEPT --> NewAgent;
-        CN3 -- HANDLES_CONCEPT --> NewAgent2[Smart_Grid_Knowledge_AI];
+    subgraph "Knowledge Graph"
+        O <--> GDB[GraphDB Manager AI\nPort 5008]
+        GDB <--> KG[(Knowledge Graph\nNeo4j\nConcepts & Relationships)]
+        EGI <--> GDB
     end
 
-    subgraph Agent Collaboration
-        A1 -.-> A2;
-        A2 -.-> A1;
-        NewAgent -.-> A1;
-        NewAgent -.-> A2;
-        NewAgent2 -.-> NewAgent;
+    subgraph "Intelligent Agent Network"
+        GDB --> LDA[Lightbulb Definition AI\nStatic Agent]
+        GDB --> LFA[Lightbulb Function AI\nStatic Agent]
+        GDB --> QCA[Quantum Computing AI\nDynamic Agent]
+        GDB --> BCA[Biomimetic Computing AI\nDynamic Agent]
+        
+        %% Agent-to-Agent Communication (Reflex Arcs)
+        LDA <-.->|Direct Collaboration| LFA
+        LFA <-.->|Knowledge Sharing| QCA
+        QCA <-.->|Reflex Arcs| BCA
     end
 
-    style A1 fill:#cceeff,stroke:#333
-    style A2 fill:#cceeff,stroke:#333
-    style NewAgent fill:#ccffee,stroke:#333
-    style NewAgent2 fill:#ccffee,stroke:#333
-    style GDB fill:#ffeecc,stroke:#333
-    style GDM fill:#ccffcc,stroke:#333
-    style NG fill:#ffcccc,stroke:#333
-    style TM fill:#ffffcc,stroke:#333
-    style DLM fill:#ccccff,stroke:#333
-    style CN2 fill:#eeffcc,stroke:#333
-    style CN3 fill:#eeffcc,stroke:#333
+    subgraph "Autonomous Learning Engine"
+        NDA --> ALE[Autonomous Learning\nKnowledge Acquisition\nCapability Development\nSelf-Optimization]
+        ALE -.-> PT[Performance Tracking\nSuccess Metrics\nCollaboration History]
+        PT --> EGI
+    end
+
+    subgraph "Template Factory"
+        TS --> FB[FactBase Basic\nSimple Knowledge]
+        TS --> FE[FactBase Enhanced\nAdvanced Reasoning]
+        TS --> FUN[Function Basic\nImpact Analysis]
+        TS --> SP[Specialist Basic\nDomain Expertise]
+    end
+
+    %% Processing Flow
+    O --> LDA
+    O --> LFA
+    LDA --> S[Synthesizer]
+    LFA --> S
+    QCA --> S
+    S --> OP
+
+    %% Styling
+    style EGI fill:#e1f5fe,stroke:#01579b,stroke-width:3px
+    style NG fill:#f3e5f5,stroke:#4a148c,stroke-width:3px
+    style KG fill:#fff3e0,stroke:#e65100,stroke-width:3px
+    style ALE fill:#e8f5e8,stroke:#1b5e20,stroke-width:3px
+    style DLM fill:#fff8e1,stroke:#ff6f00,stroke-width:3px
+    style NDA fill:#fce4ec,stroke:#880e4f,stroke-width:3px
+    style QCA fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    style BCA fill:#fce4ec,stroke:#880e4f,stroke-width:2px
 ```
 
 Neurogenesis: When the orchestrator encounters unknown concepts without existing agents, it triggers a pipeline that:
