@@ -8,10 +8,12 @@ import sys
 import urllib.parse
 from typing import Optional, Dict, Any, List
 
-# Add path for lifecycle manager and learning engine  
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 # The Orchestrator now communicates with the GraphDB Manager, not the old registry.
+from myriad.core.lifecycle.dynamic_lifecycle_manager import get_lifecycle_manager
+from myriad.core.learning.autonomous_learning_engine import get_learning_engine
+from myriad.core.intelligence.enhanced_graph_intelligence import get_enhanced_intelligence
+from myriad.core.optimization.performance_engine import get_performance_engine
+
 GRAPHDB_MANAGER_URL = "http://graphdb_manager_ai:5008"
 
 # Persistent HTTP session with retries/backoff (env-tunable)
@@ -47,7 +49,6 @@ ENABLE_AUTONOMOUS_LEARNING = os.environ.get("ENABLE_AUTONOMOUS_LEARNING", "true"
 
 # Import lifecycle manager for dynamic agent creation
 try:
-    from lifecycle.dynamic_lifecycle_manager import get_lifecycle_manager
     lifecycle_manager = get_lifecycle_manager()
     LIFECYCLE_MANAGER_AVAILABLE = True
     print("🧬 Dynamic Lifecycle Manager loaded successfully")
@@ -58,7 +59,6 @@ except ImportError as e:
 
 # Import autonomous learning engine for Phase 3 neurogenesis
 try:
-    from learning.autonomous_learning_engine import get_learning_engine
     learning_engine = get_learning_engine()
     LEARNING_ENGINE_AVAILABLE = True
     print("🧠 Autonomous Learning Engine loaded successfully")
@@ -69,7 +69,6 @@ except ImportError as e:
 
 # Import enhanced graph intelligence for smart agent selection
 try:
-    from intelligence.enhanced_graph_intelligence import get_enhanced_intelligence
     enhanced_intelligence = get_enhanced_intelligence()
     ENHANCED_INTELLIGENCE_AVAILABLE = True
     print("🎯 Enhanced Graph Intelligence loaded successfully")
@@ -80,7 +79,6 @@ except ImportError as e:
 
 # Import performance optimization engine for maximum performance
 try:
-    from optimization.performance_engine import get_performance_engine
     performance_engine = get_performance_engine()
     PERFORMANCE_OPTIMIZATION_AVAILABLE = True
     print("🚀 Performance Optimization Engine loaded successfully")

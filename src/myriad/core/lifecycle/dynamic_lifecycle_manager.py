@@ -21,9 +21,7 @@ import threading
 from pathlib import Path
 
 # Import our template system
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from templates.agent_templates import get_template_manager, AgentTemplate
+from myriad.core.templates.agent_templates import get_template_manager, AgentTemplate
 
 class AgentStatus(Enum):
     CREATING = "creating"
