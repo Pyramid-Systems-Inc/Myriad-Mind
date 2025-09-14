@@ -39,24 +39,24 @@ This repository contains a decentralized, graph-based cognitive architecture imp
 
 This project emphasizes modularity, measurability, and reproducibility, targeting a robust baseline suitable for research and production deployment.
 
-## Core Concept: True Biomimetic Intelligence
+## Core Concept: Biomimetic Intelligence
 
 The Myriad architecture is inspired by neurobiology, implementing **the first true biomimetic neurogenesis** in artificial intelligence.
 
--   **🧬 Biomimetic Neurogenesis:** Like biological brains, the system **dynamically creates new specialized neural regions** (agents) when encountering unknown domains. This is true neuroplasticity in AI.
--   **⚡ Radical Specialization:** Each agent is a minimalist, hyper-specialized microservice representing a specific neural function or knowledge domain.
--   **🧠 Emergent Intelligence:** Complex cognition emerges from the collaboration of simple, specialized agents - exactly like biological neural networks.
--   **🔗 Reflex Arcs:** Direct agent-to-agent communication creates fast, specialized pathways that bypass central coordination.
--   **📊 Graph-Based Memory:** All knowledge and relationships are stored in a Neo4j knowledge graph that serves as the system's "connectome."
--   **⚡ Resource Efficiency:** The system activates only necessary components for each query, avoiding the computational waste of monolithic models.
+-   Neurogenesis: the system dynamically creates specialized agents when encountering unknown domains.
+-   Specialization: each agent is a minimalist, domain‑specific microservice.
+-   Emergent behavior: complex outputs arise from collaboration among specialized agents.
+-   Direct collaboration: agents can communicate without orchestrator mediation where appropriate.
+-   Graph‑based memory: knowledge and relationships are stored in Neo4j.
+-   Resource efficiency: only necessary components are activated per query.
 
-**Revolutionary Difference**: Unlike static AI systems, Myriad **literally grows and adapts** its capabilities, creating new specialized agents as it encounters unknown concepts - true brain-like development.
+Difference: Unlike static systems, Myriad grows and adapts capabilities by creating new specialized agents as it encounters unknown concepts.
 
 ## Architecture Overview
 
 ```mermaid
 graph TB
-    subgraph "🌐 User Interface Layer"
+    subgraph "User Interface Layer"
         UQ[User Query] --> IP[Input Processor\nAdvanced NLP]
         OP[Output Processor\nSynthesis Engine] --> FR[Final Response]
     end
@@ -109,7 +109,7 @@ graph TB
     %% Processing Flow
     O --> LDA
     O --> LFA
-    LDA --> S[🔄 Synthesizer]
+    LDA --> S[Synthesizer]
     LFA --> S
     QCA --> S
     S --> OP
