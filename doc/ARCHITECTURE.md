@@ -2,7 +2,7 @@
 
 **Version**: 5.0  
 **Date**: 2025-01-01  
-**Status**: Complete Biomimetic Neurogenesis + Enhanced Graph Intelligence Operational
+**Status**: Neurogenesis + Enhanced Graph Intelligence + Hebbian Learning Operational
 
 This document combines the foundational architectural blueprint with the advanced "Brain Approach" evolution strategy for the Myriad Cognitive Architecture.
 
@@ -170,12 +170,12 @@ graph LR
         NewAgent -- "Register in Graph" --> GDM;
     end
 
-    subgraph Knowledge Graph
+    subgraph Knowledge Graph (Hebbian Plasticity)
         GDB --> CN1[Concept: lightbulb];
         GDB --> CN2[Concept: quantum_computer];
         GDB --> CN3[Concept: smart_grid];
-        CN1 -- HANDLES_CONCEPT --> A1;
-        CN1 -- HANDLES_CONCEPT --> A2;
+        CN1 -- HANDLES_CONCEPT (weight, usage, success_rate) --> A1;
+        CN1 -- HANDLES_CONCEPT (weight, usage, success_rate) --> A2;
         CN2 -- HANDLES_CONCEPT --> NewAgent;
         CN3 -- HANDLES_CONCEPT --> NewAgent2[Smart_Grid_Knowledge_AI];
     end
@@ -232,14 +232,14 @@ The heart of the system. An agent is an independently deployable microservice em
 
 - **Graph Database Interface:** Provides CRUD operations for nodes and relationships in the Neo4j database
 - **Agent Discovery:** Enables concept-based agent lookup through graph traversal queries
-- **Relationship Management:** Maintains HANDLES_CONCEPT relationships between agents and concepts
+- **Relationship Management:** Maintains HANDLES_CONCEPT relationships between agents and concepts; implements Hebbian fields (`weight`, `usage_count`, `success_rate`, `last_updated`, `decay_rate`) and endpoints (`/hebbian/strengthen`, `/hebbian/decay`, `/get_agents_for_concept`).
 - **Migration Support:** Facilitates systematic population of the knowledge graph from configuration
 
 ### 3.3. The Orchestrator (The "Connectome / Central Nervous System")
 
 **🔄 EVOLVED**: The Orchestrator has evolved from registry-based to graph-based agent discovery, maintaining its role as an intelligent routing hub without reasoning capability.
 
-- **Graph-Based Discovery:** Queries the GraphDB Manager AI to find agents via concept relationships instead of simple key-value lookup
+- **Graph-Based Discovery:** Queries the GraphDB Manager AI to find agents via concept relationships instead of simple key-value lookup; invokes Hebbian updates after each agent outcome.
 - **The Router:** Receives enhanced task lists from the Input Processor and uses graph traversal to discover appropriate agents
 - **Future Neurogenesis:** The foundation is established for dynamic agent creation through graph node instantiation
 

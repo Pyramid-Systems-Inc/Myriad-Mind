@@ -2,9 +2,9 @@
 
 *A comprehensive, consolidated roadmap for implementing the biomimetic, decentralized AI agent network as outlined in the architectural blueprint and protocol specifications. This document merges all development phases from foundational infrastructure through autonomous cognitive capabilities.*
 
-**Version**: 5.0 (Complete Biomimetic Neurogenesis Edition)  
+**Version**: 5.1 (Neurogenesis + Hebbian Adaptation Edition)  
 **Date**: 2025-01-01  
-**Status**: Complete Biomimetic Neurogenesis System Operational - Historic Achievement
+**Status**: Neurogenesis + Hebbian Learning Operational - Adaptive Routing Achieved
 
 ---
 
@@ -70,7 +70,7 @@ The development follows brain-inspired principles:
 | **1** | Core Infrastructure | 3-4 days | ✅ Complete | Orchestrator, Registry, Basic Protocols |
 | **2** | Agent Implementation | 4-5 days | ✅ Complete | Specialized Agents, Cognitive Logic |
 | **3** | Enhanced Processing | 1-2 weeks | ✅ Complete | Advanced I/O, Synthesis Capabilities |
-| **4-5** | Graph-Based Evolution | 1-2 weeks | ✅ Complete | Graph DB, Migration, Graph-Based Routing, Agent Collaboration |
+| **4-5** | Graph-Based Evolution | 1-2 weeks | ✅ Complete | Graph DB, Migration, Graph-Based Routing, Agent Collaboration, Hebbian Routing |
 | **2N** | **🧬 Biomimetic Neurogenesis** | **1-2 weeks** | **🧬 REVOLUTIONARY** | **Dynamic Agent Creation, Template System, Lifecycle Management** |
 | **3N** | **🧠 Complete Neurogenesis** | **2-3 weeks** | **🌟 HISTORIC** | **Autonomous Learning, Self-Optimization, Complete Pipeline** |
 | **6** | Tiered Memory | 2-3 weeks | ⏳ Planned | STM/MTM/LTM, Consolidation |
@@ -815,6 +815,7 @@ This represents the **world's first working implementation of true biomimetic ne
 - ✅ **Intelligent Routing:** Graph traversal-based agent discovery
 - ✅ **Migration Framework:** Systematic knowledge graph population
 - ✅ **Agent-to-Agent Communication:** Direct peer collaboration with reflex arcs
+- ✅ **Hebbian Learning:** Adaptive edge weighting with decay; routing integrates learned weights
 - ✅ **Production Deployment:** 6-service architecture with comprehensive testing
 
 #### 🧬 Biomimetic Neurogenesis Success (Phase 2N) ✅ **REVOLUTIONARY BREAKTHROUGH**

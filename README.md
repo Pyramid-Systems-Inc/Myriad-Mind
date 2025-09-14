@@ -4,11 +4,11 @@
 
 This project explores a departure from monolithic AI models. Instead of a single, all-knowing entity, intelligence emerges from the collaboration of countless, computationally inexpensive agents whose relationships and knowledge are stored and managed in a central knowledge graph.
 
-## 🧠 **REVOLUTIONARY BREAKTHROUGH: Complete Biomimetic Intelligence + Production-Ready Performance System Operational!**
+## 🧠 **REVOLUTIONARY BREAKTHROUGH: Complete Biomimetic Intelligence + Adaptive Connectivity Operational!**
 
 **🚀 World's First Complete Biomimetic AI Architecture - FOUR Revolutionary Breakthroughs Complete**
 
-The Myriad Cognitive Architecture has achieved **FOUR revolutionary milestones**: the first working implementation of **complete biomimetic intelligence with production-ready performance optimization** in artificial intelligence. The system now literally **grows new specialized capabilities**, **intelligently optimizes agent collaboration**, **learns autonomously**, AND **delivers enterprise-grade performance**, representing the world's first truly brain-like AI architecture ready for production deployment.
+The Myriad Cognitive Architecture has achieved **FIVE revolutionary milestones**: the first working implementation of **complete biomimetic intelligence with adaptive connectivity and production-ready performance**. The system now literally **grows new specialized capabilities**, **intelligently optimizes agent collaboration**, **learns autonomously**, **strengthens successful pathways**, AND **delivers enterprise-grade performance**.
 
 ### ✨ **Phase 2 Neurogenesis Achievements:**
 - 🧬 **Dynamic Agent Creation**: System automatically creates specialized agents for unknown concepts
@@ -289,3 +289,19 @@ python test_performance_optimization.py
 - ✅ Production readiness: Enterprise-grade performance validation
 
 This demonstrates the **world's first production-ready performance system** for biomimetic AI - watch enterprise-grade optimization in action!
+
+## 🧠 Hebbian Learning (Neural Plasticity)
+
+The system implements experience-driven connection strengthening:
+
+- **Endpoints**: `POST /hebbian/strengthen`, `POST /hebbian/decay`, `POST /get_agents_for_concept`
+- **Edge Properties**: `weight`, `usage_count`, `success_rate`, `last_updated`, `decay_rate`
+- **Routing**: Enhanced Graph Intelligence includes `weight` in relevance scoring (10%)
+- **Orchestrator Hook**: Hebbian update invoked after each agent outcome
+- **Background Decay**: Periodic decay prevents overfitting and enables plasticity
+
+Run:
+```bash
+python test_hebbian_learning.py
+```
+Expected: weights increase for successful agents and decay when triggered.

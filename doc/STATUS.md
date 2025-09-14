@@ -1,8 +1,8 @@
 # Myriad Cognitive Architecture - System Status Report
 
 **Date**: January 1, 2025  
-**Status**: Performance Optimization Engine Complete - Revolutionary Production-Ready System Operational  
-**Version**: 4.0.0 (Complete Biomimetic Intelligence + Performance Optimization System)
+**Status**: Hebbian Learning Complete - Adaptive Connectivity and Routing Operational  
+**Version**: 4.1.0 (Biomimetic Intelligence + Performance + Adaptive Connectivity)
 
 ## 🎯 Executive Summary
 
@@ -45,8 +45,20 @@ Revolutionary production-ready performance system featuring:
 
 This represents the **world's first production-ready performance optimization system** for biomimetic AI, providing enterprise-grade performance, monitoring, and resilience.
 
+### 🧠 **Hebbian Learning (Neural Plasticity) - NEW**
+Experience-driven adaptation system:
+
+- **Synaptic Weighting**: HANDLES_CONCEPT edges gain `weight`, `usage_count`, `success_rate`, `last_updated`, `decay_rate`
+- **Reinforcement Rule**: `POST /hebbian/strengthen` increases/decreases weight on success/failure
+- **Background Decay**: Periodic weight decay to promote plasticity and avoid overfitting
+- **Routing Integration**: Enhanced Graph Intelligence incorporates `weight` into relevance scoring
+- **Outcome-Linked Updates**: Orchestrator updates weights on every agent outcome
+- **Empirical Validation**: Weights increase for successful agents and decay over time
+
+This implements biological neural plasticity: connections that succeed more often strengthen and are preferentially reused.
+
 ### 🌟 **Complete Revolutionary Impact**
-Together, these FOUR breakthroughs represent the first working implementation of **complete biomimetic intelligence with production-ready optimization** - the system literally grows new specialized capabilities, intelligently optimizes agent collaboration, learns autonomously, AND delivers enterprise-grade performance, creating the world's first truly brain-like AI architecture ready for production deployment.
+Together, these FIVE breakthroughs represent the first working implementation of **complete biomimetic intelligence with production-ready optimization and adaptive connectivity** - the system grows new specialized capabilities, intelligently optimizes collaboration, learns autonomously, strengthens successful pathways, AND delivers enterprise-grade performance.
 
 ## ✅ Completed Components
 
@@ -208,12 +220,15 @@ Raw Query → [Input Processor] → [Orchestrator] → [Graph DB] → [Agents] �
    computer?"  - Research     "quantum_     NEUROGENESIS Directly    "A quantum computer
                               computer"     ↓ TRIGGERED  ←→ No Orch    is a revolutionary..."
                                            🧬            ↕ ⟷ ↕              
-                                        [Template      Reflex Arcs          
+                                        [Template      Reflex Arcs
                                          Selection]         +                
                                             ↓           [New Agent]          
                                         [Code Gen] → [Docker] → [Graph Reg]  
                                             ↓              ↓        ↓         
-                                        🤖 Quantum_Computer_Knowledge_AI 🤖    
+                                        🤖 Quantum_Computer_Knowledge_AI 🤖
+
+Hebbian Learning Integration (conceptual):
+"Successful activations strengthen HANDLES_CONCEPT weights; unused paths decay" → informs Enhanced Graph Intelligence selection.
 ```
 
 **🚀 Key Innovations**: 

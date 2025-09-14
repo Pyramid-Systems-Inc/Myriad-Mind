@@ -1,8 +1,8 @@
 # Myriad Cognitive Architecture - Complete Communication Protocols
 
-**Version**: 5.0 (Complete Biomimetic Neurogenesis Protocols Edition)  
+**Version**: 5.1 (Neurogenesis + Hebbian Learning Protocols Edition)  
 **Date**: 2025-01-01  
-**Status**: Complete Neurogenesis System Operational - World's First Implementation
+**Status**: Neurogenesis + Hebbian Learning Operational - Adaptive Connectivity Implemented
 
 This document defines the comprehensive communication protocols for the Myriad Cognitive Architecture, supporting evolution from basic MVP functionality through advanced biomimetic features, autonomous learning, and cognitive self-awareness.
 
@@ -93,7 +93,7 @@ graph TB
 | **Communication** | ✅ Basic REST | ✅ Enhanced Processing | ✅ Graph Routing | ✅ Agent Collaboration | ⏳ Async Events | ⏳ Learning Comms | ⏳ Autonomous |
 | **Agent Types** | ✅ 4 Base Types | ✅ Specialization | ✅ Graph Integration | ✅ Reflex Arcs | ✅ Genesis Agents | ⏳ Learning Agents | ⏳ Cognitive Agents |
 | **Registry** | ✅ Simple Lookup | ✅ Enhanced Protocols | ✅ Graph Database | ✅ Smart Discovery | ⏳ Memory Tiers | ⏳ Curriculum | ⏳ Drives System |
-| **Learning** | ❌ Static | ❌ Static | ✅ Graph Foundation | ⏳ Continuous Adaptation | ⏳ Few-Shot Learning | ⏳ Multi-Modal | 🧬 Autonomous Learning |
+| **Learning** | ❌ Static | ❌ Static | ✅ Graph Foundation | ✅ Hebbian Adaptation | ⏳ Few-Shot Learning | ⏳ Multi-Modal | 🧬 Autonomous Learning |
 | **🧬 Neurogenesis** | ❌ N/A | ❌ N/A | ✅ Research Pipeline | ✅ Template Agents | ✅ Dynamic Creation | 🧬 Autonomous Learning | ⏳ Self-Optimization |
 | **Fine-tuning** | ❌ N/A | ❌ N/A | ❌ N/A | ⏳ Agent Specialization | ⏳ Performance Optimization | ⏳ Advanced Tuning | ⏳ Auto-Optimization |
 
@@ -1304,54 +1304,48 @@ curl http://quantum_computer_specialist:5000/health
 }
 ```
 
-### 3.3 Hebbian Learning Protocol
+### 3.3 Hebbian Learning Protocol (✅ IMPLEMENTED)
 
-**Purpose**: Strengthen agent connections based on successful collaborations
+**Purpose**: Strengthen agent-to-concept connectivity based on successful activations; decay unused connections.
 
 **Learning Event**: `Collaboration Monitor → Learning Engine`
 
 ```json
 {
   "hebbian_learning_event": {
-    "collaboration_session": {
-      "agents_involved": ["lightbulb_fact_001", "factory_history_001"],
-      "query_context": "factory_lighting_importance",
-      "collaboration_outcome": {
-        "success": true,
-        "user_satisfaction": 4.8,
-        "response_accuracy": 0.93,
-        "response_time": 145
-      }
-    },
-    "learning_application": {
-      "weight_adjustment": {
-        "current_weight": 0.78,
-        "adjustment_magnitude": 0.05,
-        "new_weight": 0.83,
-        "learning_rule": "hebbian_strengthening"
-      },
-      "activation_pattern_reinforcement": {
-        "context_pattern": "industrial_history_queries",
-        "pattern_strength_increase": 0.03,
-        "pattern_specificity_improvement": 0.02
-      }
-    },
-    "network_effects": {
-      "indirect_weight_adjustments": [
-        {
-          "agent_pair": ["lightbulb_fact_001", "productivity_analysis_001"],
-          "reason": "shared_collaboration_success",
-          "weight_change": 0.01
-        }
-      ],
-      "cluster_optimization": {
-        "cluster_cohesion_improvement": 0.02,
-        "inter_cluster_connection_strengthening": 0.01
-      }
-    }
+    "agent_id": "Lightbulb_Definition_AI",
+    "concept": "lightbulb",
+    "success": true,
+    "edge": "HANDLES_CONCEPT"
   }
 }
 ```
+
+#### 3.3.1 Endpoints
+
+- `POST /hebbian/strengthen`
+  - Request:
+  ```json
+  {"agent_id":"Lightbulb_Definition_AI","concept":"lightbulb","success":true}
+  ```
+  - Response: `{"status":"success","relationship": {"weight":0.62,...}}`
+
+- `POST /hebbian/decay`
+  - Request:
+  ```json
+  {"concept":"lightbulb","decay_rate":0.05}
+  ```
+  - Response: `{"status":"success","decayed":N}`
+
+- `POST /get_agents_for_concept`
+  - Request: `{"concept":"lightbulb"}`
+  - Response: agents with relationship properties including `weight`.
+
+#### 3.3.2 Orchestrator Hook
+Upon each agent outcome, the orchestrator invokes `/hebbian/strengthen` with `success` reflecting the outcome.
+
+#### 3.3.3 Routing Integration
+Enhanced Graph Intelligence incorporates `weight` into relevance scoring (10% contribution by default).
 
 ---
 
