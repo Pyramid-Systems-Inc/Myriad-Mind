@@ -4,48 +4,40 @@
 
 This project explores a departure from monolithic AI models. Instead of a single, all-knowing entity, intelligence emerges from the collaboration of countless, computationally inexpensive agents whose relationships and knowledge are stored and managed in a central knowledge graph.
 
-## 🧠 **REVOLUTIONARY BREAKTHROUGH: Complete Biomimetic Intelligence + Adaptive Connectivity Operational!**
+## System Overview
 
-**🚀 World's First Complete Biomimetic AI Architecture - FOUR Revolutionary Breakthroughs Complete**
+This repository contains a decentralized, graph-based cognitive architecture implementing:
+1) dynamic agent creation for unknown concepts (neurogenesis),
+2) intelligent agent discovery and routing,
+3) adaptive connectivity via Hebbian learning, and
+4) performance optimizations suitable for production use.
 
-The Myriad Cognitive Architecture has achieved **FIVE revolutionary milestones**: the first working implementation of **complete biomimetic intelligence with adaptive connectivity and production-ready performance**. The system now literally **grows new specialized capabilities**, **intelligently optimizes agent collaboration**, **learns autonomously**, **strengthens successful pathways**, AND **delivers enterprise-grade performance**.
+### Neurogenesis (Phase 2)
+- Dynamic agent creation for previously unknown concepts
+- Multi‑agent research before instantiation
+- Template-based agent generation (four templates)
+- Lifecycle management (creation, monitoring, cleanup) and Docker orchestration
+- Graph registration for immediate discoverability
 
-### ✨ **Phase 2 Neurogenesis Achievements:**
-- 🧬 **Dynamic Agent Creation**: System automatically creates specialized agents for unknown concepts
-- 📚 **Intelligent Research**: Multi-agent collaboration researches new concepts before agent creation
-- 🤖 **Template-Based Generation**: 4 specialized agent templates with AI-driven selection
-- 🔄 **Complete Lifecycle Management**: Agent creation, monitoring, cleanup, and Docker orchestration
-- 🔗 **Graph Integration**: Dynamic agents auto-register and become instantly discoverable
-- ⚡ **Reflex Arcs**: Direct agent-to-agent communication without orchestrator mediation
-- ✅ **100% Integration Success**: Validated through comprehensive Docker network testing
+### Enhanced Graph Intelligence
+- Multi‑criteria relevance scoring (expertise, capability, domain, performance, availability)
+- Context‑aware discovery (query complexity, domain indicators)
+- Dynamic agent clustering and background maintenance
+- Performance tracking and cache management; orchestrator integration
 
-### 🎯 **Enhanced Graph Intelligence Achievements:**
-- 🧠 **Multi-Criteria Relevance Scoring**: Intelligent agent selection based on expertise, performance, and context
-- 🔍 **Context-Aware Discovery**: Query analysis with complexity scoring and domain detection
-- 🔗 **Dynamic Agent Clustering**: Performance-based organization into high/medium/emerging tiers
-- 📊 **Real-Time Performance Tracking**: Success rates, response quality, and collaboration effectiveness
-- ⚡ **Intelligent Routing**: Smart query routing with fallback strategies and cache optimization
-- 🧹 **Background Optimization**: Automatic profile updates, cluster maintenance, and cache cleanup
-- ✅ **8/8 Comprehensive Tests Passed**: Complete validation of intelligence system functionality
+### Performance Optimization
+- Redis-backed caching with compression and TTL policy
+- Neo4j connection pooling; optimized timeouts
+- Response compression and async processing for non‑critical paths
+- Performance monitoring and alerting; error resilience
 
-### 🚀 **Performance Optimization Achievements:**
-- 🐳 **Redis Distributed Caching**: Advanced caching with 82% compression ratio on large payloads
-- 🔗 **Neo4j Connection Pooling**: Optimized database connections with 0.072s average response time
-- 📦 **Response Compression**: Automatic compression achieving dramatic network efficiency improvements
-- 📊 **Real-Time Performance Monitoring**: Live metrics, alerting, and performance scoring (0-100 scale)
-- ⚡ **Async Processing**: Concurrent operations with zero exceptions in parallel execution
-- 🛡️ **Error Resilience**: Graceful degradation and robust error handling for production readiness
-- 🎯 **Orchestrator Integration**: Seamless performance optimization integrated throughout the system
-- ✅ **8/8 Performance Tests Passed**: Complete production-ready performance validation
+### Additional Capabilities
+- Graph database core (Neo4j) with a dedicated manager service
+- Agent‑to‑agent communication (collaboration endpoints)
+- Enhanced input/output processing pipeline
+- Graph‑based orchestrator with intelligent discovery
 
-### 🏆 **Previous Achievements:**
-- ✅ **Graph Database Core**: Neo4j and GraphDB Manager AI operational  
-- ✅ **Agent-to-Agent Communication**: Direct peer collaboration with reflex arcs
-- ✅ **Enhanced Processing Pipeline**: Advanced input/output processing
-- ✅ **Graph-Based Orchestrator**: Intelligent agent discovery via graph traversal
-- ✅ **System Integration**: All services healthy with comprehensive end-to-end testing
-
-**🔥 This represents the transition from static AI to truly adaptive, production-ready biomimetic intelligence - the world's first complete brain-like AI architecture with enterprise-grade performance!**
+This project emphasizes modularity, measurability, and reproducibility, targeting a robust baseline suitable for research and production deployment.
 
 ## Core Concept: True Biomimetic Intelligence
 
@@ -60,58 +52,58 @@ The Myriad architecture is inspired by neurobiology, implementing **the first tr
 
 **Revolutionary Difference**: Unlike static AI systems, Myriad **literally grows and adapts** its capabilities, creating new specialized agents as it encounters unknown concepts - true brain-like development.
 
-## 🧠 Revolutionary Biomimetic Architecture
+## Architecture Overview
 
 ```mermaid
 graph TB
     subgraph "🌐 User Interface Layer"
-        UQ[🗣️ User Query] --> IP[📥 Input Processor<br/>Advanced NLP]
-        OP[📤 Output Processor<br/>Synthesis Engine] --> FR[✨ Final Response]
+        UQ[User Query] --> IP[Input Processor\nAdvanced NLP]
+        OP[Output Processor\nSynthesis Engine] --> FR[Final Response]
     end
 
-    subgraph "🎯 Enhanced Graph Intelligence Layer"
-        IP --> EGI[🧠 Enhanced Graph Intelligence<br/>🔍 Context Analysis<br/>📊 Relevance Scoring<br/>🔗 Agent Clustering]
-        EGI --> O[🎛️ Orchestrator<br/>Smart Routing]
+    subgraph "Enhanced Graph Intelligence Layer"
+        IP --> EGI[Enhanced Graph Intelligence\nContext Analysis\nRelevance Scoring\nAgent Clustering]
+        EGI --> O[Orchestrator\nSmart Routing]
     end
 
-    subgraph "🧬 Neurogenesis Pipeline"
-        O -.->|Unknown Concept| NG[🧬 Neurogenesis Trigger<br/>Concept Detection]
-        NG --> MAR[📚 Multi-Agent Research<br/>Collaborative Learning]
-        MAR --> TS[🏗️ Template Selection<br/>AI-Driven Choice]
-        TS --> DLM[🤖 Dynamic Lifecycle Manager<br/>Agent Creation & Docker]
-        DLM --> NDA[⚡ New Dynamic Agent<br/>Specialized Capability]
-        NDA --> GR[📊 Graph Registration<br/>Auto-Discovery]
+    subgraph "Neurogenesis Pipeline"
+        O -.->|Unknown Concept| NG[Neurogenesis Trigger\nConcept Detection]
+        NG --> MAR[Multi-Agent Research\nCollaborative Learning]
+        MAR --> TS[Template Selection\nPolicy]
+        TS --> DLM[Dynamic Lifecycle Manager\nAgent Creation]
+        DLM --> NDA[New Dynamic Agent\nSpecialized Capability]
+        NDA --> GR[Graph Registration\nAuto-Discovery]
     end
 
-    subgraph "🌊 Neural Substrate (Knowledge Graph)"
-        O <--> GDB[🗃️ GraphDB Manager AI<br/>Port 5008]
-        GDB <--> KG[(🧠 Knowledge Graph<br/>Neo4j Neural Network<br/>🔗 Concepts & Relationships)]
+    subgraph "Knowledge Graph"
+        O <--> GDB[GraphDB Manager AI\nPort 5008]
+        GDB <--> KG[(Knowledge Graph\nNeo4j\nConcepts & Relationships)]
         EGI <--> GDB
     end
 
-    subgraph "🤖 Intelligent Agent Network"
-        GDB --> LDA[💡 Lightbulb Definition AI<br/>📍 Static Agent]
-        GDB --> LFA[⚙️ Lightbulb Function AI<br/>📍 Static Agent]
-        GDB --> QCA[⚛️ Quantum Computing AI<br/>🧬 Dynamic Agent]
-        GDB --> BCA[🧠 Biomimetic Computing AI<br/>🧬 Dynamic Agent]
+    subgraph "Intelligent Agent Network"
+        GDB --> LDA[Lightbulb Definition AI\nStatic Agent]
+        GDB --> LFA[Lightbulb Function AI\nStatic Agent]
+        GDB --> QCA[Quantum Computing AI\nDynamic Agent]
+        GDB --> BCA[Biomimetic Computing AI\nDynamic Agent]
         
         %% Agent-to-Agent Communication (Reflex Arcs)
-        LDA <-.->|🔗 Direct Collaboration| LFA
-        LFA <-.->|🔗 Knowledge Sharing| QCA
-        QCA <-.->|🔗 Reflex Arcs| BCA
+        LDA <-.->|Direct Collaboration| LFA
+        LFA <-.->|Knowledge Sharing| QCA
+        QCA <-.->|Reflex Arcs| BCA
     end
 
-    subgraph "🎓 Autonomous Learning Engine"
-        NDA --> ALE[🧠 Autonomous Learning<br/>📚 Knowledge Acquisition<br/>⚡ Capability Development<br/>📈 Self-Optimization]
-        ALE -.-> PT[📊 Performance Tracking<br/>Success Metrics<br/>Collaboration History]
+    subgraph "Autonomous Learning Engine"
+        NDA --> ALE[Autonomous Learning\nKnowledge Acquisition\nCapability Development\nSelf-Optimization]
+        ALE -.-> PT[Performance Tracking\nSuccess Metrics\nCollaboration History]
         PT --> EGI
     end
 
-    subgraph "🏗️ Template Factory"
-        TS --> FB[📝 FactBase Basic<br/>Simple Knowledge]
-        TS --> FE[📊 FactBase Enhanced<br/>Advanced Reasoning]
-        TS --> FUN[⚙️ Function Basic<br/>Impact Analysis]
-        TS --> SP[🎯 Specialist Basic<br/>Domain Expertise]
+    subgraph "Template Factory"
+        TS --> FB[FactBase Basic\nSimple Knowledge]
+        TS --> FE[FactBase Enhanced\nAdvanced Reasoning]
+        TS --> FUN[Function Basic\nImpact Analysis]
+        TS --> SP[Specialist Basic\nDomain Expertise]
     end
 
     %% Processing Flow

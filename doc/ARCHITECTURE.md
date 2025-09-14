@@ -201,7 +201,7 @@ graph LR
     style CN3 fill:#eeffcc,stroke:#333
 ```
 
-**🧬 Revolutionary Neurogenesis Innovation**: The architecture features **true biomimetic neurogenesis** - when the Orchestrator encounters unknown concepts without existing agents, it triggers an automated neurogenesis pipeline that:
+Neurogenesis: When the orchestrator encounters unknown concepts without existing agents, it triggers a pipeline that:
 
 1. **Research Phase**: Existing agents collaborate to research the unknown concept
 2. **Template Selection**: AI-driven selection of appropriate agent template (factbase, function, specialist)
@@ -210,7 +210,7 @@ graph LR
 5. **Graph Registration**: Automatic registration of new agent and concept relationships
 6. **Collaboration**: New agents immediately participate in the collaborative network
 
-This represents the **world's first implementation of genuine biomimetic neurogenesis** in AI - the system literally grows new specialized capabilities like a biological brain.
+This enables the system to grow specialized capabilities at runtime.
 
 ---
 
