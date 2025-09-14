@@ -666,15 +666,26 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 **Endpoint**: `POST /create_relationship`  
 **Purpose**: Create relationships between existing nodes  
 
-**Request Format**:
+**Request Format (by node properties)**:
 ```json
 {
-  "source_label": "Agent",
-  "source_properties": {"name": "Lightbulb_Definition_AI"},
-  "target_label": "Concept",
-  "target_properties": {"name": "lightbulb"},
-  "type": "HANDLES_CONCEPT",
-  "properties": {"weight": 1.0}
+  "start_node_label": "Agent",
+  "start_node_properties": {"name": "Lightbulb_Definition_AI"},
+  "end_node_label": "Concept",
+  "end_node_properties": {"name": "lightbulb"},
+  "relationship_type": "HANDLES_CONCEPT",
+  "relationship_properties": {"weight": 1.0}
+}
+```
+
+**Request Format (by node ID)**:
+```json
+{
+  "start_node_id": "4:f79f1e3c-12a4-4b8a-9c8e-1234567890ab:123",
+  "end_node_label": "Concept",
+  "end_node_properties": {"name": "lightbulb"},
+  "relationship_type": "HANDLES_CONCEPT",
+  "relationship_properties": {"weight": 1.0, "creation_method": "neurogenesis"}
 }
 ```
 
