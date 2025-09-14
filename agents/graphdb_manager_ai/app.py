@@ -85,41 +85,59 @@ def create_relationship():
         return jsonify({"status": "error", "message": "Database not connected"}), 503
         
     data = request.get_json()
-    required_fields = ['source_label', 'source_properties', 'target_label', 'target_properties', 'type']
-    if not data or not all(field in data for field in required_fields):
-        return jsonify({"status": "error", "message": f"Request must include {required_fields}"}), 400
-
-    rel_type = data['type']
-    rel_props = data.get('properties', {})
+    # Allow creation via ID for one node, and properties for the other.
+    # This is more efficient after creating a node and getting its ID back.
+    by_id = 'start_node_id' in data or 'end_node_id' in data
     
-    # Fix: Corrected validation to allow underscores
+    if by_id:
+        # At least one of the nodes must be specified by ID
+        if 'start_node_id' not in data and 'end_node_id' not in data:
+            return jsonify({"status": "error", "message": "If creating by ID, 'start_node_id' or 'end_node_id' must be provided."}), 400
+    else:
+        # Legacy support: if not using IDs, all property fields are required
+        required_fields = ['start_node_label', 'start_node_properties', 'end_node_label', 'end_node_properties', 'relationship_type']
+        if not data or not all(field in data for field in required_fields):
+            return jsonify({"status": "error", "message": f"Request must include {required_fields} or specify nodes by ID"}), 400
+
+    rel_type = data['relationship_type']
+    rel_props = data.get('relationship_properties', {})
+
+    # Basic validation
     if not rel_type.isupper() or not rel_type.replace('_', '').isalpha():
-         return jsonify({"status": "error", "message": "Relationship type must be uppercase and contain only letters and underscores."}), 400
+        return jsonify({"status": "error", "message": "Relationship type must be uppercase and contain only letters and underscores."}), 400
 
     try:
         with driver.session() as session:
-            # Fix: Dynamically build WHERE clauses for robust property matching.
-            # This is the correct and safe way to match nodes by a subset of properties.
-            source_where_clause = " AND ".join([f"a.{key} = $source_props.{key}" for key in data['source_properties']])
-            target_where_clause = " AND ".join([f"b.{key} = $target_props.{key}" for key in data['target_properties']])
+            params = {"rel_props": rel_props}
+
+            # Build MATCH clause for the start node
+            if 'start_node_id' in data:
+                match_a = "MATCH (a) WHERE elementId(a) = $start_node_id"
+                params['start_node_id'] = data['start_node_id']
+            else:
+                start_where = " AND ".join([f"a.{k} = $start_props.{k}" for k in data['start_node_properties']])
+                match_a = f"MATCH (a:{data['start_node_label']}) WHERE {start_where}"
+                params['start_props'] = data['start_node_properties']
+
+            # Build MATCH clause for the end node
+            if 'end_node_id' in data:
+                match_b = "MATCH (b) WHERE elementId(b) = $end_node_id"
+                params['end_node_id'] = data['end_node_id']
+            else:
+                end_where = " AND ".join([f"b.{k} = $end_props.{k}" for k in data['end_node_properties']])
+                match_b = f"MATCH (b:{data['end_node_label']}) WHERE {end_where}"
+                params['end_props'] = data['end_node_properties']
 
             query = (
-                f"MATCH (a:{data['source_label']}) WHERE {source_where_clause} "
-                f"MATCH (b:{data['target_label']}) WHERE {target_where_clause} "
+                f"{match_a} "
+                f"{match_b} "
                 f"CREATE (a)-[r:{rel_type} $rel_props]->(b) "
                 "RETURN elementId(r) AS id"
             )
-            
-            # Combine all parameters into a single dictionary for the driver
-            params = {
-                "source_props": data['source_properties'],
-                "target_props": data['target_properties'],
-                "rel_props": rel_props
-            }
 
-            result = session.run(query, params)
+            result = session.run(query, **params)
             rel_id = result.single()
-            
+
             if rel_id:
                 return jsonify({"status": "success", "relationship_id": rel_id['id']}), 201
             else:
