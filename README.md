@@ -151,6 +151,7 @@ graph TB
 - **🧠 Autonomous Learning:** Self-bootstrapping knowledge acquisition and capability development
 - **📊 Performance Tracking:** Real-time success metrics and collaboration history
 - **📈 Self-Optimization:** Continuous improvement and adaptation mechanisms
+- **🔄 Continuous Learning:** Dynamic agents periodically refresh their knowledge from the central graph, ensuring they always have the most up-to-date information.
 
 ### 🏗️ **Template Factory**
 - **📝 FactBase Basic:** Simple knowledge storage and retrieval

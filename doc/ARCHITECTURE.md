@@ -179,6 +179,10 @@ graph TB
         LDA <-.->|Direct Collaboration| LFA
         LFA <-.->|Knowledge Sharing| QCA
         QCA <-.->|Reflex Arcs| BCA
+
+        %% Continuous Learning
+        QCA -.->|Knowledge Refresh| GDB
+        BCA -.->|Knowledge Refresh| GDB
     end
 
     subgraph "Autonomous Learning Engine"

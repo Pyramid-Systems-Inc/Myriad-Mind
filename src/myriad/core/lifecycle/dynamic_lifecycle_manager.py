@@ -115,49 +115,66 @@ class DynamicKnowledgeBase:
         self.knowledge = INITIAL_KNOWLEDGE.copy()
         self.confidence_scores = {}
         self.learning_enabled = True
+        self._lock = threading.Lock()
     
     def get_knowledge(self, knowledge_type: str = "primary") -> str:
         """Retrieve knowledge of a specific type"""
-        
-        if knowledge_type == "definition":
-            return self.knowledge.get("primary_definition", f"A {{CONCEPT}} is a concept requiring further research.")
-        
-        elif knowledge_type == "applications":
-            apps = self.knowledge.get("applications", [])
-            if apps:
-                return f"{{CONCEPT}} has applications in: " + ", ".join(apps)
-            return f"{{CONCEPT}} applications are being researched."
-        
-        elif knowledge_type == "relationships":
-            related = self.knowledge.get("related_concepts", [])
-            if related:
-                return f"{{CONCEPT}} is related to: " + ", ".join(related)
-            return f"{{CONCEPT}} relationships are being mapped."
-        
-        elif knowledge_type == "research_summary":
-            return self.knowledge.get("primary_definition", f"Research on {{CONCEPT}} is ongoing.")
-        
-        else:
-            # Default knowledge response
-            confidence = self.knowledge.get("confidence_score", 0.0)
-            if confidence > 0.5:
-                return self.knowledge.get("primary_definition", f"Information about {{CONCEPT}} is available.")
+        with self._lock:
+            if knowledge_type == "definition":
+                return self.knowledge.get("primary_definition", f"A {CONCEPT} is a concept requiring further research.")
+            
+            elif knowledge_type == "applications":
+                apps = self.knowledge.get("applications", [])
+                if apps:
+                    return f"{CONCEPT} has applications in: " + ", ".join(apps)
+                return f"{CONCEPT} applications are being researched."
+            
+            elif knowledge_type == "relationships":
+                related = self.knowledge.get("related_concepts", [])
+                if related:
+                    return f"{CONCEPT} is related to: " + ", ".join(related)
+                return f"{CONCEPT} relationships are being mapped."
+            
+            elif knowledge_type == "research_summary":
+                return self.knowledge.get("primary_definition", f"Research on {CONCEPT} is ongoing.")
+            
             else:
-                return f"I am learning about {{CONCEPT}}. My current understanding is limited but growing."
+                # Default knowledge response
+                confidence = self.knowledge.get("confidence_score", 0.0)
+                if confidence > 0.5:
+                    return self.knowledge.get("primary_definition", f"Information about {CONCEPT} is available.")
+                else:
+                    return f"I am learning about {CONCEPT}. My current understanding is limited but growing."
     
     def update_knowledge(self, knowledge_type: str, content: str, confidence: float = 0.5):
         """Update knowledge base with new information"""
         if self.learning_enabled:
-            if "learned_knowledge" not in self.knowledge:
-                self.knowledge["learned_knowledge"] = {{}}
-            
-            self.knowledge["learned_knowledge"][knowledge_type] = content
-            self.confidence_scores[knowledge_type] = confidence
-            
-            # Update overall confidence
-            if self.confidence_scores:
-                avg_confidence = sum(self.confidence_scores.values()) / len(self.confidence_scores)
-                self.knowledge["confidence_score"] = avg_confidence
+            with self._lock:
+                if "learned_knowledge" not in self.knowledge:
+                    self.knowledge["learned_knowledge"] = {}
+                
+                self.knowledge["learned_knowledge"][knowledge_type] = content
+                self.confidence_scores[knowledge_type] = confidence
+                
+                # Update overall confidence
+                if self.confidence_scores:
+                    avg_confidence = sum(self.confidence_scores.values()) / len(self.confidence_scores)
+                    self.knowledge["confidence_score"] = avg_confidence
+
+    def ingest_graph_data(self, graph_data: Dict[str, Any]):
+        """Update the knowledge base from a dictionary of graph node properties."""
+        with self._lock:
+            # We can expand this logic to be more selective later
+            for key, value in graph_data.items():
+                # Try to deserialize if it's a JSON string
+                if isinstance(value, str) and value.startswith(('{', '[')):
+                    try:
+                        self.knowledge[key] = json.loads(value)
+                    except json.JSONDecodeError:
+                        self.knowledge[key] = value # Keep as string if not valid JSON
+                else:
+                    self.knowledge[key] = value
+            print(f"🧠 Knowledge base updated for concept '{CONCEPT}' from graph.")
 
 # Initialize knowledge base
 knowledge_base = DynamicKnowledgeBase()
@@ -165,15 +182,15 @@ knowledge_base = DynamicKnowledgeBase()
 def discover_peer_agents(concept: str) -> List[Dict[str, Any]]:
     """Discover other agents that handle a specific concept"""
     try:
-        payload = {{
+        payload = {
             "start_node_label": "Concept",
-            "start_node_properties": {{"name": concept.lower()}},
+            "start_node_properties": {"name": concept.lower()},
             "relationship_type": "HANDLES_CONCEPT", 
             "relationship_direction": "in",
             "target_node_label": "Agent"
-        }}
+        }
         
-        response = requests.post(f"{{GRAPHDB_MANAGER_URL}}/find_connected_nodes", 
+        response = requests.post(f"{GRAPHDB_MANAGER_URL}/find_connected_nodes", 
                                json=payload, timeout=5)
         
         if response.status_code == 200:
@@ -181,19 +198,19 @@ def discover_peer_agents(concept: str) -> List[Dict[str, Any]]:
             return data.get("nodes", [])
         return []
     except Exception as e:
-        print(f"Error discovering peers: {{e}}")
+        print(f"Error discovering peers: {e}")
         return []
 
 def request_peer_collaboration(peer_endpoint: str, collaboration_request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """Send collaboration request to a peer agent"""
     try:
-        response = requests.post(f"{{peer_endpoint}}/collaborate", 
+        response = requests.post(f"{peer_endpoint}/collaborate", 
                                json=collaboration_request, timeout=10)
         if response.status_code == 200:
             return response.json()
         return None
     except Exception as e:
-        print(f"Collaboration error: {{e}}")
+        print(f"Collaboration error: {e}")
         return None
 
 '''
@@ -385,6 +402,10 @@ if __name__ == '__main__':
     print(f"📚 Specializing in: {CONCEPT}")
     print(f"🧠 Capabilities: {', '.join(CAPABILITIES)}")
     print(f"✨ Knowledge confidence: {knowledge_base.knowledge.get('confidence_score', 0.0):.2f}")
+    
+    # Start the background knowledge refresh thread
+    refresh_thread = threading.Thread(target=_periodic_knowledge_refresh, daemon=True)
+    refresh_thread.start()
     
     app.run(host='0.0.0.0', port=port, debug=False)
 '''
@@ -624,6 +645,33 @@ lifecycle_manager = DynamicLifecycleManager()
 def get_lifecycle_manager() -> DynamicLifecycleManager:
     """Get the global lifecycle manager instance"""
     return lifecycle_manager
+
+def _periodic_knowledge_refresh(interval_seconds: int = 300):
+    """Periodically query the graph for updated knowledge about the agent's concept."""
+    while True:
+        try:
+            print(f"🔄 Performing periodic knowledge refresh for '{CONCEPT}'...")
+            payload = {
+                "node_type": "Concept",
+                "properties": {"name": CONCEPT.lower()}
+            }
+            response = requests.post(f"{GRAPHDB_MANAGER_URL}/query_nodes", json=payload, timeout=10)
+
+            if response.status_code == 200:
+                nodes = response.json().get("nodes", [])
+                if nodes:
+                    knowledge_base.ingest_graph_data(nodes[0])
+                else:
+                    print(f"⚠️  Could not find concept '{CONCEPT}' in graph for refresh.")
+            else:
+                print(f"⚠️  Knowledge refresh query failed with status {response.status_code}")
+
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Error during knowledge refresh: {e}")
+        except Exception as e:
+            print(f"❌ An unexpected error occurred in knowledge refresh thread: {e}")
+
+        time.sleep(interval_seconds)
 
 if __name__ == "__main__":
     # Demo the lifecycle manager
