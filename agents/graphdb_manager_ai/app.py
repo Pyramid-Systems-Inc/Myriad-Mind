@@ -279,12 +279,12 @@ def hebbian_strengthen():
                 f"MERGE (a)-[r:{rel_type}]->(c) "
                 "ON CREATE SET r.weight = 0.5, r.usage_count = 0, r.success_count = 0, r.failure_count = 0, "
                 "r.success_rate = 0.5, r.decay_rate = $decay_rate, r.last_updated = timestamp() "
-                "WITH r "
+                "WITH r, (CASE $success WHEN true THEN $delta_success ELSE -$delta_failure END) AS delta "
                 "SET r.usage_count = r.usage_count + 1, "
                 "r.success_count = r.success_count + (CASE $success WHEN true THEN 1 ELSE 0 END), "
                 "r.failure_count = r.failure_count + (CASE $success WHEN true THEN 0 ELSE 1 END), "
                 "r.success_rate = toFloat(r.success_count) / toFloat(r.usage_count), "
-                "r.weight = apoc.number.min(1.0, apoc.number.max(0.0, r.weight + (CASE $success WHEN true THEN $delta_success ELSE -$delta_failure END))), "
+                "r.weight = CASE WHEN r.weight + delta > 1.0 THEN 1.0 WHEN r.weight + delta < 0.0 THEN 0.0 ELSE r.weight + delta END, "
                 "r.last_updated = timestamp() "
                 "RETURN r as rel"
             )
@@ -320,7 +320,7 @@ def hebbian_decay():
             if agent_id and concept:
                 query = (
                     f"MATCH (a:Agent {{name: $agent_id}})-[r:{rel_type}]->(c:Concept {{name: $concept}}) "
-                    "SET r.weight = apoc.number.max(0.0, r.weight * (1.0 - $decay_rate)), r.last_updated = timestamp() "
+                    "SET r.weight = CASE WHEN r.weight * (1.0 - $decay_rate) < 0.0 THEN 0.0 ELSE r.weight * (1.0 - $decay_rate) END, r.last_updated = timestamp() "
                     "RETURN r as rel"
                 )
                 params = {'agent_id': agent_id, 'concept': concept, 'decay_rate': decay_rate}
@@ -331,7 +331,7 @@ def hebbian_decay():
             elif concept:
                 query = (
                     f"MATCH (:Concept {{name: $concept}})<-[r:{rel_type}]-(:Agent) "
-                    "SET r.weight = apoc.number.max(0.0, r.weight * (1.0 - $decay_rate)), r.last_updated = timestamp() "
+                    "SET r.weight = CASE WHEN r.weight * (1.0 - $decay_rate) < 0.0 THEN 0.0 ELSE r.weight * (1.0 - $decay_rate) END, r.last_updated = timestamp() "
                     "RETURN count(r) as cnt"
                 )
                 result = session.run(query, concept=concept, decay_rate=decay_rate)
@@ -340,7 +340,7 @@ def hebbian_decay():
             elif agent_id:
                 query = (
                     f"MATCH (:Agent {{name: $agent_id}})-[r:{rel_type}]->(:Concept) "
-                    "SET r.weight = apoc.number.max(0.0, r.weight * (1.0 - $decay_rate)), r.last_updated = timestamp() "
+                    "SET r.weight = CASE WHEN r.weight * (1.0 - $decay_rate) < 0.0 THEN 0.0 ELSE r.weight * (1.0 - $decay_rate) END, r.last_updated = timestamp() "
                     "RETURN count(r) as cnt"
                 )
                 result = session.run(query, agent_id=agent_id, decay_rate=decay_rate)
@@ -349,7 +349,7 @@ def hebbian_decay():
             else:
                 query = (
                     f"MATCH ()-[r:{rel_type}]->() "
-                    "SET r.weight = apoc.number.max(0.0, r.weight * (1.0 - $decay_rate)), r.last_updated = timestamp() "
+                    "SET r.weight = CASE WHEN r.weight * (1.0 - $decay_rate) < 0.0 THEN 0.0 ELSE r.weight * (1.0 - $decay_rate) END, r.last_updated = timestamp() "
                     "RETURN count(r) as cnt"
                 )
                 result = session.run(query, decay_rate=decay_rate)
@@ -366,7 +366,7 @@ def _hebbian_decay_background_loop():
                 with driver.session() as session:
                     query = (
                         f"MATCH ()-[r:{HEBBIAN_REL_TYPE}]->() "
-                        "SET r.weight = apoc.number.max(0.0, r.weight * (1.0 - $decay_rate)), r.last_updated = timestamp() "
+                        "SET r.weight = CASE WHEN r.weight * (1.0 - $decay_rate) < 0.0 THEN 0.0 ELSE r.weight * (1.0 - $decay_rate) END, r.last_updated = timestamp() "
                         "RETURN count(r) as cnt"
                     )
                     session.run(query, decay_rate=HEBBIAN_DECAY_RATE)

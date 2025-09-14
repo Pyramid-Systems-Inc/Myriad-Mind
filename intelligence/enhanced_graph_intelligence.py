@@ -73,6 +73,7 @@ class AgentRelevanceScore:
     availability_factor: float
     confidence_level: float
     reasoning: List[str]
+    hebbian_weight: float = 0.5
 
 @dataclass
 class AgentCluster:
@@ -137,6 +138,25 @@ class EnhancedGraphIntelligence:
         cache_thread.start()
         
         logger.info("🔄 Background intelligence tasks started")
+
+    def _fetch_hebbian_weight(self, agent_name: str, concept: str) -> float:
+        """Fetch Hebbian weight for (Agent)-[HANDLES_CONCEPT]->(Concept). Defaults to 0.5."""
+        try:
+            response = requests.post(
+                f"{self.graphdb_url}/get_agents_for_concept",
+                json={"concept": concept, "relationship_type": "HANDLES_CONCEPT"},
+                timeout=8
+            )
+            if response.status_code == 200:
+                agents = response.json().get("agents", [])
+                for item in agents:
+                    agent = item.get("agent", {})
+                    rel = item.get("relationship", {})
+                    if agent.get("name") == agent_name:
+                        return float(rel.get("weight", 0.5))
+        except requests.RequestException:
+            pass
+        return 0.5
     
     def discover_intelligent_agents(self, concept: str, intent: str, 
                                   context: Optional[Dict[str, Any]] = None) -> List[AgentRelevanceScore]:
@@ -414,13 +434,17 @@ class EnhancedGraphIntelligence:
         # Availability factor
         availability_factor = self._calculate_availability_factor(agent)
         
-        # Weighted relevance score
+        # Hebbian weight factor (relationship strength)
+        hebbian_weight = self._fetch_hebbian_weight(agent.agent_name, context.concept)
+
+        # Weighted relevance score (include hebbian factor)
         weights = {
-            'expertise': 0.3,
-            'capability': 0.25,
-            'domain': 0.2,
-            'performance': 0.15,
-            'availability': 0.1
+            'expertise': 0.28,
+            'capability': 0.22,
+            'domain': 0.18,
+            'performance': 0.14,
+            'availability': 0.08,
+            'hebbian': 0.10
         }
         
         relevance_score = (
@@ -428,7 +452,8 @@ class EnhancedGraphIntelligence:
             capability_match * weights['capability'] +
             domain_overlap * weights['domain'] +
             performance_factor * weights['performance'] +
-            availability_factor * weights['availability']
+            availability_factor * weights['availability'] +
+            hebbian_weight * weights['hebbian']
         )
         
         # Calculate confidence level
@@ -440,7 +465,7 @@ class EnhancedGraphIntelligence:
             domain_overlap, performance_factor, availability_factor
         )
         
-        return AgentRelevanceScore(
+        score = AgentRelevanceScore(
             agent_id=agent.agent_id,
             relevance_score=relevance_score,
             expertise_match=expertise_match,
@@ -449,8 +474,17 @@ class EnhancedGraphIntelligence:
             performance_factor=performance_factor,
             availability_factor=availability_factor,
             confidence_level=confidence_level,
-            reasoning=reasoning
+            reasoning=reasoning,
+            hebbian_weight=hebbian_weight
         )
+        # Add reasoning for hebbian factor
+        if hebbian_weight >= 0.7:
+            score.reasoning.append(f"Strong learned association (weight {hebbian_weight:.2f})")
+        elif hebbian_weight >= 0.5:
+            score.reasoning.append(f"Moderate learned association (weight {hebbian_weight:.2f})")
+        else:
+            score.reasoning.append(f"Weak learned association (weight {hebbian_weight:.2f})")
+        return score
     
     def _calculate_expertise_match(self, agent: AgentProfile, context: QueryContext) -> float:
         """Calculate how well agent expertise matches the query"""

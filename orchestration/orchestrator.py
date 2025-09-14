@@ -520,6 +520,17 @@ def _update_agent_performance_metrics(agent_url: str, concept: str, intent: str,
         
         print(f"📊 Updated performance metrics for {agent_id}: {performance_data.get('response_quality', 0):.2f} quality")
         
+        # Hebbian learning: strengthen/decay relationship weights based on outcome
+        try:
+            payload = {
+                "agent_id": agent_id,
+                "concept": concept.lower(),
+                "success": bool(success)
+            }
+            requests.post(f"{GRAPHDB_MANAGER_URL}/hebbian/strengthen", json=payload, timeout=5)
+        except Exception as he:
+            print(f"⚠️  Hebbian update failed: {he}")
+
     except Exception as e:
         print(f"⚠️  Could not update performance metrics: {e}")
 
