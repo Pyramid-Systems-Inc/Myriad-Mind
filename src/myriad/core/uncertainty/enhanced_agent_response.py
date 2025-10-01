@@ -1,13 +1,13 @@
 """
-Enhanced Agent Response Structure with Uncertainty Signaling
-==========================================================
+Agent Response Structure with Uncertainty Signaling
+============================================
 
-This module provides the enhanced agent response structure that incorporates
+This module provides the agent response structure that incorporates
 uncertainty signaling, allowing agents to communicate their confidence and
 uncertainty about their responses.
 
 Author: Myriad Cognitive Architecture Team
-Version: 1.0 (Enhanced Agent Response)
+Version: 1.0 (Agent Response)
 Date: 2025-01-01
 """
 
@@ -28,9 +28,9 @@ class ResponseStatus(Enum):
     ERROR = "error"
 
 @dataclass
-class EnhancedAgentResponse:
+class AgentResponse:
     """
-    Enhanced agent response structure with uncertainty signaling
+    Agent response structure with uncertainty signaling
     
     This structure allows agents to:
     - Provide their response data
@@ -67,7 +67,7 @@ class EnhancedAgentResponse:
         return result
     
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'EnhancedAgentResponse':
+    def from_dict(cls, data: Dict[str, Any]) -> 'AgentResponse':
         """Create from dictionary"""
         # Convert status string back to enum
         if 'status' in data and isinstance(data['status'], str):
@@ -108,8 +108,8 @@ class ResponseEnhancer:
         """Initialize the response enhancer"""
         self.uncertainty_detector = get_uncertainty_detector()
     
-    def enhance_response(self, standard_response: Dict[str, Any], 
-                        agent_name: str = "unknown") -> EnhancedAgentResponse:
+    def enhance_response(self, standard_response: Dict[str, Any],
+                        agent_name: str = "unknown") -> AgentResponse:
         """
         Enhance a standard agent response with uncertainty signaling
         
@@ -118,7 +118,7 @@ class ResponseEnhancer:
             agent_name: Name of the agent providing the response
             
         Returns:
-            EnhancedAgentResponse with uncertainty assessment
+            AgentResponse with uncertainty assessment
         """
         # Extract basic information
         status = self._extract_status(standard_response)
@@ -150,7 +150,7 @@ class ResponseEnhancer:
         metadata['recommended_action'] = uncertainty_assessment.recommended_action
         metadata['uncertainty_signal_count'] = len(uncertainty_assessment.uncertainty_signals)
         
-        return EnhancedAgentResponse(
+        return AgentResponse(
             status=status,
             data=data,
             confidence=confidence,
@@ -220,17 +220,17 @@ def get_response_enhancer() -> ResponseEnhancer:
     return response_enhancer
 
 
-def create_enhanced_response(standard_response: Dict[str, Any], 
-                           agent_name: str = "unknown") -> EnhancedAgentResponse:
+def create_agent_response(standard_response: Dict[str, Any],
+                           agent_name: str = "unknown") -> AgentResponse:
     """
     Convenience function to create an enhanced response from a standard response
     
     Args:
-        standard_response: The standard response from an agent
-        agent_name: Name of the agent providing the response
-        
+    standard_response: The standard response from an agent
+    agent_name: Name of the agent providing the response
+    
     Returns:
-        EnhancedAgentResponse with uncertainty assessment
+    AgentResponse with uncertainty assessment
     """
     enhancer = get_response_enhancer()
     return enhancer.enhance_response(standard_response, agent_name)
