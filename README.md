@@ -103,10 +103,13 @@ cd myriad-cognitive-architecture
 # 2. Start all services
 docker-compose up --build -d
 
-# 3. Initialize the knowledge graph
+# 3. Initialize the Neo4j graph schema (constraints and indexes)
+python scripts/initialize_graph_schema.py
+
+# 4. Initialize the knowledge graph with base data
 PYTHONPATH=src python scripts/migration.py
 
-# 4. Verify system health
+# 5. Verify system health
 curl http://localhost:5000/health  # Orchestrator Service
 curl http://localhost:5008/health  # GraphDB Manager
 curl http://localhost:5009/health  # Integration Tester
@@ -218,6 +221,44 @@ All services have configured resource limits for production stability:
 ```bash
 docker stats
 ```
+
+### Database Schema Setup
+
+The Myriad knowledge graph uses Neo4j with a well-defined schema including constraints and indexes for data integrity and performance.
+
+#### Initialize Schema (First Time Setup)
+
+```bash
+# Run schema initialization script
+python scripts/initialize_graph_schema.py
+```
+
+This creates:
+- **Unique constraints** on Agent, Concept, and Region names
+- **Performance indexes** on frequently queried properties
+- **Full-text search** index for concept discovery
+- **Default knowledge regions** (General, Science, Technology, Mathematics)
+- **Schema version tracking** for future migrations
+
+#### Verify Schema
+
+Check schema status in Neo4j Browser (http://localhost:7474):
+
+```cypher
+# View schema version
+MATCH (v:SchemaVersion) RETURN v;
+
+# List all constraints
+SHOW CONSTRAINTS;
+
+# List all indexes
+SHOW INDEXES;
+```
+
+#### Schema Documentation
+
+- **[Graph Schema Reference](doc/GRAPH_SCHEMA.md)** - Complete schema documentation with node types, relationships, and patterns
+- **[Schema Migration Guide](doc/SCHEMA_MIGRATION_GUIDE.md)** - Instructions for migrating existing data and schema updates
 
 ---
 
@@ -359,10 +400,17 @@ python tests/test_performance_optimization.py
 
 ## 📚 Documentation
 
+### Core Documentation
 - **[Architecture Details](doc/ARCHITECTURE.md)** - Complete technical architecture
 - **[Communication Protocols](doc/PROTOCOLS.md)** - Detailed protocol specifications
 - **[Development Roadmap](doc/ROADMAP.md)** - Comprehensive development plan
 - **[System Status](doc/STATUS.md)** - Current implementation status
+
+### Database & Schema
+- **[Graph Schema Reference](doc/GRAPH_SCHEMA.md)** - Neo4j schema documentation
+- **[Schema Migration Guide](doc/SCHEMA_MIGRATION_GUIDE.md)** - Migration procedures
+
+### Operations
 - **[Monitoring Guide](doc/MONITORING_GUIDE.md)** - Production monitoring and observability
 
 ---
