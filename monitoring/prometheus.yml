@@ -1,0 +1,58 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Neo4j metrics
+  - job_name: 'neo4j'
+    static_configs:
+      - targets: ['neo4j:2004']
+    metrics_path: '/metrics'
+
+  # Redis metrics  
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # Orchestrator service
+  - job_name: 'orchestrator'
+    static_configs:
+      - targets: ['orchestrator:5000']
+    metrics_path: '/metrics'
+
+  # GraphDB Manager
+  - job_name: 'graphdb-manager'
+    static_configs:
+      - targets: ['graphdb-manager:5008']
+    metrics_path: '/metrics'
+
+  # Input Processor
+  - job_name: 'input-processor'
+    static_configs:
+      - targets: ['input-processor:5003']
+    metrics_path: '/metrics'
+
+  # Output Processor
+  - job_name: 'output-processor'
+    static_configs:
+      - targets: ['output-processor:5004']
+    metrics_path: '/metrics'
+
+  # Integration Tester
+  - job_name: 'integration-tester'
+    static_configs:
+      - targets: ['integration-tester:5009']
+    metrics_path: '/metrics'
+
+  # Lightbulb Agents
+  - job_name: 'lightbulb-agents'
+    static_configs:
+      - targets: 
+        - 'lightbulb-definition:5001'
+        - 'lightbulb-function:5002'
+    metrics_path: '/metrics'

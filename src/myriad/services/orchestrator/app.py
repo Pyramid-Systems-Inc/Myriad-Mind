@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import logging
 import sys
 import os
@@ -8,12 +8,24 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 from services.orchestrator.orchestrator import process_tasks, discover_agent_via_graph
 
+# Prometheus metrics
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Service configuration
 ORCHESTRATOR_VERSION = "1.0.0"
+
+# Prometheus metrics
+query_counter = Counter('orchestrator_queries_total', 'Total queries processed', ['status'])
+query_duration = Histogram('orchestrator_query_duration_seconds', 'Query processing time')
+active_agents = Gauge('orchestrator_active_agents', 'Number of active agents')
+neurogenesis_counter = Counter('orchestrator_neurogenesis_total', 'Dynamic agents created')
+task_success = Counter('orchestrator_task_success_total', 'Successful tasks')
+task_failure = Counter('orchestrator_task_failure_total', 'Failed tasks')
+agent_discovery_counter = Counter('orchestrator_agent_discovery_total', 'Agent discovery attempts', ['status'])
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -25,12 +37,16 @@ def health():
     }), 200
 
 @app.route('/process', methods=['POST'])
+@query_duration.time()
 def process_query():
     """Main query processing endpoint - processes a list of tasks"""
+    query_counter.labels(status='attempted').inc()
+    
     try:
         data = request.json
         
         if not data:
+            query_counter.labels(status='invalid').inc()
             return jsonify({"error": "No data provided"}), 400
         
         # Support both single task and multiple tasks
@@ -38,11 +54,20 @@ def process_query():
             # Multiple tasks format (integration tester compatibility)
             tasks = data.get('tasks')
             if not isinstance(tasks, list):
+                query_counter.labels(status='invalid').inc()
                 return jsonify({"error": "'tasks' must be a list"}), 400
             
             logger.info(f"Processing {len(tasks)} tasks")
             results = process_tasks(tasks)
             
+            # Count successes and failures
+            for task_id, result in results.items():
+                if result.get('status') == 'success':
+                    task_success.inc()
+                else:
+                    task_failure.inc()
+            
+            query_counter.labels(status='success').inc()
             return jsonify({
                 "status": "success",
                 "results": results
@@ -64,15 +89,26 @@ def process_query():
             logger.info(f"Processing single query: {query}")
             result = process_tasks([task])
             
+            # Track success/failure
+            task_result = result.get("1", {})
+            if task_result.get('status') == 'success':
+                task_success.inc()
+            else:
+                task_failure.inc()
+            
+            query_counter.labels(status='success').inc()
             return jsonify({
                 "status": "success",
-                "result": result.get("1")
+                "result": task_result
             }), 200
         else:
+            query_counter.labels(status='invalid').inc()
             return jsonify({"error": "Request must include 'tasks' or 'query'"}), 400
             
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}", exc_info=True)
+        task_failure.inc()
+        query_counter.labels(status='error').inc()
         return jsonify({"error": str(e)}), 500
 
 @app.route('/agents', methods=['GET'])
@@ -126,7 +162,30 @@ def list_agents():
 
 @app.route('/metrics', methods=['GET'])
 def metrics():
-    """Expose orchestrator metrics and statistics"""
+    """Expose Prometheus metrics"""
+    try:
+        # Update active agents gauge before returning metrics
+        try:
+            from services.orchestrator.orchestrator import GRAPHDB_MANAGER_URL, _http_session
+            response = _http_session.post(
+                f"{GRAPHDB_MANAGER_URL}/query_nodes",
+                json={"label": "Agent"},
+                timeout=5
+            )
+            if response.status_code == 200:
+                agents = response.json().get("nodes", [])
+                active_agents.set(len(agents))
+        except Exception as e:
+            logger.debug(f"Could not update active agents metric: {e}")
+        
+        return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+    except Exception as e:
+        logger.error(f"Error generating metrics: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/metrics/json', methods=['GET'])
+def metrics_json():
+    """Expose orchestrator metrics in JSON format (legacy endpoint)"""
     try:
         # Import performance engine if available
         from services.orchestrator.orchestrator import (
@@ -168,6 +227,7 @@ def discover_agent():
         data = request.json
         
         if not data or 'concept' not in data:
+            agent_discovery_counter.labels(status='invalid').inc()
             return jsonify({"error": "Request must include 'concept'"}), 400
         
         concept = data.get('concept')
@@ -178,6 +238,7 @@ def discover_agent():
         agent_url = discover_agent_via_graph(concept, intent)
         
         if agent_url:
+            agent_discovery_counter.labels(status='found').inc()
             return jsonify({
                 "status": "success",
                 "concept": concept,
@@ -185,6 +246,7 @@ def discover_agent():
                 "agent_url": agent_url
             }), 200
         else:
+            agent_discovery_counter.labels(status='not_found').inc()
             return jsonify({
                 "status": "no_agent_found",
                 "concept": concept,
@@ -195,6 +257,7 @@ def discover_agent():
             
     except Exception as e:
         logger.error(f"Error discovering agent: {str(e)}", exc_info=True)
+        agent_discovery_counter.labels(status='error').inc()
         return jsonify({"error": str(e)}), 500
 
 @app.route('/status', methods=['GET'])
