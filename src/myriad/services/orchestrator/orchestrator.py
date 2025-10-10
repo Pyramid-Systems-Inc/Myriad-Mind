@@ -14,7 +14,7 @@ from myriad.core.learning.autonomous_learning_engine import get_learning_engine
 from myriad.core.intelligence.enhanced_graph_intelligence import get_enhanced_intelligence
 from myriad.core.optimization.performance_engine import get_performance_engine
 
-GRAPHDB_MANAGER_URL = "http://graphdb_manager_ai:5008"
+GRAPHDB_MANAGER_URL = os.environ.get("GRAPHDB_MANAGER_URL", "http://graphdb_manager_ai:5008")
 
 # Persistent HTTP session with retries/backoff (env-tunable)
 SESSION_RETRIES = int(os.environ.get("HTTP_RETRIES", "3"))

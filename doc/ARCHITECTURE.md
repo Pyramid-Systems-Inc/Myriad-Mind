@@ -271,11 +271,20 @@ The heart of the system. An agent is an independently deployable microservice em
 
 ### 3.3. The Orchestrator (The "Connectome / Central Nervous System")
 
-**🔄 EVOLVED**: The Orchestrator has evolved from registry-based to graph-based agent discovery, maintaining its role as an intelligent routing hub without reasoning capability.
+**🚀 MICROSERVICE EXTRACTED**: The Orchestrator has been extracted from the Integration Tester into a standalone, scalable microservice with full HTTP API support (Port 5000).
 
-- **Graph-Based Discovery:** Queries the GraphDB Manager AI to find agents via concept relationships instead of simple key-value lookup; invokes Hebbian updates after each agent outcome.
-- **The Router:** Receives enhanced task lists from the Input Processor and uses graph traversal to discover appropriate agents
-- **Future Neurogenesis:** The foundation is established for dynamic agent creation through graph node instantiation
+- **Standalone Service:** Independent Flask application with dedicated health checks, metrics, and monitoring
+- **Graph-Based Discovery:** Queries the GraphDB Manager AI to find agents via concept relationships instead of simple key-value lookup; invokes Hebbian updates after each agent outcome
+- **REST API Endpoints:**
+  - `/health` - Service health check
+  - `/process` - Main query processing (supports both single query and task batch formats)
+  - `/agents` - List all available agents
+  - `/metrics` - Performance and feature metrics
+  - `/discover` - Agent discovery for concept/intent pairs
+  - `/status` - Service status and dependencies
+- **The Router:** Receives enhanced task lists and uses graph traversal to discover appropriate agents
+- **Neurogenesis Coordination:** Orchestrates the complete neurogenesis pipeline for unknown concepts
+- **Scalability:** Can be horizontally scaled for high-load scenarios with connection pooling and optimization
 
 ### 3.4. The Input Processor (The "Sensory Cortex")
 

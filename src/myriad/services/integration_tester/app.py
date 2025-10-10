@@ -1,13 +1,11 @@
 from flask import Flask, request, jsonify
-import sys
+import requests
 import os
 
-# Ensure the orchestration module can be found
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from orchestration.orchestrator import process_tasks
-
 app = Flask(__name__)
+
+# Orchestrator service URL
+ORCHESTRATOR_URL = os.environ.get('ORCHESTRATOR_URL', 'http://orchestrator:5000')
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -21,7 +19,7 @@ def health_check():
 @app.route('/run_orchestration', methods=['POST'])
 def run_orchestration():
     """
-    Receives a task list, runs the orchestration logic inside the container,
+    Receives a task list, forwards it to the Orchestrator service,
     and returns the collected agent results.
     """
     try:
@@ -31,14 +29,24 @@ def run_orchestration():
         
         tasks = data['tasks']
         
-        # This function now runs inside the Docker network, so it can resolve service names.
-        results = process_tasks(tasks)
+        # Forward the request to the orchestrator service
+        response = requests.post(
+            f"{ORCHESTRATOR_URL}/process",
+            json={"tasks": tasks},
+            timeout=60
+        )
         
-        return jsonify({
-            "status": "success",
-            "results": results
-        })
+        if response.status_code == 200:
+            return jsonify(response.json())
+        else:
+            return jsonify({
+                "status": "error",
+                "message": f"Orchestrator returned status {response.status_code}",
+                "details": response.text
+            }), response.status_code
 
+    except requests.exceptions.RequestException as e:
+        return jsonify({"status": "error", "message": f"Failed to connect to orchestrator: {str(e)}"}), 500
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

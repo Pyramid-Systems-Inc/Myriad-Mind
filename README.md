@@ -107,6 +107,7 @@ docker-compose up --build -d
 PYTHONPATH=src python scripts/migration.py
 
 # 4. Verify system health
+curl http://localhost:5000/health  # Orchestrator Service
 curl http://localhost:5008/health  # GraphDB Manager
 curl http://localhost:5009/health  # Integration Tester
 curl http://localhost:5001/health  # Lightbulb Definition AI
@@ -116,18 +117,27 @@ curl http://localhost:5002/health  # Lightbulb Function AI
 ### Basic Usage
 
 ```python
-# Example query to the system
+# Example query to the orchestrator service
 import requests
 
+# Simple query format
 query = {
     "query": "What is a lightbulb and how did it impact factories?",
-    "user_context": {
-        "session_id": "demo_session",
-        "preferred_detail_level": "standard"
-    }
+    "user_id": "demo_user"
 }
 
-response = requests.post("http://localhost:5003/process", json=query)
+response = requests.post("http://localhost:5000/process", json=query)
+print(response.json())
+
+# Or use task format for multiple queries
+tasks = {
+    "tasks": [
+        {"task_id": 1, "concept": "lightbulb", "intent": "define", "args": {}},
+        {"task_id": 2, "concept": "lightbulb", "intent": "function", "args": {}}
+    ]
+}
+
+response = requests.post("http://localhost:5000/process", json=tasks)
 print(response.json())
 ```
 
@@ -197,6 +207,7 @@ Production-grade performance system:
 
 | Service | Port | Status | Capabilities |
 |---------|------|--------|-------------|
+| **Orchestrator Service** | 5000 | ✅ Operational | Task routing, agent discovery, neurogenesis coordination |
 | **GraphDB Manager AI** | 5008 | ✅ Operational | Neo4j interface, CRUD operations, Hebbian learning |
 | **Input Processor** | 5003 | ✅ Operational | Advanced NLP, intent recognition, task generation |
 | **Output Processor** | 5004 | ✅ Operational | Multi-agent synthesis, formatting, quality assessment |
