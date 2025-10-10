@@ -143,6 +143,84 @@ print(response.json())
 
 ---
 
+## 📊 Monitoring & Observability
+
+### Production Infrastructure
+
+Myriad includes comprehensive monitoring and observability infrastructure for production deployments:
+
+#### Accessing Monitoring Tools
+
+- **Prometheus**: http://localhost:9090 - Metrics collection and queries
+- **Grafana**: http://localhost:3000 - Visualization dashboards (admin/myriad_admin)
+- **Redis Metrics**: http://localhost:9121/metrics - Redis performance metrics
+- **Service Metrics**: http://localhost:5000/metrics - Orchestrator Prometheus metrics
+
+#### Available Dashboards
+
+1. **System Overview** - Query rates, success rates, active agents, neurogenesis activity
+2. **Service Health** - Individual service metrics and health status
+3. **Resource Usage** - CPU, memory, network utilization per service
+4. **Performance Tracking** - Response times, throughput, error rates
+
+#### Key Metrics Tracked
+
+- **Query Processing**: Total queries, success/failure rates, processing duration
+- **Agent Activity**: Active agents count, neurogenesis events, agent discovery success
+- **System Resources**: CPU usage, memory consumption, network I/O
+- **Service Health**: Uptime, health check status, dependency connectivity
+
+### Backup & Recovery
+
+**Manual Backup:**
+```bash
+# Create backup of Neo4j knowledge graph
+./scripts/backup_neo4j.sh
+
+# Backup location: ./backups/neo4j/myriad_backup_YYYYMMDD_HHMMSS.tar.gz
+```
+
+**Automated Backup (Cron):**
+```bash
+# Daily backup at 2 AM
+0 2 * * * /path/to/myriad/scripts/backup_neo4j.sh >> /var/log/myriad-backup.log 2>&1
+```
+
+**Restore from Backup:**
+```bash
+# Stop Neo4j service
+docker-compose stop neo4j
+
+# Restore backup
+docker exec neo4j neo4j-admin database restore \
+  --from-path=/backups/myriad_backup_YYYYMMDD_HHMMSS \
+  neo4j
+
+# Restart service
+docker-compose start neo4j
+```
+
+### Resource Management
+
+All services have configured resource limits for production stability:
+
+| Service | CPU Limit | Memory Limit | Health Check |
+|---------|-----------|--------------|--------------|
+| Neo4j | 2.0 CPUs | 2GB | ✅ HTTP |
+| Redis | 0.5 CPUs | 256MB | ✅ Ping |
+| Orchestrator | 1.0 CPUs | 512MB | ✅ HTTP |
+| GraphDB Manager | 1.0 CPUs | 512MB | ✅ HTTP |
+| Other Services | 0.5 CPUs | 256MB | ✅ HTTP |
+| Prometheus | 0.5 CPUs | 512MB | N/A |
+| Grafana | 0.5 CPUs | 256MB | N/A |
+
+**View Real-Time Resource Usage:**
+```bash
+docker stats
+```
+
+---
+
 ## 🧬 Core Features
 
 ### 1. Biomimetic Neurogenesis
@@ -285,6 +363,7 @@ python tests/test_performance_optimization.py
 - **[Communication Protocols](doc/PROTOCOLS.md)** - Detailed protocol specifications
 - **[Development Roadmap](doc/ROADMAP.md)** - Comprehensive development plan
 - **[System Status](doc/STATUS.md)** - Current implementation status
+- **[Monitoring Guide](doc/MONITORING_GUIDE.md)** - Production monitoring and observability
 
 ---
 
