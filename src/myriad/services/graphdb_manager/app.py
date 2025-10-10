@@ -5,6 +5,14 @@ from datetime import datetime
 from flask import Flask, request, jsonify
 from neo4j import GraphDatabase, exceptions
 
+# Import validation functions
+from validation import (
+    validate_agent_properties, validate_concept_properties,
+    validate_hebbian_relationship, sanitize_agent_properties,
+    sanitize_concept_properties, sanitize_hebbian_relationship,
+    validate_and_sanitize, ValidationError
+)
+
 app = Flask(__name__)
 
 # --- Neo4j Connection ---
@@ -53,7 +61,7 @@ def health_check():
 
 @app.route('/create_node', methods=['POST'])
 def create_node():
-    """Creates a new node in the graph."""
+    """Creates a new node in the graph with validation."""
     if not driver:
         return jsonify({"status": "error", "message": "Database not connected"}), 503
     
@@ -65,22 +73,32 @@ def create_node():
     properties = data['properties']
     
     # Basic validation to prevent Cypher injection issues
-    if not label.isalnum():
-        return jsonify({"status": "error", "message": "Label must be alphanumeric"}), 400
+    if not label.replace('_', '').isalnum():
+        return jsonify({"status": "error", "message": "Label must be alphanumeric (underscores allowed)"}), 400
+
+    # Validate and sanitize properties based on node label
+    is_valid, error_msg, sanitized_props = validate_and_sanitize(label, properties)
+    if not is_valid:
+        return jsonify({"status": "error", "message": f"Validation failed: {error_msg}"}), 400
 
     try:
         with driver.session() as session:
             # Using parameters to prevent Cypher injection
             query = f"CREATE (n:{label} $props) RETURN elementId(n) AS id"
-            result = session.run(query, props=properties)
+            result = session.run(query, props=sanitized_props)
             node_id = result.single()['id']
-            return jsonify({"status": "success", "node_id": node_id, "label": label, "properties": properties}), 201
+            return jsonify({
+                "status": "success",
+                "node_id": node_id,
+                "label": label,
+                "properties": sanitized_props
+            }), 201
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/create_relationship', methods=['POST'])
 def create_relationship():
-    """Creates a relationship between two existing nodes."""
+    """Creates a relationship between two existing nodes with validation."""
     if not driver:
         return jsonify({"status": "error", "message": "Database not connected"}), 503
         
@@ -105,6 +123,13 @@ def create_relationship():
     # Basic validation
     if not rel_type.isupper() or not rel_type.replace('_', '').isalpha():
         return jsonify({"status": "error", "message": "Relationship type must be uppercase and contain only letters and underscores."}), 400
+
+    # Validate relationship properties if it's a Hebbian relationship
+    if rel_type == HEBBIAN_REL_TYPE and rel_props:
+        is_valid, error_msg, sanitized_props = validate_and_sanitize(rel_type, rel_props)
+        if not is_valid:
+            return jsonify({"status": "error", "message": f"Validation failed: {error_msg}"}), 400
+        rel_props = sanitized_props
 
     try:
         with driver.session() as session:
@@ -334,6 +359,12 @@ def hebbian_strengthen():
 
     if not agent_id or not concept:
         return jsonify({"status": "error", "message": "Request must include 'agent_id' and 'concept'"}), 400
+
+    # Validate delta values
+    if not (0.0 <= delta_success <= 1.0):
+        return jsonify({"status": "error", "message": "delta_success must be between 0.0 and 1.0"}), 400
+    if not (0.0 <= delta_failure <= 1.0):
+        return jsonify({"status": "error", "message": "delta_failure must be between 0.0 and 1.0"}), 400
 
     try:
         with driver.session() as session:
