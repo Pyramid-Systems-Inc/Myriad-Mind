@@ -36,6 +36,7 @@ This document proposes a comprehensive architecture for implementing human-like 
 5. **Phased implementation**: Start with basic session context (1 week), progress through graph-based persistent context (2 weeks), add semantic understanding (2-3 weeks), and culminate in advanced LLM-powered reasoning (3-4 weeks)
 
 **Expected Impact:**
+
 - Transform single-turn query processing into natural multi-turn conversations
 - Reduce user frustration from having to repeat context
 - Enable more intelligent agent selection based on conversation flow
@@ -57,6 +58,7 @@ Humans maintain approximately 7±2 items in active working memory, which include
 - **Pending questions** or unresolved topics
 
 **Example:**
+
 ```
 Turn 1: "What is a lightbulb?"
 Turn 2: "Who invented it?"  ← "it" automatically resolves to "lightbulb" from working memory
@@ -71,6 +73,7 @@ Humans recall past interactions and general knowledge:
 - **Personal context**: User preferences, expertise level, communication style
 
 **Example:**
+
 ```
 Yesterday: User asked detailed questions about quantum mechanics
 Today: System adjusts explanation depth for advanced audience
@@ -86,6 +89,7 @@ Humans infer unstated information through:
 - **Theory of mind**: Understanding speaker's intent and knowledge state
 
 **Example:**
+
 ```
 User: "Can you explain neural networks?"
 Human inference: User wants a technical explanation, not about biological neurons
@@ -101,6 +105,7 @@ Humans track conversation structure:
 - **Anaphora resolution**: Understanding what pronouns refer to
 
 **Example:**
+
 ```
 Turn 1: "Tell me about Einstein"
 Turn 2: "What about his theories?"  ← Ellipsis: "Tell me about Einstein's theories"
@@ -151,6 +156,7 @@ Myriad already has sophisticated single-query processing capabilities:
 #### ✅ Input Processing ([`input_processor.py`](../src/myriad/services/processing/input_processor/input_processor.py:1))
 
 **Strengths:**
+
 - Multi-language parsing with language detection
 - Intent recognition with confidence scoring
 - Ambiguity detection and resolution
@@ -158,6 +164,7 @@ Myriad already has sophisticated single-query processing capabilities:
 - Socratic questioning for clarification
 
 **Current Context Usage:**
+
 ```python
 def process_query(self, raw_query: str, user_context: Optional[Dict] = None) -> TaskList:
     # user_context is accepted but minimally used
@@ -166,6 +173,7 @@ def process_query(self, raw_query: str, user_context: Optional[Dict] = None) -> 
 ```
 
 **Limitations:**
+
 - `user_context` is optional and not systematically populated
 - No conversation history tracking
 - No entity persistence across queries
@@ -174,11 +182,13 @@ def process_query(self, raw_query: str, user_context: Optional[Dict] = None) -> 
 #### ✅ Ambiguity Resolution ([`ambiguity_resolver.py`](../src/myriad/services/processing/input_processor/ambiguity_resolver.py:1))
 
 **Strengths:**
+
 - Detects concept, intent, context, and scope ambiguity
 - Context-based disambiguation using `user_context`
 - Fallback to most likely interpretation
 
 **Current Context Usage:**
+
 ```python
 def resolve_ambiguity(self, query: str, ambiguity_detection: AmbiguityDetection, 
                       context: Optional[Dict] = None) -> DisambiguationResult:
@@ -189,6 +199,7 @@ def resolve_ambiguity(self, query: str, ambiguity_detection: AmbiguityDetection,
 ```
 
 **Limitations:**
+
 - `previous_queries` must be manually provided by caller
 - No automatic history management
 - Limited to simple keyword matching in previous queries
@@ -197,11 +208,13 @@ def resolve_ambiguity(self, query: str, ambiguity_detection: AmbiguityDetection,
 #### ✅ Intent Recognition ([`intent_recognizer.py`](../src/myriad/services/processing/input_processor/intent_recognizer.py:1))
 
 **Strengths:**
+
 - Pattern-based intent detection with confidence scoring
 - Context-aware adjustments based on query length and domain
 - Alternative intent suggestions
 
 **Limitations:**
+
 - Context factors are derived only from current query
 - No memory of user's typical intent patterns
 - Cannot learn from interaction history
@@ -209,11 +222,13 @@ def resolve_ambiguity(self, query: str, ambiguity_detection: AmbiguityDetection,
 #### ✅ Uncertainty Detection ([`uncertainty_signals.py`](../src/myriad/core/uncertainty/uncertainty_signals.py:1))
 
 **Strengths:**
+
 - Comprehensive uncertainty type detection
 - Confidence scoring and recommended actions
 - Integration with Socratic questioning
 
 **Limitations:**
+
 - Uncertainty assessment is per-query only
 - No tracking of recurring uncertainties
 - Cannot learn which clarifications are most effective
@@ -221,12 +236,14 @@ def resolve_ambiguity(self, query: str, ambiguity_detection: AmbiguityDetection,
 #### ✅ Enhanced Graph Intelligence ([`enhanced_graph_intelligence.py`](../src/myriad/core/intelligence/enhanced_graph_intelligence.py:1))
 
 **Strengths:**
+
 - Multi-criteria agent relevance scoring
 - Context-aware agent selection with complexity analysis
 - Performance tracking and clustering
 - Hebbian learning for agent-concept relationships
 
 **Current Context Usage:**
+
 ```python
 def discover_intelligent_agents(self, concept: str, intent: str, 
                                context: Optional[Dict[str, Any]] = None) -> List[AgentRelevanceScore]:
@@ -235,6 +252,7 @@ def discover_intelligent_agents(self, concept: str, intent: str,
 ```
 
 **Limitations:**
+
 - Context is limited to current query metadata
 - No conversation history consideration
 - Cannot track which agents work well together over time
@@ -264,6 +282,7 @@ def discover_intelligent_agents(self, concept: str, intent: str,
 #### 1. **No Conversation Memory**
 
 **Problem:**
+
 ```python
 # Current behavior
 Turn 1: "What is a lightbulb?"
@@ -274,6 +293,7 @@ Response: "I don't know what 'it' refers to"  ❌
 ```
 
 **Impact:**
+
 - Frustrating user experience requiring context repetition
 - Inability to have natural multi-turn conversations
 - Lost efficiency in clarification dialogues
@@ -281,11 +301,13 @@ Response: "I don't know what 'it' refers to"  ❌
 #### 2. **No Reference Resolution**
 
 **Problem:** The system cannot resolve:
+
 - Pronouns: "it", "that", "this", "they", "he", "she"
 - Demonstratives: "the one", "those", "such"
 - Ellipsis: incomplete queries missing implied information
 
 **Current Code Gap:**
+
 ```python
 # input_processor.py - no reference resolution
 parsed_query = self.parser.parse_query(raw_query, user_context)
@@ -295,6 +317,7 @@ parsed_query = self.parser.parse_query(raw_query, user_context)
 #### 3. **No Entity Persistence**
 
 **Problem:**
+
 ```python
 # Current behavior
 Turn 1: "Tell me about Einstein"
@@ -306,6 +329,7 @@ Turn 2: "What about relativity?"
 ```
 
 **Impact:**
+
 - Cannot understand relationships across turns
 - Cannot track what entities have been discussed
 - Cannot maintain topic coherence
@@ -313,6 +337,7 @@ Turn 2: "What about relativity?"
 #### 4. **No User Profile Management**
 
 **Problem:**
+
 - Cannot learn user expertise level (beginner vs expert)
 - Cannot adapt explanation verbosity to preferences
 - Cannot remember past conversations for context
@@ -321,6 +346,7 @@ Turn 2: "What about relativity?"
 #### 5. **Session vs Persistent Context**
 
 **Problem:**
+
 - No distinction between temporary session context and long-term user context
 - No storage mechanism for either type of context
 - Context must be manually constructed and passed each time
@@ -416,6 +442,7 @@ graph TB
 **Storage:** Redis with TTL (30-60 minutes session timeout)
 
 **Data Structure:**
+
 ```python
 {
     "session_id": "sess_abc123",
@@ -500,6 +527,7 @@ graph TB
 **Storage:** Neo4j graph database for relationships, Redis for fast access cache
 
 **Neo4j Schema Extension:**
+
 ```cypher
 // New nodes
 (User {user_id, created_at, preferences})
@@ -583,6 +611,7 @@ graph TB
 **Best for:** Layer 1 (Session Context) - fast, temporary storage
 
 **Architecture:**
+
 ```python
 class SessionContextManager:
     """Manages short-term conversation context in Redis"""
@@ -687,12 +716,14 @@ class SessionContextManager:
 ```
 
 **Advantages:**
+
 - ✅ Fast read/write performance (microseconds)
 - ✅ Automatic TTL expiration for session cleanup
 - ✅ Simple key-value operations
 - ✅ Horizontally scalable
 
 **Disadvantages:**
+
 - ❌ Limited query capabilities
 - ❌ No relationships between sessions
 - ❌ Must serialize/deserialize JSON
@@ -702,6 +733,7 @@ class SessionContextManager:
 **Best for:** Layer 2 (User Context) and Layer 4 (Discourse Context) - relationship-rich data
 
 **Architecture:**
+
 ```python
 class GraphContextManager:
     """Manages persistent conversation context in Neo4j"""
@@ -826,12 +858,14 @@ class GraphContextManager:
 ```
 
 **Advantages:**
+
 - ✅ Rich relationship queries
 - ✅ Natural conversation flow representation
 - ✅ Links to existing concept graph
 - ✅ Powerful pattern matching
 
 **Disadvantages:**
+
 - ❌ Slower than Redis for simple lookups
 - ❌ More complex to query
 - ❌ Requires careful indexing for performance
@@ -841,6 +875,7 @@ class GraphContextManager:
 **Best for:** Layer 3 (World Context) - semantic similarity and inference
 
 **Architecture:**
+
 ```python
 class SemanticContextManager:
     """Manages semantic understanding using vector embeddings"""
@@ -890,12 +925,14 @@ class SemanticContextManager:
 ```
 
 **Advantages:**
+
 - ✅ Captures semantic similarity beyond keywords
 - ✅ Enables "fuzzy" context matching
 - ✅ Can find related concepts automatically
 - ✅ Supports multi-language semantic search
 
 **Disadvantages:**
+
 - ❌ Requires embedding model (adds latency)
 - ❌ Black-box similarity (less explainable)
 - ❌ Storage overhead for embeddings
@@ -906,6 +943,7 @@ class SemanticContextManager:
 **Best for:** Complex inference and common sense reasoning
 
 **Architecture:**
+
 ```python
 class LLMContextReasoner:
     """Uses LLM for complex context understanding"""
@@ -993,12 +1031,14 @@ Respond in JSON format:
 ```
 
 **Advantages:**
+
 - ✅ Most flexible and powerful
 - ✅ Can handle complex reasoning
 - ✅ Natural language understanding
 - ✅ Minimal rule engineering
 
 **Disadvantages:**
+
 - ❌ Expensive (API costs or compute)
 - ❌ Higher latency
 - ❌ Non-deterministic outputs
@@ -1247,6 +1287,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Goal:** Enable conversation memory within a session
 
 **Tasks:**
+
 1. ✅ Set up Redis infrastructure in Docker Compose
 2. ✅ Implement `SessionContextManager` class
 3. ✅ Add turn history tracking (last 10 turns)
@@ -1259,6 +1300,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Deliverable:** System can resolve "Who invented it?" after "What is a lightbulb?"
 
 **Acceptance Criteria:**
+
 - Session context persists for 30 minutes
 - Pronouns are resolved using entity tracker
 - Turn history is maintained in sliding window
@@ -1269,6 +1311,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Goal:** Store conversation history in Neo4j for long-term learning
 
 **Tasks:**
+
 1. ✅ Extend Neo4j schema with User, Conversation, Turn nodes
 2. ✅ Implement `GraphContextManager` class
 3. ✅ Create conversation-to-user relationships
@@ -1281,6 +1324,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Deliverable:** System learns from past conversations and personalizes responses
 
 **Acceptance Criteria:**
+
 - Conversations are persisted to Neo4j
 - Can query "Have we talked about X before?"
 - User preferences affect agent selection
@@ -1291,6 +1335,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Goal:** Add semantic understanding beyond keywords
 
 **Tasks:**
+
 1. ✅ Set up vector database (Pinecone, Weaviate, or Neo4j vector index)
 2. ✅ Integrate sentence embedding model
 3. ✅ Implement `SemanticContextManager` class
@@ -1302,6 +1347,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Deliverable:** System understands semantically similar queries even with different wording
 
 **Acceptance Criteria:**
+
 - Semantic search finds related past queries
 - Concept expansion suggests related concepts
 - Ambiguity resolution uses semantic similarity
@@ -1312,6 +1358,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Goal:** Add LLM-powered inference and common sense reasoning
 
 **Tasks:**
+
 1. ✅ Integrate LLM client (OpenAI, Anthropic, or local model)
 2. ✅ Implement `LLMContextReasoner` class
 3. ✅ Add pronoun resolution via LLM
@@ -1326,6 +1373,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Deliverable:** System has human-like context understanding with inference
 
 **Acceptance Criteria:**
+
 - Complex references are correctly resolved
 - Implicit context is inferred accurately
 - Common sense reasoning improves responses
@@ -1337,6 +1385,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Goal:** Learn user preferences and adapt over time
 
 **Tasks:**
+
 1. ✅ Implement user preference extraction
 2. ✅ Add expertise level tracking
 3. ✅ Create interaction pattern analysis
@@ -1349,6 +1398,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 **Deliverable:** System personalizes to individual users over time
 
 **Acceptance Criteria:**
+
 - User expertise is accurately estimated
 - Explanation verbosity adapts automatically
 - Privacy controls function correctly
@@ -1361,6 +1411,7 @@ def discover_agent_via_graph_with_context(concept: str, intent: str,
 ### Scenario 1: Multi-Turn Technical Question
 
 **Without Context:**
+
 ```
 Turn 1:
 User: "What is a transistor?"
@@ -1372,6 +1423,7 @@ System: ❌ "I don't understand what 'it' refers to."
 ```
 
 **With Context:**
+
 ```
 Turn 1:
 User: "What is a transistor?"
@@ -1396,6 +1448,7 @@ System: ✅ "Cache memory uses transistors to provide..."
 ### Scenario 2: Implicit Context
 
 **Without Context:**
+
 ```
 User: "I'm learning about renewable energy"
 System: "That's great! How can I help?"
@@ -1408,6 +1461,7 @@ System: ❌ Treats as independent query about wind turbines
 ```
 
 **With Context:**
+
 ```
 User: "I'm learning about renewable energy"
 [Goal inference: user_goal="learn_about_renewable_energy"]
@@ -1428,6 +1482,7 @@ System: ✅ "Wind turbines harness wind energy to generate electricity. Compared
 ### Scenario 3: User Profile Context
 
 **First Interaction:**
+
 ```
 User: "Explain quantum mechanics"
 [No user history available]
@@ -1441,6 +1496,7 @@ System: ✅ [Simpler explanation with analogies]
 ```
 
 **Later Interaction:**
+
 ```
 User: "Explain relativity"
 [Retrieves user profile: verbosity=simple, prefers_analogies=true, expertise_physics=beginner]
@@ -1455,6 +1511,7 @@ System: ✅ [Simple explanation with analogies from the start]
 ### Scenario 4: Context-Aware Agent Selection
 
 **Without Context:**
+
 ```
 Turn 1: "What is machine learning?"
 [Selects: ML_Definition_Agent based on concept only]
@@ -1465,6 +1522,7 @@ Turn 2: "How do neural networks learn?"
 ```
 
 **With Context:**
+
 ```
 Turn 1: "What is machine learning?"
 [Selects: ML_Definition_Agent based on concept]
@@ -1496,12 +1554,14 @@ System: ✅ [More coherent response that builds on previous explanation]
 **Option A: Redis + Neo4j Hybrid (RECOMMENDED)**
 
 **Pros:**
+
 - ✅ Fast session access (microseconds)
 - ✅ Automatic session expiration
 - ✅ Reduced Neo4j query load
 - ✅ Clear separation: temporary vs permanent
 
 **Cons:**
+
 - ❌ Two systems to maintain
 - ❌ Data synchronization complexity
 - ❌ Additional infrastructure cost
@@ -1509,11 +1569,13 @@ System: ✅ [More coherent response that builds on previous explanation]
 **Option B: Neo4j Only**
 
 **Pros:**
+
 - ✅ Single source of truth
 - ✅ Unified query interface
 - ✅ Simpler architecture
 
 **Cons:**
+
 - ❌ Slower for frequent session access
 - ❌ Manual session cleanup required
 - ❌ Higher Neo4j load
@@ -1521,6 +1583,7 @@ System: ✅ [More coherent response that builds on previous explanation]
 **Decision:** Use Hybrid Approach (Option A)
 
 **Rationale:**
+
 - Session context is accessed on every query (needs speed)
 - Redis TTL provides automatic cleanup
 - Neo4j is better for relationship-rich persistent data
@@ -1539,27 +1602,32 @@ entity.salience *= 0.95
 ```
 
 **Pros:**
+
 - ✅ Simple and predictable
 - ✅ Fast computation
 - ✅ No training required
 
 **Cons:**
+
 - ❌ Fixed decay rate may not fit all scenarios
 - ❌ Doesn't learn optimal parameters
 
 **Option B: Learned Salience Model**
 
 Train a model to predict entity salience based on:
+
 - Recency
 - Frequency
 - Entity type
 - Conversation context
 
 **Pros:**
+
 - ✅ Potentially more accurate
 - ✅ Adapts to patterns
 
 **Cons:**
+
 - ❌ Requires training data
 - ❌ More complex
 - ❌ Slower inference
@@ -1567,6 +1635,7 @@ Train a model to predict entity salience based on:
 **Decision:** Start with Simple Decay (Option A), evolve to Learned (Option B) in Phase 5
 
 **Rationale:**
+
 - Simple model sufficient for MVP
 - Can collect data for training during Phases 1-4
 - Easy to swap implementations later
@@ -1586,11 +1655,13 @@ def resolve_reference(pronoun: str, entity_tracker: Dict) -> str:
 ```
 
 **Pros:**
+
 - ✅ Fast (microseconds)
 - ✅ Deterministic
 - ✅ No external dependencies
 
 **Cons:**
+
 - ❌ Limited accuracy (~70%)
 - ❌ Doesn't handle complex cases
 
@@ -1603,11 +1674,13 @@ def resolve_reference(pronoun: str, conversation_history: List[Dict]) -> str:
 ```
 
 **Pros:**
+
 - ✅ High accuracy (~95%)
 - ✅ Handles complex cases
 - ✅ Natural language understanding
 
 **Cons:**
+
 - ❌ Slower (100-500ms)
 - ❌ Costs money (API calls)
 - ❌ Non-deterministic
@@ -1615,6 +1688,7 @@ def resolve_reference(pronoun: str, conversation_history: List[Dict]) -> str:
 **Decision:** Hybrid Approach
 
 Phase 1-3: Use rule-based with confidence scoring
+
 ```python
 result, confidence = rule_based_resolution(pronoun, entity_tracker)
 if confidence < 0.7:
@@ -1622,6 +1696,7 @@ if confidence < 0.7:
 ```
 
 Phase 4+: LLM with rule-based fallback for speed
+
 ```python
 try:
     result = cached_llm_resolution(pronoun, conversation_history)
@@ -1630,6 +1705,7 @@ except (TimeoutError, RateLimitError):
 ```
 
 **Rationale:**
+
 - Get working system quickly with rules
 - Add LLM for accuracy where needed
 - Cache LLM results for common patterns
@@ -1644,6 +1720,7 @@ except (TimeoutError, RateLimitError):
 **Decision:** Option A for Phase 1, evolve to Option C in Phase 5
 
 **Rationale:**
+
 - Fixed window is simplest to implement and reason about
 - 10 turns covers most conversations
 - Summarization can be added later for longer conversations
@@ -1652,6 +1729,7 @@ except (TimeoutError, RateLimitError):
 ### Decision 5: Privacy & Data Retention
 
 **Policy:**
+
 1. **Session Context**: Automatic deletion after 30-60 minutes TTL
 2. **User Context**: Retained indefinitely with opt-out option
 3. **Conversation History**: Retained for 90 days, then summarized
@@ -1659,6 +1737,7 @@ except (TimeoutError, RateLimitError):
 5. **User Control**: Dashboard to view/delete all stored data
 
 **GDPR Compliance:**
+
 - Right to access: API to retrieve all user data
 - Right to erasure: Cascade delete all user context
 - Right to portability: Export user data in JSON format
@@ -1732,42 +1811,50 @@ except (TimeoutError, RateLimitError):
 ### Academic Research
 
 1. **Working Memory & Context**
-  - Baddeley, A. (2003). "Working memory: looking back and looking forward." *Nature Reviews Neuroscience*
-  - Cowan, N. (2001). "The magical number 4 in short-term memory." *Behavioral and Brain Sciences*
+
+- Baddeley, A. (2003). "Working memory: looking back and looking forward." *Nature Reviews Neuroscience*
+- Cowan, N. (2001). "The magical number 4 in short-term memory." *Behavioral and Brain Sciences*
 
 2. **Reference Resolution**
-  - Hobbs, J. R. (1978). "Resolving pronoun references." *Lingua*
-  - Grosz, B. J., Joshi, A. K., & Weinstein, S. (1995). "Centering: A framework for modeling the local coherence of discourse." *Computational Linguistics*
+
+- Hobbs, J. R. (1978). "Resolving pronoun references." *Lingua*
+- Grosz, B. J., Joshi, A. K., & Weinstein, S. (1995). "Centering: A framework for modeling the local coherence of discourse." *Computational Linguistics*
 
 3. **Dialogue Systems**
-  - Jurafsky, D., & Martin, J. H. (2021). "Speech and Language Processing" (3rd ed.), Chapter 24: Dialogue Systems
-  - Young, S., et al. (2013). "POMDP-based statistical spoken dialog systems." *Proceedings of the IEEE*
+
+- Jurafsky, D., & Martin, J. H. (2021). "Speech and Language Processing" (3rd ed.), Chapter 24: Dialogue Systems
+- Young, S., et al. (2013). "POMDP-based statistical spoken dialog systems." *Proceedings of the IEEE*
 
 ### Technical Implementations
 
 4. **Conversation Memory Systems**
-  - Google Meena: Adiwardana et al. (2020). "Towards a Human-like Open-Domain Chatbot"
-  - Meta BlenderBot: Roller et al. (2021). "Recipes for building an open-domain chatbot"
+
+- Google Meena: Adiwardana et al. (2020). "Towards a Human-like Open-Domain Chatbot"
+- Meta BlenderBot: Roller et al. (2021). "Recipes for building an open-domain chatbot"
 
 5. **Context Tracking**
-  - Rasa Dialogue Management: https://rasa.com/docs/rasa/dialogue-management/
-  - Microsoft Bot Framework: Context and State Management
+
+- Rasa Dialogue Management: <https://rasa.com/docs/rasa/dialogue-management/>
+- Microsoft Bot Framework: Context and State Management
 
 6. **Graph-Based Context**
-  - Neo4j Conversational AI: https://neo4j.com/use-cases/conversational-ai/
-  - Knowledge Graphs for Dialogue: Chen et al. (2019)
+
+- Neo4j Conversational AI: <https://neo4j.com/use-cases/conversational-ai/>
+- Knowledge Graphs for Dialogue: Chen et al. (2019)
 
 ### Myriad System Documentation
 
 7. **Related Architecture Documents**
-  - [`ARCHITECTURE.md`](ARCHITECTURE.md) - Core system design
-  - [`GRAPH_SCHEMA.md`](GRAPH_SCHEMA.md) - Neo4j schema with Hebbian learning
-  - [`PROTOCOLS.md`](PROTOCOLS.md) - Communication protocols
+
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) - Core system design
+- [`GRAPH_SCHEMA.md`](GRAPH_SCHEMA.md) - Neo4j schema with Hebbian learning
+- [`PROTOCOLS.md`](PROTOCOLS.md) - Communication protocols
 
 8. **Existing Components**
-  - [`input_processor.py`](../src/myriad/services/processing/input_processor/input_processor.py) - Current input processing
-  - [`enhanced_graph_intelligence.py`](../src/myriad/core/intelligence/enhanced_graph_intelligence.py) - Agent selection
-  - [`orchestrator.py`](../src/myriad/services/orchestrator/orchestrator.py) - Task coordination
+
+- [`input_processor.py`](../src/myriad/services/processing/input_processor/input_processor.py) - Current input processing
+- [`enhanced_graph_intelligence.py`](../src/myriad/core/intelligence/enhanced_graph_intelligence.py) - Agent selection
+- [`orchestrator.py`](../src/myriad/services/orchestrator/orchestrator.py) - Task coordination
 
 ---
 
@@ -1780,6 +1867,7 @@ except (TimeoutError, RateLimitError):
 #### Session Management
 
 **POST /sessions/create**
+
 ```json
 {
  "user_id": "user_xyz789",
@@ -1798,6 +1886,7 @@ Response:
 ```
 
 **GET /sessions/{session_id}**
+
 ```json
 Response:
 {
@@ -1812,6 +1901,7 @@ Response:
 ```
 
 **POST /sessions/{session_id}/turns**
+
 ```json
 {
  "query": "Who invented it?",
@@ -1838,6 +1928,7 @@ Response:
 #### Context Retrieval
 
 **GET /sessions/{session_id}/context**
+
 ```json
 Query parameters:
 - n_turns: Number of recent turns (default: 3)
@@ -1855,6 +1946,7 @@ Response:
 ```
 
 **POST /context/resolve_reference**
+
 ```json
 {
  "query": "Who invented it?",
@@ -1880,6 +1972,7 @@ Response:
 #### User Profile Management
 
 **GET /users/{user_id}/profile**
+
 ```json
 Response:
 {
@@ -1908,6 +2001,7 @@ Response:
 ```
 
 **PUT /users/{user_id}/preferences**
+
 ```json
 {
  "verbosity": "detailed",
@@ -1922,6 +2016,7 @@ Response:
 ```
 
 **GET /users/{user_id}/conversations**
+
 ```json
 Query parameters:
 - limit: Number of conversations (default: 10)
@@ -1976,22 +2071,26 @@ Response:
 ### Cost Estimates (Monthly)
 
 **Phase 1 (Redis Only):**
+
 - Redis Cloud: $20-50
 - Neo4j storage: Included in existing
 - Total: ~$50/month
 
 **Phase 3 (+ Vector DB):**
+
 - Redis Cloud: $50-100
 - Neo4j storage: $100-200
 - Vector DB (Pinecone): $70-150
 - Total: ~$320/month
 
 **Phase 4 (+ LLM):**
+
 - Infrastructure: $320
 - LLM API (GPT-4): $200-500 (10K queries)
 - Total: ~$820/month
 
 **Phase 5 (Production):**
+
 - Infrastructure: $500-1000
 - LLM API: $500-2000
 - Total: ~$2,500/month (50K users)
@@ -2003,6 +2102,7 @@ Response:
 ### Unit Tests
 
 **1. Session Context Manager**
+
 ```python
 def test_session_creation():
    """Test session is created with correct TTL"""
@@ -2018,6 +2118,7 @@ def test_entity_salience_boost():
 ```
 
 **2. Reference Resolution**
+
 ```python
 def test_pronoun_resolution_rule_based():
    """Test rule-based pronoun resolution"""
@@ -2033,6 +2134,7 @@ def test_ellipsis_completion():
 ```
 
 **3. Graph Context Manager**
+
 ```python
 def test_conversation_creation():
    """Test conversation node creation in Neo4j"""
@@ -2050,6 +2152,7 @@ def test_conversation_retrieval():
 ### Integration Tests
 
 **1. End-to-End Context Flow**
+
 ```python
 def test_multi_turn_conversation():
    """
@@ -2067,6 +2170,7 @@ def test_session_expiration():
 ```
 
 **2. Reference Resolution Integration**
+
 ```python
 def test_reference_in_input_processor():
    """Test reference resolution in input processor"""
@@ -2079,6 +2183,7 @@ def test_multi_reference_resolution():
 ```
 
 **3. Context-Aware Agent Selection**
+
 ```python
 def test_agent_selection_with_context():
    """Test agents selected considering context"""
@@ -2093,6 +2198,7 @@ def test_user_preference_in_selection():
 ### Performance Tests
 
 **1. Load Testing**
+
 ```python
 def test_concurrent_sessions():
    """Test 100 concurrent active sessions"""
@@ -2105,6 +2211,7 @@ def test_graph_query_performance():
 ```
 
 **2. Stress Testing**
+
 ```python
 def test_memory_usage():
    """Test memory usage with many sessions"""
@@ -2123,6 +2230,7 @@ def test_fallback_performance():
 ### Phase 0: Pre-Migration (Current State)
 
 **Current System:**
+
 - Single-query processing
 - Optional `user_context` parameter (rarely used)
 - No persistent context
@@ -2133,12 +2241,14 @@ def test_fallback_performance():
 ### Phase 1: Add Session Context (Non-Breaking)
 
 **Changes:**
+
 - Add optional `session_id` parameter to `/process` endpoint
 - Add new `/context/*` endpoints
 - Modify [`InputProcessor.process_query()`](../src/myriad/services/processing/input_processor/input_processor.py:96) to accept session_id
 - Keep existing behavior if session_id not provided
 
 **Backward Compatibility:**
+
 ```python
 def process_query(self, raw_query: str,
                 user_context: Optional[Dict] = None,
@@ -2150,6 +2260,7 @@ def process_query(self, raw_query: str,
 ```
 
 **Migration:**
+
 - Existing clients continue to work unchanged
 - New clients opt-in by providing session_id
 - No data migration required
@@ -2157,11 +2268,13 @@ def process_query(self, raw_query: str,
 ### Phase 2: Graph Extension (Additive)
 
 **Changes:**
+
 - Extend Neo4j schema (additive, no breaking changes)
 - Add new relationship types
 - No changes to existing relationships
 
 **Migration:**
+
 ```cypher
 // Add new node types
 CREATE CONSTRAINT user_id_unique IF NOT EXISTS ON (u:User) ASSERT u.user_id IS UNIQUE;
@@ -2174,12 +2287,14 @@ CREATE CONSTRAINT turn_id_unique IF NOT EXISTS ON (t:Turn) ASSERT t.turn_id IS U
 ### Phase 3-5: Feature Additions (Non-Breaking)
 
 **Changes:**
+
 - Add vector database (new infrastructure)
 - Add LLM integration (new service)
 - Enhance existing components
 - Add new endpoints
 
 **Migration:**
+
 - All changes are additive
 - Existing functionality preserved
 - New features opt-in
@@ -2191,82 +2306,96 @@ CREATE CONSTRAINT turn_id_unique IF NOT EXISTS ON (t:Turn) ASSERT t.turn_id IS U
 ### Critical Success Factors
 
 1. **Start Simple, Evolve Gradually**
-  - Phase 1 provides immediate value with minimal complexity
-  - Each phase builds on previous success
-  - Can pause/adjust based on results
+
+- Phase 1 provides immediate value with minimal complexity
+- Each phase builds on previous success
+- Can pause/adjust based on results
 
 2. **Maintain Backward Compatibility**
-  - All changes are opt-in
-  - Existing clients unaffected
-  - Graceful degradation when features unavailable
+
+- All changes are opt-in
+- Existing clients unaffected
+- Graceful degradation when features unavailable
 
 3. **Performance First**
-  - Redis for session speed
-  - Caching for expensive operations
-  - Always have fast fallbacks
+
+- Redis for session speed
+- Caching for expensive operations
+- Always have fast fallbacks
 
 4. **Privacy by Design**
-  - TTL-based automatic cleanup
-  - User control over data
-  - GDPR compliance built-in
+
+- TTL-based automatic cleanup
+- User control over data
+- GDPR compliance built-in
 
 5. **Measure Everything**
-  - Instrument all context operations
-  - Track resolution accuracy
-  - Monitor performance continuously
+
+- Instrument all context operations
+- Track resolution accuracy
+- Monitor performance continuously
 
 ### Top 3 Recommendations
 
 **1. Implement Phase 1 Immediately (Highest ROI)**
-  - Redis-based session context
-  - Basic reference resolution
-  - Minimal infrastructure changes
-  - Expected impact: 3-5x improvement in multi-turn UX
+
+- Redis-based session context
+- Basic reference resolution
+- Minimal infrastructure changes
+- Expected impact: 3-5x improvement in multi-turn UX
 
 **2. Design for Incremental Adoption**
-  - Optional session_id parameter
-  - Feature flags for new capabilities
-  - A/B testing for validation
-  - Expected benefit: Safe rollout, easy rollback
+
+- Optional session_id parameter
+- Feature flags for new capabilities
+- A/B testing for validation
+- Expected benefit: Safe rollout, easy rollback
 
 **3. Build Context-Aware Agent Selection Early**
-  - Extend Enhanced Graph Intelligence with context
-  - Track agent collaboration patterns
-  - Use conversation history in selection
-  - Expected impact: 20-30% better agent selection
+
+- Extend Enhanced Graph Intelligence with context
+- Track agent collaboration patterns
+- Use conversation history in selection
+- Expected impact: 20-30% better agent selection
 
 ### Next Steps
 
 1. **Review & Discuss** (Week 1)
-  - Team review of architecture
-  - Resolve open questions
-  - Prioritize phases
+
+- Team review of architecture
+- Resolve open questions
+- Prioritize phases
 
 2. **Technical Spike** (Week 2)
-  - Redis POC for session context
-  - Reference resolution prototype
-  - Performance benchmarking
+
+- Redis POC for session context
+- Reference resolution prototype
+- Performance benchmarking
 
 3. **Implementation** (Weeks 3+)
-  - Phase 1 development
-  - Testing & validation
-  - Phased rollout
+
+- Phase 1 development
+- Testing & validation
+- Phased rollout
 
 ### Expected Outcomes
 
 **User Experience:**
+
 - Natural multi-turn conversations ✅
 - No need to repeat context ✅
 - Personalized interactions ✅
 - Faster, more relevant responses ✅
 
 **System Capabilities:**
+
 - Human-like context understanding ✅
 - Conversation memory ✅
 - Reference resolution ✅
 - Adaptive agent selection ✅
 
 **Technical Excellence:**
+
 - Scalable architecture ✅
 - Maintainable codebase ✅
 - Observable system ✅
@@ -2280,10 +2409,12 @@ CREATE CONSTRAINT turn_id_unique IF NOT EXISTS ON (t:Turn) ASSERT t.turn_id IS U
 **Next Review:** After Phase 1 completion
 
 **Contributors:**
+
 - Myriad Architecture Team
 - Cognitive Systems Research Group
 
 **Approval Required From:**
+
 - Technical Lead (Architecture)
 - Product Manager (Features)
 - Security Officer (Privacy/Compliance)

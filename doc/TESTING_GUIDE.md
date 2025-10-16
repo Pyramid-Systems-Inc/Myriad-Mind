@@ -1,4 +1,5 @@
 # Multi-Language System Testing Guide
+
 **Complete Testing Instructions for Option 4**
 
 **Date**: October 2, 2025  
@@ -131,6 +132,7 @@ python tests\test_multilanguage_system.py
 ```
 
 **Expected Output:**
+
 ```
 ======================================================================
 MYRIAD MULTI-LANGUAGE SYSTEM - COMPREHENSIVE TEST SUITE
@@ -178,11 +180,13 @@ pytest tests\test_multilanguage_system.py --cov=src/myriad/core/multilang --cov-
 **Steps**:
 
 1. Open Python interpreter:
+
 ```bash
 python
 ```
 
 2. Test language detection:
+
 ```python
 from myriad.core.multilang import get_language_detector, Language
 
@@ -215,6 +219,7 @@ print(f"Confidence: {result.confidence:.2f}")
 ```
 
 **Expected Results**:
+
 - Each query should be detected with >70% confidence
 - Chinese should have >90% confidence (due to unique character set)
 - No false positives
@@ -258,6 +263,7 @@ for query, expected_lang in queries:
 ```
 
 **Expected Results**:
+
 - All queries should be detected in correct language
 - All should have 'define' intent
 - Concepts should be extracted appropriately
@@ -305,6 +311,7 @@ print(f"  Cache size: {stats['cache_stats']['cache_size']}")
 ```
 
 **Expected Results**:
+
 - Dictionary translations should return confidence 1.0
 - Cached translations should be faster
 - Success rate should be >80%
@@ -359,6 +366,7 @@ print(f"  Avg translations/concept: {stats['avg_translations_per_concept']:.1f}"
 ```
 
 **Expected Results**:
+
 - Concept should have translations in 5+ languages
 - Cross-language search should find the concept
 - Statistics should show multiple translations per concept
@@ -419,6 +427,7 @@ for lang in ['en', 'es', 'fr']:
 ```
 
 **Expected Results**:
+
 - Uncertainty should be detected when confidence is low
 - Questions should be generated in correct language
 - Questions should be relevant to the uncertainty type
@@ -476,6 +485,7 @@ if response.clarification_questions:
 ```
 
 **Expected Results**:
+
 - Status should be 'needs_clarification'
 - Clarification questions should be formatted properly
 - Questions should be in appropriate language
@@ -522,6 +532,7 @@ print(f"  Queries per second: {len(test_queries)/total_time:.1f}")
 ```
 
 **Target Performance**:
+
 - < 10ms per query for language detection
 - > 100 queries/second
 
@@ -566,6 +577,7 @@ print(f"  Hit rate: {stats['cache_stats']['hit_rate']:.1%}")
 ```
 
 **Target Performance**:
+
 - Cache should provide >2x speedup
 - Hit rate should be >70% for repeated queries
 
@@ -580,11 +592,13 @@ print(f"  Hit rate: {stats['cache_stats']['hit_rate']:.1%}")
 **Steps**:
 
 1. Start all services (if using Docker):
+
 ```bash
 docker-compose up -d
 ```
 
 2. Test the full pipeline:
+
 ```python
 from myriad.services.processing.input_processor.input_processor import InputProcessor
 from myriad.services.processing.output_processor.output_processor import EnhancedOutputProcessor
@@ -622,6 +636,7 @@ for query, expected_lang in test_queries:
 ```
 
 **Expected Results**:
+
 - Queries in all languages should be processed
 - Language should be detected correctly
 - Task lists should be generated appropriately
@@ -638,6 +653,7 @@ for query, expected_lang in test_queries:
 **Problem**: `ModuleNotFoundError: No module named 'myriad'`
 
 **Solution**:
+
 ```bash
 # Add project to Python path
 cd "d:\My Dev Life\AI Development\Myriad-Mind"
@@ -645,6 +661,7 @@ $env:PYTHONPATH = "d:\My Dev Life\AI Development\Myriad-Mind\src;$env:PYTHONPATH
 ```
 
 Or in Python:
+
 ```python
 import sys
 sys.path.insert(0, r'd:\My Dev Life\AI Development\Myriad-Mind\src')
@@ -655,6 +672,7 @@ sys.path.insert(0, r'd:\My Dev Life\AI Development\Myriad-Mind\src')
 **Problem**: All queries detected as UNKNOWN
 
 **Solution**:
+
 - Check that text is not empty
 - Verify language is in supported list
 - Try with more text (single words may not be enough)
@@ -664,6 +682,7 @@ sys.path.insert(0, r'd:\My Dev Life\AI Development\Myriad-Mind\src')
 **Problem**: `translator.translate()` returns None
 
 **Solution**:
+
 - Check if concept is in dictionary
 - Verify source and target languages are valid
 - API provider may not be configured (uses mock by default)
@@ -674,6 +693,7 @@ sys.path.insert(0, r'd:\My Dev Life\AI Development\Myriad-Mind\src')
 
 **Solution**:
 Run the comprehensive test suite:
+
 ```bash
 python tests\test_multilanguage_system.py
 ```
@@ -685,6 +705,7 @@ python tests\test_multilanguage_system.py
 Use this checklist to ensure complete testing:
 
 ### Language Detection
+
 - [ ] English queries detected correctly
 - [ ] Spanish queries detected correctly
 - [ ] French queries detected correctly
@@ -697,6 +718,7 @@ Use this checklist to ensure complete testing:
 - [ ] Character set detection works for CJK/Cyrillic/Arabic
 
 ### Multi-Language Parsing
+
 - [ ] English parser extracts intents correctly
 - [ ] Spanish parser extracts intents correctly
 - [ ] French parser extracts intents correctly
@@ -707,6 +729,7 @@ Use this checklist to ensure complete testing:
 - [ ] Agent estimation reasonable
 
 ### Translation Service
+
 - [ ] Dictionary translations work
 - [ ] Caching mechanism works
 - [ ] Cache hit rate is good (>70%)
@@ -715,6 +738,7 @@ Use this checklist to ensure complete testing:
 - [ ] Statistics tracking works
 
 ### Cross-Language Knowledge
+
 - [ ] Concepts can be added
 - [ ] Auto-translation generates variants
 - [ ] Concepts can be retrieved in different languages
@@ -724,6 +748,7 @@ Use this checklist to ensure complete testing:
 - [ ] Export/import functionality works
 
 ### Uncertainty & Socratic Dialogue
+
 - [ ] Uncertainty detection works
 - [ ] Appropriate uncertainty levels assigned
 - [ ] Socratic questions generated
@@ -732,6 +757,7 @@ Use this checklist to ensure complete testing:
 - [ ] Different question types generated
 
 ### Output Processor Integration
+
 - [ ] Clarification requests handled
 - [ ] Questions formatted properly
 - [ ] Multi-language messages generated
@@ -739,12 +765,14 @@ Use this checklist to ensure complete testing:
 - [ ] Response structure correct
 
 ### Performance
+
 - [ ] Language detection < 10ms per query
 - [ ] Parser processes queries efficiently
 - [ ] Translation cache provides speedup
 - [ ] No memory leaks in long runs
 
 ### Integration
+
 - [ ] End-to-end pipeline works
 - [ ] Multiple languages work together
 - [ ] Uncertainty triggers clarification

@@ -28,12 +28,14 @@ Successfully implemented production-ready infrastructure for the Myriad Cognitiv
 #### 1.1 Monitoring Configuration Files
 
 **Created Files**:
+
 - [`monitoring/prometheus.yml`](../monitoring/prometheus.yml) - Prometheus configuration
 - [`monitoring/grafana/datasources/prometheus.yml`](../monitoring/grafana/datasources/prometheus.yml) - Grafana data source
 - [`monitoring/grafana/dashboards/dashboard.yml`](../monitoring/grafana/dashboards/dashboard.yml) - Dashboard provisioning
 - [`monitoring/grafana/dashboards/myriad-system.json`](../monitoring/grafana/dashboards/myriad-system.json) - System overview dashboard
 
 **Scrape Targets Configured**:
+
 - Prometheus self-monitoring (port 9090)
 - Neo4j metrics (port 2004)
 - Redis exporter (port 9121)
@@ -71,6 +73,7 @@ Successfully implemented production-ready infrastructure for the Myriad Cognitiv
 **Orchestrator Service** ([`src/myriad/services/orchestrator/app.py`](../src/myriad/services/orchestrator/app.py)):
 
 **Metrics Implemented**:
+
 ```python
 # Counters
 orchestrator_queries_total{status}           # Total queries by status
@@ -87,15 +90,18 @@ orchestrator_active_agents                   # Current active agents
 ```
 
 **Endpoints**:
+
 - `/metrics` - Prometheus metrics (text format)
 - `/metrics/json` - Legacy JSON metrics (backward compatible)
 
 **Added Dependency**:
+
 - [`src/myriad/services/orchestrator/requirements.txt`](../src/myriad/services/orchestrator/requirements.txt): `prometheus-client==0.17.0`
 
 #### 1.4 Grafana Dashboard
 
 **System Overview Dashboard** includes:
+
 - Query Rate (queries/sec)
 - Query Duration (p95 and p50)
 - Active Agents count
@@ -103,7 +109,7 @@ orchestrator_active_agents                   # Current active agents
 - Neurogenesis Activity (agents created/sec)
 - Total Queries Processed (cumulative)
 
-**Access**: http://localhost:3000 (admin/myriad_admin)
+**Access**: <http://localhost:3000> (admin/myriad_admin)
 
 ---
 
@@ -129,6 +135,7 @@ orchestrator_active_agents                   # Current active agents
 | Redis Exporter | 0.25 | 0.1 | 128MB | 64MB |
 
 **Total Resources**:
+
 - **CPU**: ~8.25 cores maximum
 - **Memory**: ~5.5GB maximum
 
@@ -146,6 +153,7 @@ healthcheck:
 ```
 
 **Services with health checks**:
+
 - ✅ Neo4j (HTTP check on port 7474)
 - ✅ Redis (redis-cli ping)
 - ✅ Orchestrator (HTTP /health endpoint)
@@ -161,6 +169,7 @@ healthcheck:
 **Backup Script**: [`scripts/backup_neo4j.sh`](../scripts/backup_neo4j.sh)
 
 **Features**:
+
 - Automated backup using neo4j-admin
 - Compression (tar.gz format)
 - Retention policy (keeps last 7 backups)
@@ -168,6 +177,7 @@ healthcheck:
 - Error handling and exit codes
 
 **Usage**:
+
 ```bash
 # Manual backup
 ./scripts/backup_neo4j.sh
@@ -179,6 +189,7 @@ healthcheck:
 **Backup Location**: `./backups/neo4j/myriad_backup_YYYYMMDD_HHMMSS.tar.gz`
 
 **Neo4j Configuration** updated in [`docker-compose.yml`](../docker-compose.yml):
+
 ```yaml
 environment:
   - NEO4J_dbms_backup_enabled=true
@@ -249,13 +260,13 @@ curl http://localhost:5000/metrics | grep "orchestrator_queries_total"
 
 #### 4. Verify Prometheus Targets
 
-1. Open http://localhost:9090
+1. Open <http://localhost:9090>
 2. Navigate to Status → Targets
 3. Verify all targets show "UP" status
 
 #### 5. Verify Grafana Dashboard
 
-1. Open http://localhost:3000
+1. Open <http://localhost:3000>
 2. Login: admin/myriad_admin
 3. Navigate to Dashboards
 4. Open "Myriad Cognitive Architecture - System Overview"
@@ -354,23 +365,27 @@ orchestrator_active_agents
 ### Adding Prometheus Metrics to Services
 
 1. **Add dependency** to `requirements.txt`:
+
    ```
    prometheus-client==0.17.0
    ```
 
 2. **Import in app.py**:
+
    ```python
    from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
    from flask import Response
    ```
 
 3. **Define metrics**:
+
    ```python
    request_counter = Counter('service_requests_total', 'Total requests', ['method', 'status'])
    request_duration = Histogram('service_request_duration_seconds', 'Request duration')
    ```
 
 4. **Instrument endpoints**:
+
    ```python
    @app.route('/endpoint', methods=['POST'])
    @request_duration.time()
@@ -386,6 +401,7 @@ orchestrator_active_agents
    ```
 
 5. **Add metrics endpoint**:
+
    ```python
    @app.route('/metrics', methods=['GET'])
    def metrics():
@@ -401,6 +417,7 @@ orchestrator_active_agents
 #### Prometheus Can't Scrape Targets
 
 **Solution**: Check network connectivity and service health
+
 ```bash
 docker-compose exec prometheus ping orchestrator
 curl http://localhost:5000/metrics
@@ -417,6 +434,7 @@ curl http://localhost:5000/metrics
 #### Backup Script Fails
 
 **Solution**: Check Neo4j container name and backup directory permissions
+
 ```bash
 docker ps | grep neo4j
 ls -la ./backups/neo4j/

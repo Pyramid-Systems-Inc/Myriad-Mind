@@ -34,6 +34,7 @@ for query in queries:
 ```
 
 **Expected Output:**
+
 ```
 ✓ en: define
 ✓ es: define

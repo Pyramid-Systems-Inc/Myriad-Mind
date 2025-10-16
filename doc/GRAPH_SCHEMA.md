@@ -7,14 +7,16 @@ The Myriad knowledge graph uses Neo4j to represent agents, concepts, and their r
 ## Node Types
 
 ### Agent Node
+
 Represents both static and dynamic AI agents in the system.
 
 **Label:** `Agent`
 
 **Properties:**
+
 - `name` (String, UNIQUE, REQUIRED) - Agent identifier (e.g., "lightbulb_definition", "dynamic_chemistry_agent")
 - `type` (String, REQUIRED) - Agent type: "static" or "dynamic"
-- `endpoint` (String, REQUIRED) - HTTP endpoint URL (e.g., "http://lightbulb-definition:5001")
+- `endpoint` (String, REQUIRED) - HTTP endpoint URL (e.g., "<http://lightbulb-definition:5001>")
 - `port` (Integer) - Service port number
 - `container_name` (String) - Docker container name (for dynamic agents)
 - `template` (String) - Agent template used (for dynamic agents)
@@ -23,12 +25,14 @@ Represents both static and dynamic AI agents in the system.
 - `description` (String, OPTIONAL) - Human-readable description
 
 **Indexes:**
+
 - Unique constraint on `name`
 - Index on `type` for filtering
 - Index on `status` for health monitoring
 - Index on `created_at` for temporal queries
 
 **Example:**
+
 ```cypher
 CREATE (a:Agent {
   name: "lightbulb_definition",
@@ -41,11 +45,13 @@ CREATE (a:Agent {
 ```
 
 ### Concept Node
+
 Represents knowledge concepts that agents can handle.
 
 **Label:** `Concept`
 
 **Properties:**
+
 - `name` (String, UNIQUE, REQUIRED) - Concept identifier (lowercase, e.g., "lightbulb", "photosynthesis")
 - `primary_definition` (String) - Primary definition text
 - `category` (String) - Concept category (e.g., "technology", "biology", "physics")
@@ -54,12 +60,14 @@ Represents knowledge concepts that agents can handle.
 - `last_updated` (Timestamp) - Last modification timestamp
 
 **Indexes:**
+
 - Unique constraint on `name`
 - Full-text index on `name` and `primary_definition` for search
 - Index on `category` for filtering
 - Index on `created_at` for temporal queries
 
 **Example:**
+
 ```cypher
 CREATE (c:Concept {
   name: "lightbulb",
@@ -71,19 +79,23 @@ CREATE (c:Concept {
 ```
 
 ### Region Node
+
 Represents knowledge domains or specialized areas.
 
 **Label:** `Region`
 
 **Properties:**
+
 - `name` (String, UNIQUE, REQUIRED) - Region identifier (e.g., "Physics", "Biology", "General")
 - `description` (String) - Region description
 - `created_at` (Timestamp) - Region creation timestamp
 
 **Indexes:**
+
 - Unique constraint on `name`
 
 **Example:**
+
 ```cypher
 CREATE (r:Region {
   name: "Physics",
@@ -95,11 +107,13 @@ CREATE (r:Region {
 ## Relationship Types
 
 ### HANDLES_CONCEPT
+
 Connects agents to concepts they can process, with Hebbian learning properties.
 
 **Relationship:** `(Agent)-[HANDLES_CONCEPT]->(Concept)`
 
 **Properties (Hebbian Learning):**
+
 - `weight` (Float, 0.0-1.0, DEFAULT: 0.5) - Connection strength
 - `usage_count` (Integer, DEFAULT: 0) - Total number of uses
 - `success_count` (Integer, DEFAULT: 0) - Successful uses
@@ -110,16 +124,19 @@ Connects agents to concepts they can process, with Hebbian learning properties.
 - `last_used` (Timestamp) - Last time relationship was used
 
 **Hebbian Update Rules:**
+
 - **Strengthening (Success):** `weight = min(1.0, weight + 0.05)`
 - **Weakening (Failure):** `weight = max(0.0, weight - 0.02)`
 - **Decay:** `weight = weight * (1.0 - decay_rate)` every 15 minutes
 
 **Indexes:**
+
 - Index on `weight` for priority queries
 - Index on `success_rate` for performance analysis
 - Index on `last_used` for temporal analysis
 
 **Example:**
+
 ```cypher
 CREATE (a:Agent {name: "lightbulb_definition"})-[r:HANDLES_CONCEPT {
   weight: 0.85,
@@ -134,16 +151,20 @@ CREATE (a:Agent {name: "lightbulb_definition"})-[r:HANDLES_CONCEPT {
 ```
 
 ### BELONGS_TO
+
 Connects agents or concepts to their knowledge regions.
 
 **Relationships:**
+
 - `(Agent)-[BELONGS_TO]->(Region)`
 - `(Concept)-[BELONGS_TO]->(Region)`
 
 **Properties:**
+
 - `assigned_at` (Timestamp) - When relationship was created
 
 **Example:**
+
 ```cypher
 CREATE (a:Agent {name: "physics_specialist"})-[r:BELONGS_TO {
   assigned_at: timestamp()
@@ -153,6 +174,7 @@ CREATE (a:Agent {name: "physics_specialist"})-[r:BELONGS_TO {
 ## Graph Patterns
 
 ### Agent Discovery Pattern
+
 Find agents that can handle a specific concept, ordered by Hebbian weight:
 
 ```cypher
@@ -164,6 +186,7 @@ LIMIT 5
 ```
 
 ### Neurogenesis Check Pattern
+
 Check if a concept already has agents before creating new one:
 
 ```cypher
@@ -173,6 +196,7 @@ RETURN count(a) as agent_count
 ```
 
 ### Hebbian Weight Update Pattern
+
 Strengthen or weaken connection based on task outcome:
 
 ```cypher
@@ -190,6 +214,7 @@ SET r.usage_count = r.usage_count + 1,
 ```
 
 ### Weight Decay Pattern
+
 Apply periodic decay to all connections (run every 15 minutes):
 
 ```cypher
@@ -201,6 +226,7 @@ RETURN count(r) as decayed_relationships
 ```
 
 ### Agent Health Check Pattern
+
 Find unhealthy or underperforming agents:
 
 ```cypher
@@ -213,6 +239,7 @@ ORDER BY avg_success ASC
 ```
 
 ### Concept Coverage Pattern
+
 Find concepts without sufficient agent coverage:
 
 ```cypher
@@ -228,12 +255,14 @@ ORDER BY agent_count ASC, c.complexity DESC
 ## Data Integrity Rules
 
 ### Constraints
+
 1. **Agent names must be unique** - Prevents duplicate agent registration
 2. **Concept names must be unique** - Prevents duplicate concept definitions
 3. **Region names must be unique** - Prevents duplicate knowledge domains
 4. **Required fields must not be null** - Ensures data completeness
 
 ### Validation Rules
+
 1. **Agent type** - Must be "static" or "dynamic"
 2. **Agent status** - Must be "active", "inactive", or "unhealthy"
 3. **Concept names** - Must be lowercase for consistency
@@ -246,18 +275,21 @@ ORDER BY agent_count ASC, c.complexity DESC
 ## Performance Considerations
 
 ### Indexed Queries
+
 - Agent lookup by name: O(log n) - indexed
 - Concept lookup by name: O(log n) - indexed
 - Agent filtering by type/status: O(log n) - indexed
 - Hebbian weight sorting: O(log n) - indexed
 
 ### Query Optimization
+
 - Use `LIMIT` for large result sets
 - Filter on indexed properties first
 - Use `WITH` clause to reduce intermediate results
 - Avoid cartesian products in multi-pattern queries
 
 ### Scaling Guidelines
+
 - Expected node count: ~1,000 agents, ~10,000 concepts
 - Expected relationship count: ~50,000 HANDLES_CONCEPT relationships
 - Query response time target: < 100ms for agent discovery
@@ -268,11 +300,13 @@ ORDER BY agent_count ASC, c.complexity DESC
 **Current Version:** 1.0.0
 
 **Change History:**
+
 - **1.0.0** (2025-10-10): Initial schema with Hebbian learning, constraints, and indexes
 
 ## Schema Evolution
 
 When updating the schema:
+
 1. Document changes in this file
 2. Create migration script in `scripts/migrations/`
 3. Update schema version in `init_schema.cypher`

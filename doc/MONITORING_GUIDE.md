@@ -80,7 +80,7 @@ docker-compose logs -f prometheus grafana
 
 ### Prometheus
 
-**URL**: http://localhost:9090
+**URL**: <http://localhost:9090>
 
 **Default Credentials**: No authentication required (development mode)
 
@@ -101,9 +101,10 @@ docker-compose logs -f prometheus grafana
 
 ### Grafana
 
-**URL**: http://localhost:3000
+**URL**: <http://localhost:3000>
 
 **Default Credentials**:
+
 - Username: `admin`
 - Password: `myriad_admin`
 
@@ -131,7 +132,7 @@ docker-compose restart grafana
 
 ### Orchestrator Service Metrics
 
-**Endpoint**: http://localhost:5000/metrics
+**Endpoint**: <http://localhost:5000/metrics>
 
 #### Query Metrics
 
@@ -179,7 +180,7 @@ rate(orchestrator_agent_discovery_total{status="found"}[5m]) / rate(orchestrator
 
 ### Neo4j Metrics
 
-**Endpoint**: http://localhost:2004/metrics
+**Endpoint**: <http://localhost:2004/metrics>
 
 ```promql
 # Database transaction rate
@@ -195,7 +196,7 @@ neo4j_bolt_connections_closed_total
 
 ### Redis Metrics
 
-**Endpoint**: http://localhost:9121/metrics
+**Endpoint**: <http://localhost:9121/metrics>
 
 ```promql
 # Connected clients
@@ -231,10 +232,12 @@ rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rat
 1. **Navigate to Dashboards** → New Dashboard
 2. **Add Panel** → Select visualization type
 3. **Configure Query**:
+
    ```promql
    # Example: Service uptime
    up{job="orchestrator"}
    ```
+
 4. **Customize Display**:
    - Set thresholds
    - Choose colors
@@ -400,22 +403,26 @@ du -h ./backups/neo4j/
 **Solutions**:
 
 1. **Check service health**:
+
    ```bash
    curl http://localhost:5000/health
    curl http://localhost:5000/metrics
    ```
 
 2. **Verify network connectivity**:
+
    ```bash
    docker-compose exec prometheus ping orchestrator
    ```
 
 3. **Check Prometheus logs**:
+
    ```bash
    docker-compose logs prometheus
    ```
 
 4. **Validate configuration**:
+
    ```bash
    docker-compose exec prometheus promtool check config /etc/prometheus/prometheus.yml
    ```
@@ -443,11 +450,13 @@ du -h ./backups/neo4j/
 **Solutions**:
 
 1. **Check resource usage**:
+
    ```bash
    docker stats
    ```
 
 2. **Adjust resource limits** in [`docker-compose.yml`](../docker-compose.yml):
+
    ```yaml
    deploy:
      resources:
@@ -456,11 +465,13 @@ du -h ./backups/neo4j/
    ```
 
 3. **Clear Redis cache**:
+
    ```bash
    docker-compose exec redis redis-cli FLUSHDB
    ```
 
 4. **Restart services**:
+
    ```bash
    docker-compose restart
    ```

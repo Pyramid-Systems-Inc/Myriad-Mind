@@ -5,6 +5,7 @@ This guide explains how to migrate existing Myriad graph data to the new schema 
 ## Overview
 
 The new schema (v1.0.0) introduces:
+
 - **Constraints** - Ensure data uniqueness and integrity
 - **Indexes** - Improve query performance
 - **Validation** - Prevent invalid data from entering the graph
@@ -21,6 +22,7 @@ python scripts/initialize_graph_schema.py
 ```
 
 This will:
+
 1. Create all constraints
 2. Create all indexes
 3. Set up default regions
@@ -75,6 +77,7 @@ RETURN a;
 #### Step 3: Clean Existing Data
 
 **Fix duplicate agents:**
+
 ```cypher
 // Merge duplicate agents, keeping the first one
 MATCH (a:Agent)
@@ -88,6 +91,7 @@ DELETE r;
 ```
 
 **Fix concept name casing:**
+
 ```cypher
 // Convert all concept names to lowercase
 MATCH (c:Concept)
@@ -96,6 +100,7 @@ SET c.name = toLower(c.name);
 ```
 
 **Add missing required properties:**
+
 ```cypher
 // Add default status to agents without it
 MATCH (a:Agent)
@@ -110,6 +115,7 @@ SET n.created_at = timestamp();
 ```
 
 **Fix Hebbian relationships:**
+
 ```cypher
 // Ensure all HANDLES_CONCEPT relationships have required properties
 MATCH ()-[r:HANDLES_CONCEPT]->()
@@ -176,6 +182,7 @@ DROP INDEX concept_search_idx IF EXISTS;
 ```
 
 Then run initialization:
+
 ```bash
 python scripts/initialize_graph_schema.py
 ```
@@ -183,18 +190,21 @@ python scripts/initialize_graph_schema.py
 ## Migration Checklist
 
 Before migration:
+
 - [ ] Backup database
 - [ ] Test migration on development environment
 - [ ] Review existing data for violations
 - [ ] Plan downtime if needed
 
 During migration:
+
 - [ ] Stop services that write to Neo4j
 - [ ] Clean data to meet constraints
 - [ ] Run initialization script
 - [ ] Verify constraints and indexes created
 
 After migration:
+
 - [ ] Verify data integrity
 - [ ] Test key operations
 - [ ] Restart services
@@ -206,9 +216,11 @@ If migration fails:
 
 1. **Stop all services**
 2. **Restore from backup:**
+
    ```bash
    neo4j-admin restore --from=/path/to/backup.dump --database=neo4j --force
    ```
+
 3. **Restart Neo4j**
 4. **Verify data**
 5. **Restart services**
@@ -236,6 +248,7 @@ If migration fails:
 ### Issue: Performance degradation after migration
 
 **Solution:** Indexes may need time to populate. Check index status:
+
 ```cypher
 SHOW INDEXES;
 ```
@@ -277,6 +290,7 @@ SET v.version = "1.1.0",
 ## Support
 
 For issues or questions:
+
 1. Check [`GRAPH_SCHEMA.md`](GRAPH_SCHEMA.md) for schema reference
 2. Review [`validation.py`](../src/myriad/services/graphdb_manager/validation.py) for validation rules
 3. Consult [Neo4j Documentation](https://neo4j.com/docs/)

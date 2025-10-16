@@ -100,9 +100,11 @@ graph TB
 **Legend**: ✅ Implemented & Operational | ⏳ Future Phase | ❌ Not Implemented
 
 ### Implementation Status
+
 Complete biomimetic neurogenesis has been implemented, validated, and demonstrated from unknown concept detection through autonomous learning completion.
 
 **Achievements:**
+
 - ✅ **Complete Neurogenesis Pipeline**: 100% operational (3/3 concepts successfully processed)
 - ✅ **Phase 1-3 Protocols**: Complete foundational and advanced communication infrastructure
 - 🧬 **Dynamic Agent Creation**: Template-based neurogenesis for unknown concepts  
@@ -115,6 +117,7 @@ Complete biomimetic neurogenesis has been implemented, validated, and demonstrat
 - 🔄 **Self-Optimization**: Agents improve their own capabilities autonomously
 
 **🎉 Validation Results:**
+
 - 📊 **Complete Pipeline**: 100% success rate on end-to-end neurogenesis testing
 - 🧠 **Autonomous Learning**: 7/7 comprehensive tests passed
 - 🧬 **Neurogenesis Triggers**: Successfully processed "Artificial General Intelligence", "Quantum Neural Networks", "Biomimetic Computing"
@@ -636,6 +639,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 **Purpose**: Create new nodes in the knowledge graph  
 
 **Request Format**:
+
 ```json
 {
   "label": "Agent",
@@ -648,6 +652,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 ```
 
 **Response Format**:
+
 ```json
 {
   "status": "success",
@@ -667,6 +672,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 **Purpose**: Create relationships between existing nodes  
 
 **Request Format (by node properties)**:
+
 ```json
 {
   "start_node_label": "Agent",
@@ -679,6 +685,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 ```
 
 **Request Format (by node ID)**:
+
 ```json
 {
   "start_node_id": "4:f79f1e3c-12a4-4b8a-9c8e-1234567890ab:123",
@@ -690,6 +697,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 ```
 
 **Response Format**:
+
 ```json
 {
   "status": "success",
@@ -703,6 +711,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 **Purpose**: Discover agents that handle specific concepts via graph traversal  
 
 **Request Format**:
+
 ```json
 {
   "start_node_label": "Concept",
@@ -714,6 +723,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 ```
 
 **Response Format**:
+
 ```json
 {
   "status": "success",
@@ -736,6 +746,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 **Purpose**: Enhanced orchestrator using graph traversal for agent discovery instead of registry lookup
 
 **Internal Process**:
+
 1. Receive enhanced task list from Input Processor
 2. For each task concept, query GraphDB Manager AI for connected agents
 3. Select appropriate agent endpoint from graph results
@@ -743,6 +754,7 @@ This represents the transition from static AI protocols to **truly adaptive, bra
 5. Collect and route responses to Output Processor
 
 **Integration Example**:
+
 ```python
 def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
     payload = {
@@ -761,6 +773,7 @@ def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
 **Purpose**: Systematic population of the knowledge graph with agent and concept data
 
 **Configuration Format**:
+
 ```json
 {
   "agents": [
@@ -775,6 +788,7 @@ def discover_agent_via_graph(concept: str, intent: str) -> Optional[str]:
 ```
 
 **Migration Process**:
+
 1. Create all Concept nodes from handled_concepts
 2. Create all Agent nodes with endpoint and type information
 3. Create HANDLES_CONCEPT relationships with default weights
@@ -803,6 +817,7 @@ The neurogenesis system implements a complete biomimetic pipeline that mirrors b
 **Endpoint**: `POST /orchestrate` (internal to orchestrator)
 
 **Detection Logic**:
+
 ```json
 {
   "neurogenesis_trigger": {
@@ -821,6 +836,7 @@ The neurogenesis system implements a complete biomimetic pipeline that mirrors b
 **Endpoint**: `POST /collaborate`
 
 **Research Request**:
+
 ```json
 {
   "collaboration_type": "concept_research",
@@ -839,6 +855,7 @@ The neurogenesis system implements a complete biomimetic pipeline that mirrors b
 ```
 
 **Research Response**:
+
 ```json
 {
   "research_result": {
@@ -864,6 +881,7 @@ The neurogenesis system implements a complete biomimetic pipeline that mirrors b
 **Component**: Template Manager (`templates/agent_templates.py`)
 
 **Template Selection Logic**:
+
 ```json
 {
   "template_selection": {
@@ -891,6 +909,7 @@ The neurogenesis system implements a complete biomimetic pipeline that mirrors b
 **Component**: Dynamic Lifecycle Manager (`lifecycle/dynamic_lifecycle_manager.py`)
 
 **Generated Agent Structure**:
+
 ```json
 {
   "agent_creation": {
@@ -917,6 +936,7 @@ The neurogenesis system implements a complete biomimetic pipeline that mirrors b
 **Endpoint**: Internal Docker commands via subprocess
 
 **Deployment Commands**:
+
 ```bash
 # Build agent image
 docker build -t quantum_computer_specialist /path/to/agent/
@@ -937,6 +957,7 @@ curl http://quantum_computer_specialist:5000/health
 **Endpoint**: `POST /create_node`, `POST /create_relationship`
 
 **Agent Registration**:
+
 ```json
 {
   "create_agent_node": {
@@ -954,6 +975,7 @@ curl http://quantum_computer_specialist:5000/health
 ```
 
 **Concept Relationship**:
+
 ```json
 {
   "create_relationship": {
@@ -1336,16 +1358,20 @@ curl http://quantum_computer_specialist:5000/health
 
 - `POST /hebbian/strengthen`
   - Request:
+
   ```json
   {"agent_id":"Lightbulb_Definition_AI","concept":"lightbulb","success":true}
   ```
+
   - Response: `{"status":"success","relationship": {"weight":0.62,...}}`
 
 - `POST /hebbian/decay`
   - Request:
+
   ```json
   {"concept":"lightbulb","decay_rate":0.05}
   ```
+
   - Response: `{"status":"success","decayed":N}`
 
 - `POST /get_agents_for_concept`
@@ -1353,9 +1379,11 @@ curl http://quantum_computer_specialist:5000/health
   - Response: agents with relationship properties including `weight`.
 
 #### 3.3.2 Orchestrator Hook
+
 Upon each agent outcome, the orchestrator invokes `/hebbian/strengthen` with `success` reflecting the outcome.
 
 #### 3.3.3 Routing Integration
+
 Enhanced Graph Intelligence incorporates `weight` into relevance scoring (10% contribution by default).
 
 ---
@@ -1530,6 +1558,7 @@ Enhanced Graph Intelligence incorporates `weight` into relevance scoring (10% co
 ```
 
 **Response**:
+
 ```json
 {
   "bias_report": {
@@ -1555,6 +1584,7 @@ Enhanced Graph Intelligence incorporates `weight` into relevance scoring (10% co
 ```
 
 **Response**:
+
 ```json
 {
   "resolution": "factA",
@@ -1592,16 +1622,19 @@ This protocol doesn't define a network message but rather the initial state of t
 #### 5.1.1 Primal Sensory Cortex Agents (Foundation Models)
 
 **Image_Embedding_AI**: A service wrapping a model like CLIP.
+
 - **Endpoint:** `POST /embed/image`
 - **Input:** An image file.
 - **Output:** `{ "embedding": [0.123, -0.456, ...], "model": "CLIP-ViT-B-32" }`
 
 **Audio_Embedding_AI**: A service wrapping a model like VGGish.
+
 - **Endpoint:** `POST /embed/audio`
 - **Input:** An audio file (e.g., WAV).
 - **Output:** `{ "embedding": [0.789, 0.112, ...], "model": "VGGish" }`
 
 **Text_Embedding_AI**: A service wrapping a Sentence Transformer model.
+
 - **Endpoint:** `POST /embed/text`
 - **Input:** `{ "text": "A sentence to embed." }`
 - **Output:** `{ "embedding": [0.555, -0.222, ...], "model": "all-MiniLM-L6-v2" }`
@@ -1674,8 +1707,10 @@ This defines the communication with the different layers of the system's memory.
 **Service:** `MediumTerm_Memory_AI` (a wrapper around a Redis instance).
 
 **Protocol 1: Orchestrator → MTM (`Log Interaction`)**
+
 - **Endpoint:** `POST /mtm/log`
 - **Payload:**
+
   ```json
   {
     "concepts": ["lightbulb", "factory"],
@@ -1683,11 +1718,14 @@ This defines the communication with the different layers of the system's memory.
     "query_hash": "a1b2c3d4e5f6"
   }
   ```
+
 - **Action:** The MTM service increments access counters and updates timestamps for the given concepts in Redis (e.g., `INCR concept:lightbulb:count`, `SET concept:lightbulb:last_access 1678886400`). Entries have a TTL (e.g., 24 hours) to enable "forgetting."
 
 **Protocol 2: Consolidator → MTM (`Get Hot Concepts`)**
+
 - **Endpoint:** `GET /mtm/hot_concepts?threshold=10`
 - **Response:**
+
   ```json
   {
     "hot_concepts": [
@@ -1701,14 +1739,17 @@ This defines the communication with the different layers of the system's memory.
 
 **Purpose:** To move important concepts from MTM to permanent LTM (Long-Term Memory).
 **Protocol: Consolidator → LifecycleManager (`Trigger Consolidation`)**
+
 - **Endpoint:** `POST /lifecycle/consolidate`
 - **Payload:**
+
   ```json
   {
     "concept_name": "nft",
     "reason": "Accessed 52 times in the last 24 hours."
   }
   ```
+
 - **Action:** Triggers the full Neurogenesis 2.0 workflow for the specified concept.
 
 ### 5.4 The Conceptual Bootstrapping Protocol ("Curriculum")
@@ -1761,8 +1802,10 @@ This defines the data format for the system's initial, guided learning phase.
 **Service:** `Curriculum_Ingestor_AI` (a Genesis Agent)
 
 **Protocol: User/System → Curriculum_Ingestor_AI (`Ingest Document`)**
+
 - **Endpoint:** `POST /ingest/document`
 - **Payload:**
+
   ```json
   {
     "source_type": "url",
@@ -1776,8 +1819,10 @@ This defines the data format for the system's initial, guided learning phase.
   ```
 
 **Internal Protocol: Curriculum_Ingestor_AI → LifecycleManager (`Batch Create Concepts`)**
+
 - **Endpoint:** `POST /lifecycle/batch_create_concepts`
 - **Payload:**
+
   ```json
   {
     "ingestion_id": "ingest_12345",
@@ -1803,8 +1848,10 @@ This defines the data format for the system's initial, guided learning phase.
 **Service:** `Procedure_Interpreter_AI` (a Genesis Agent)
 
 **Protocol: User/System → Procedure_Interpreter_AI (`Learn Procedure`)**
+
 - **Endpoint:** `POST /learn/procedure`
 - **Payload:**
+
   ```json
   {
     "procedure_name": "compound_interest_calculator",
@@ -1823,8 +1870,10 @@ This defines the data format for the system's initial, guided learning phase.
   ```
 
 **Internal Protocol: Procedure_Interpreter_AI → LifecycleManager (`Create Function Agent`)**
+
 - **Endpoint:** `POST /lifecycle/create_function_agent`
 - **Payload:**
+
   ```json
   {
     "agent_name": "Compound_Interest_AI",
@@ -1844,6 +1893,7 @@ This defines the data format for the system's initial, guided learning phase.
 **Internal Protocol 1: Agent → Orchestrator (`Signal Uncertainty`)**
 This is an addition to the standard Agent-to-Orchestrator response.
 **Added Payload Fields:**
+
 ```json
 {
   // ... standard agent response ...
@@ -1859,12 +1909,14 @@ This is an addition to the standard Agent-to-Orchestrator response.
 ```
 
 **Internal Protocol 2: Orchestrator → Self_Explanation_AI (`Resolve Uncertainty`)**
+
 - **Endpoint:** `POST /resolve/uncertainty`
 - **Payload:** The `uncertainty_signal` object received from an agent.
 
 **External Protocol: Self_Explanation_AI → User/Oracle (`Request Clarification`)**
 This is a response payload sent back to the original querier.
 **Payload:**
+
 ```json
 {
   "status": "clarification_required",
@@ -1882,8 +1934,10 @@ This is a response payload sent back to the original querier.
 **Service:** `Feedback_Processor_AI` (a Genesis Agent)
 
 **Protocol: User/System → Feedback_Processor_AI (`Submit Feedback`)**
+
 - **Endpoint:** `POST /feedback/submit`
 - **Payload:**
+
   ```json
   {
     "query_id": "xyz",
@@ -1899,10 +1953,12 @@ This is a response payload sent back to the original querier.
 **Internal Protocol: Feedback_Processor_AI → Graph Database/LTM (`Update Knowledge`)**
 This is not a network call, but a description of the database transaction.
 **Action:**
+
 1. **Find Node:** Locate the agent node for `History_AI_v1.2`.
 2. **Find Fact:** Locate the specific fact "event_year: 1881".
 3. **Lower Confidence:** Decrease the confidence score of this fact.
 4. **Add Dispute Annotation:** Attach a new property to the fact:
+
    ```json
    "disputes": [
      {
@@ -1913,6 +1969,7 @@ This is not a network call, but a description of the database transaction.
      }
    ]
    ```
+
 5. **Trigger Learning:** Send a message to the `Curriculum_Ingestor_AI` to treat the correction as a new, high-priority piece of knowledge to be learned and potentially consolidated.
 
 ### 6.5 Generative Learning Protocol ("The Feynman Technique")
@@ -1921,8 +1978,10 @@ This is not a network call, but a description of the database transaction.
 **Service:** `Self_Explanation_AI` (Genesis Agent)
 
 **Protocol: User/System → Self_Explanation_AI (`Explain Topic`)**
+
 - **Endpoint:** `POST /explain`
 - **Payload:**
+
   ```json
   {
     "topic": "Industrial Revolution",
@@ -1934,6 +1993,7 @@ This is not a network call, but a description of the database transaction.
 **Response Protocol: Self_Explanation_AI → User (`Generated Explanation`)**
 This is the final output of the generative process.
 **Payload:**
+
 ```json
 {
   "topic": "Industrial Revolution",
@@ -1963,6 +2023,7 @@ This is the final output of the generative process.
 **Data Structure: `SystemStateVector`**
 This JSON object is continuously updated by the `Executive_Function_AI` by querying other system components.
 **Format:**
+
 ```json
 {
   "timestamp": "2024-03-15T18:00:00Z",
@@ -1997,8 +2058,10 @@ This JSON object is continuously updated by the `Executive_Function_AI` by query
 **Services:** `Executive_Function_AI`, `Explorer_AI` (both Genesis Agents)
 
 **Protocol 1: Executive_Function_AI → Explorer_AI (`Dispatch Exploration Task`)**
+
 - **Endpoint:** `POST /explore/start`
 - **Payload:**
+
   ```json
   {
     "task_id": "explore_bio_123",
@@ -2011,8 +2074,10 @@ This JSON object is continuously updated by the `Executive_Function_AI` by query
 
 **Protocol 2: Explorer_AI → Executive_Function_AI (`Report Findings`)**
 This is a callback or response to the exploration task.
+
 - **Endpoint:** `POST /executive/report_findings` (on the Executive Function AI)
 - **Payload:**
+
   ```json
   {
     "source_task_id": "explore_bio_123",
@@ -2041,8 +2106,10 @@ This is a callback or response to the exploration task.
 
 **Protocol: Executive_Function_AI → LifecycleManager (`Trigger Autonomous Learning`)**
 This is a prioritized, internal trigger, distinct from a user-driven one.
+
 - **Endpoint:** `POST /lifecycle/autonomous_create_concept`
 - **Payload:**
+
   ```json
   {
     "learning_task_id": "learn_crispr_789",
@@ -2058,6 +2125,7 @@ This is a prioritized, internal trigger, distinct from a user-driven one.
     }
   }
   ```
+
 - **Action:** The `LifecycleManager` receives this and begins the full multi-modal neurogenesis process, creating a new, permanent "Concept Genome" file for "CRISPR."
 
 ### 7.4 The Cognitive Refinement Protocol (The "Sleep" Cycle)
@@ -2066,8 +2134,10 @@ This is a prioritized, internal trigger, distinct from a user-driven one.
 **Services:** `Consolidator` (background worker), `Executive_Function_AI`
 
 **Protocol: Consolidator → Executive_Function_AI (`Report Inconsistency`)**
+
 - **Endpoint:** `POST /executive/report_inconsistency`
 - **Payload:**
+
   ```json
   {
     "report_id": "consistency_report_456",
@@ -2090,6 +2160,7 @@ This is a prioritized, internal trigger, distinct from a user-driven one.
     "suggested_action": "Trigger Socratic query to resolve unit conflict."
   }
   ```
+
 - **Action:** The `Executive_Function_AI` receives this report. In its next cognitive cycle, it will see this "coherence" problem and may prioritize tasking the `Self_Explanation_AI` to resolve the contradiction, either by using a `Unit_Conversion_AI` or by asking an Oracle. This creates a loop of continuous self-improvement.
 
 ---

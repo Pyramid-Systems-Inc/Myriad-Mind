@@ -48,6 +48,7 @@ docker-compose ps
 ```
 
 You should see 6 services running:
+
 - `graphdb_manager_ai` (port 5008)
 - `input_processor` (port 5003)
 - `output_processor` (port 5004)
@@ -320,6 +321,7 @@ All agents must implement these endpoints:
 - `POST /query` or `POST /<agent-specific>` - Main query endpoint
 
 Example health endpoint response:
+
 ```json
 {
   "status": "healthy",

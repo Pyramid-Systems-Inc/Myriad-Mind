@@ -13,6 +13,7 @@ The orchestrator has been successfully converted from an embedded library within
 ## What Was Implemented
 
 ### 1. Standalone Flask Application
+
 **File:** [`src/myriad/services/orchestrator/app.py`](../src/myriad/services/orchestrator/app.py)
 
 A complete Flask application with the following endpoints:
@@ -27,15 +28,18 @@ A complete Flask application with the following endpoints:
 | `/status` | GET | Service status with dependency health checks |
 
 **Key Features:**
+
 - Supports both single query format (`{"query": "...", "user_id": "..."}`)
 - Supports batch task format (`{"tasks": [...]}`) for compatibility with Integration Tester
 - Comprehensive error handling and logging
 - Integration with all core systems (GraphDB, Performance Engine, Learning Engine, etc.)
 
 ### 2. Docker Containerization
+
 **File:** [`src/myriad/services/orchestrator/Dockerfile`](../src/myriad/services/orchestrator/Dockerfile)
 
 Production-ready Docker image with:
+
 - Python 3.9 slim base
 - Curl installed for health checks
 - Optimized layer caching
@@ -43,21 +47,25 @@ Production-ready Docker image with:
 - Proper PYTHONPATH configuration
 
 ### 3. Service Dependencies
+
 **File:** [`src/myriad/services/orchestrator/requirements.txt`](../src/myriad/services/orchestrator/requirements.txt)
 
 Minimal, focused dependencies:
+
 - `flask==2.3.0` - Web framework
 - `requests==2.31.0` - HTTP client for service communication
 - `redis==4.5.0` - Redis client for caching
 - `werkzeug==2.3.0` - WSGI utilities
 
 ### 4. Docker Compose Integration
+
 **File:** [`docker-compose.yml`](../docker-compose.yml)
 
 Added orchestrator service with:
+
 - **Port:** 5000 (exposed to host)
 - **Container Name:** `myriad-orchestrator`
-- **Environment Variables:** 
+- **Environment Variables:**
   - Neo4j connection details
   - Redis configuration
   - Service URLs (GraphDB Manager, Input/Output Processors)
@@ -68,9 +76,11 @@ Added orchestrator service with:
 - **Network:** Connected to `myriad-network`
 
 ### 5. Integration Tester Update
+
 **File:** [`src/myriad/services/integration_tester/app.py`](../src/myriad/services/integration_tester/app.py)
 
 Modified to act as HTTP client instead of embedded library:
+
 - Removed local orchestrator imports
 - Added `ORCHESTRATOR_URL` environment variable
 - Updated `/run_orchestration` endpoint to forward requests to orchestrator service
@@ -78,17 +88,21 @@ Modified to act as HTTP client instead of embedded library:
 - Added proper timeout handling (60s for complex queries)
 
 ### 6. Orchestrator Library Enhancement
+
 **File:** [`src/myriad/services/orchestrator/orchestrator.py`](../src/myriad/services/orchestrator/orchestrator.py)
 
 Updated to support service mode:
+
 - Made `GRAPHDB_MANAGER_URL` configurable via environment variable
 - Maintained backward compatibility for library usage
 - Kept all neurogenesis, learning, and intelligence features intact
 
 ### 7. Comprehensive Test Suite
+
 **File:** [`tests/test_orchestrator_service.py`](../tests/test_orchestrator_service.py)
 
 Complete integration test suite covering:
+
 - Health check endpoint
 - Status endpoint with dependency checks
 - Simple query processing
@@ -105,11 +119,13 @@ Tests can be run individually or as a complete suite with detailed output.
 Updated documentation across multiple files:
 
 **README.md:**
+
 - Added orchestrator service to quick start verification
 - Updated basic usage examples to show orchestrator endpoints
 - Added orchestrator to microservices table (Port 5000)
 
 **doc/ARCHITECTURE.md:**
+
 - Updated orchestrator section to reflect microservice status
 - Documented all REST API endpoints
 - Clarified scalability and deployment characteristics
@@ -119,6 +135,7 @@ Updated documentation across multiple files:
 ## Architecture Changes
 
 ### Before: Embedded Library
+
 ```
 Integration Tester (Port 5009)
   └── Embedded orchestrator.py
@@ -126,6 +143,7 @@ Integration Tester (Port 5009)
 ```
 
 **Issues:**
+
 - Single point of failure
 - Not independently scalable
 - Tight coupling with Integration Tester
@@ -133,6 +151,7 @@ Integration Tester (Port 5009)
 - Limited reusability
 
 ### After: Standalone Microservice
+
 ```
 Integration Tester (Port 5009)
   └── HTTP Client
@@ -147,6 +166,7 @@ Integration Tester (Port 5009)
 ```
 
 **Benefits:**
+
 - Independent deployment and scaling
 - Proper health monitoring
 - Service discovery support
@@ -215,11 +235,13 @@ HTTP_POOL_MAX=20
 ## API Usage Examples
 
 ### 1. Health Check
+
 ```bash
 curl http://localhost:5000/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -229,6 +251,7 @@ curl http://localhost:5000/health
 ```
 
 ### 2. Process Simple Query
+
 ```bash
 curl -X POST http://localhost:5000/process \
   -H "Content-Type: application/json" \
@@ -239,6 +262,7 @@ curl -X POST http://localhost:5000/process \
 ```
 
 ### 3. Process Batch Tasks
+
 ```bash
 curl -X POST http://localhost:5000/process \
   -H "Content-Type: application/json" \
@@ -251,16 +275,19 @@ curl -X POST http://localhost:5000/process \
 ```
 
 ### 4. List Agents
+
 ```bash
 curl http://localhost:5000/agents
 ```
 
 ### 5. Get Metrics
+
 ```bash
 curl http://localhost:5000/metrics
 ```
 
 ### 6. Discover Agent
+
 ```bash
 curl -X POST http://localhost:5000/discover \
   -H "Content-Type: application/json" \
@@ -271,6 +298,7 @@ curl -X POST http://localhost:5000/discover \
 ```
 
 ### 7. Service Status
+
 ```bash
 curl http://localhost:5000/status
 ```
@@ -280,6 +308,7 @@ curl http://localhost:5000/status
 ## Deployment Instructions
 
 ### 1. Build and Start Orchestrator
+
 ```bash
 # Build and start only the orchestrator
 docker-compose up --build orchestrator -d
@@ -289,6 +318,7 @@ docker-compose up --build -d
 ```
 
 ### 2. Verify Service Health
+
 ```bash
 # Check health
 curl http://localhost:5000/health
@@ -298,6 +328,7 @@ curl http://localhost:5000/status
 ```
 
 ### 3. Run Integration Tests
+
 ```bash
 # Set PYTHONPATH
 export PYTHONPATH=src
@@ -310,6 +341,7 @@ pytest tests/test_orchestrator_service.py -v
 ```
 
 ### 4. Monitor Logs
+
 ```bash
 # View orchestrator logs
 docker-compose logs -f orchestrator
@@ -319,6 +351,7 @@ docker-compose logs -f
 ```
 
 ### 5. Scaling (Future)
+
 ```bash
 # Scale orchestrator to 3 instances
 docker-compose up --scale orchestrator=3 -d
@@ -335,6 +368,7 @@ python tests/test_orchestrator_service.py
 ```
 
 **Expected Output:**
+
 ```
 Running Orchestrator Service Integration Tests
 
@@ -374,6 +408,7 @@ Test Results: 8 passed, 0 failed, 0 skipped
 ## Performance Characteristics
 
 ### Current Metrics
+
 - **Startup Time:** ~2-3 seconds
 - **Health Check Response:** <50ms
 - **Simple Query Processing:** ~100-500ms (depending on agent availability)
@@ -381,6 +416,7 @@ Test Results: 8 passed, 0 failed, 0 skipped
 - **Agent Discovery:** ~50-200ms (with graph database caching)
 
 ### Scalability Features
+
 - **Connection Pooling:** Configurable HTTP connection pool (default: 20 connections)
 - **Retry Logic:** Automatic retry with exponential backoff (default: 3 retries)
 - **Stateless Design:** Can be horizontally scaled without shared state
@@ -392,10 +428,12 @@ Test Results: 8 passed, 0 failed, 0 skipped
 ## Monitoring and Observability
 
 ### Health Endpoints
+
 - `/health` - Basic liveness check
 - `/status` - Detailed status with dependency health
 
 ### Metrics Endpoint
+
 - `/metrics` - Exposes:
   - Service version
   - Feature flags status
@@ -403,6 +441,7 @@ Test Results: 8 passed, 0 failed, 0 skipped
   - Query processing statistics
 
 ### Docker Health Check
+
 - Configured in Dockerfile
 - Interval: 30 seconds
 - Timeout: 10 seconds
@@ -410,6 +449,7 @@ Test Results: 8 passed, 0 failed, 0 skipped
 - Start period: 5 seconds
 
 ### Logging
+
 - All endpoints log request/response
 - Error conditions logged with stack traces
 - Performance metrics logged when available
@@ -419,18 +459,21 @@ Test Results: 8 passed, 0 failed, 0 skipped
 ## Future Enhancements
 
 ### Phase 1: Production Hardening
+
 - [ ] Add Prometheus metrics export
 - [ ] Implement distributed tracing (OpenTelemetry)
 - [ ] Add rate limiting and request throttling
 - [ ] Implement circuit breakers for agent calls
 
 ### Phase 2: Advanced Features
+
 - [ ] WebSocket support for real-time updates
 - [ ] GraphQL API for flexible queries
 - [ ] Batch processing optimization
 - [ ] Query result caching with TTL
 
 ### Phase 3: High Availability
+
 - [ ] Multi-region deployment support
 - [ ] Active-active clustering
 - [ ] Automatic failover
@@ -441,6 +484,7 @@ Test Results: 8 passed, 0 failed, 0 skipped
 ## Troubleshooting
 
 ### Service Won't Start
+
 ```bash
 # Check logs
 docker-compose logs orchestrator
@@ -452,6 +496,7 @@ docker-compose logs orchestrator
 ```
 
 ### Health Check Fails
+
 ```bash
 # Check if service is running
 docker ps | grep orchestrator
@@ -464,6 +509,7 @@ docker-compose restart orchestrator
 ```
 
 ### Integration Tester Can't Connect
+
 ```bash
 # Verify orchestrator URL in integration tester
 docker-compose exec integration_tester_ai env | grep ORCHESTRATOR
