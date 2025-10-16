@@ -36,7 +36,8 @@ def health():
         "version": ORCHESTRATOR_VERSION
     }), 200
 
-@app.route('/process', methods=['POST'])
+@app.route('/process_query', methods=['POST'])
+@app.route('/process', methods=['POST'])  # Maintain backward compatibility
 @query_duration.time()
 def process_query():
     """Main query processing endpoint - processes a list of tasks"""
