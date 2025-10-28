@@ -19,7 +19,9 @@ This document covers Sprint 2 of the Myriad-Mind implementation plan, focusing o
 ### Phase 1.3: Graph Schema Enforcement (Week 3)
 
 #### Current Problem
+
 From [`doc/GRAPH_SCHEMA.md`](../GRAPH_SCHEMA.md:1):
+
 - Schema documented but constraints not enforced in database
 - No uniqueness constraints on Agent.name, Concept.name
 - No indexes for performance
@@ -204,11 +206,13 @@ if __name__ == "__main__":
 File: [`src/myriad/services/graphdb_manager/validation.py`](../../src/myriad/services/graphdb_manager/validation.py:1)
 
 Already exists! Verify it includes these validations:
+
 - Agent: name, type, endpoint required
 - Concept: name required, lowercase enforced
 - Hebbian: weights in [0.0, 1.0], counts non-negative
 
 If missing, add to validation.py:
+
 ```python
 def validate_agent_properties(properties: dict) -> tuple[bool, str]:
     """Validate agent properties before creation"""
@@ -262,6 +266,7 @@ echo "✅ Schema initialized, starting services..."
 ```
 
 Update [`docker-compose.yml`](../../docker-compose.yml:1) to run schema init:
+
 ```yaml
 graphdb_manager_ai:
   # ... existing config ...
@@ -272,6 +277,7 @@ graphdb_manager_ai:
 ```
 
 **Success Criteria:**
+
 - ✅ Constraints prevent duplicate agent/concept names
 - ✅ Indexes improve query performance (<100ms for agent discovery)
 - ✅ Validation rejects invalid data
@@ -282,6 +288,7 @@ graphdb_manager_ai:
 ### Phase 1.4: Production Monitoring Stack (Week 4-5)
 
 #### Current Problem
+
 - No metrics collection or visualization
 - Cannot diagnose production issues
 - No alerting for failures
@@ -292,6 +299,7 @@ graphdb_manager_ai:
 **1.4.1 Add Prometheus (Day 1-2)**
 
 Create `monitoring/prometheus.yml`:
+
 ```yaml
 global:
   scrape_interval: 15s
@@ -328,6 +336,7 @@ scrape_configs:
 ```
 
 Add to [`docker-compose.yml`](../../docker-compose.yml:1):
+
 ```yaml
 prometheus:
   image: prom/prometheus:latest
@@ -348,6 +357,7 @@ prometheus:
 **1.4.2 Add Grafana (Day 2-3)**
 
 Create `monitoring/grafana/datasources/prometheus.yml`:
+
 ```yaml
 apiVersion: 1
 
@@ -361,6 +371,7 @@ datasources:
 ```
 
 Create `monitoring/grafana/dashboards/dashboard.yml`:
+
 ```yaml
 apiVersion: 1
 
@@ -377,6 +388,7 @@ providers:
 ```
 
 Add to [`docker-compose.yml`](../../docker-compose.yml:1):
+
 ```yaml
 grafana:
   image: grafana/grafana:latest
@@ -437,6 +449,7 @@ def process():
 ```
 
 **Success Criteria:**
+
 - ✅ Prometheus collecting metrics from all services
 - ✅ Grafana dashboards showing system health
 - ✅ Real-time monitoring of agent count, response times, success rates
@@ -520,6 +533,7 @@ services:
 ```
 
 **Success Criteria:**
+
 - ✅ All services have health endpoints
 - ✅ All services have resource limits
 - ✅ Docker Compose health checks passing
@@ -532,24 +546,28 @@ services:
 ### Completed Deliverables
 
 **Week 1-2: Foundation Infrastructure**
+
 - ✅ Orchestrator extracted as independent microservice
 - ✅ Resource limits on agent creation (max 20 concurrent)
 - ✅ Lifecycle management with idle timeout and max age
 - ✅ Agent usage tracking and queue management
 
 **Week 3: Schema Enforcement**
+
 - ✅ Neo4j constraints for data integrity
 - ✅ Indexes for query performance
 - ✅ Schema validation in GraphDB Manager
 - ✅ Automated schema initialization
 
 **Week 4-5: Monitoring Stack**
+
 - ✅ Prometheus metrics collection
 - ✅ Grafana dashboards and visualization
 - ✅ Service-level metrics instrumentation
 - ✅ Real-time observability
 
 **Week 6: Health & Resources**
+
 - ✅ Standardized health endpoints
 - ✅ Docker resource limits on all services
 - ✅ Health check automation
@@ -573,6 +591,7 @@ Sprint 3 will build on this foundation to implement async communication and perf
 **Next:** [Sprint 3: Performance & Async Communication](implementation-sprint-3.md) - Async orchestrator, circuit breakers, and parallel processing
 
 **Related Documentation:**
+
 - [Project Index](../INDEX.md)
 - [Architecture Overview](../architecture/)
 - [Protocols](../protocols/)

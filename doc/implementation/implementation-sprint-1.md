@@ -9,6 +9,7 @@ This document covers Sprint 1 of the Myriad-Mind implementation plan, focusing o
 ---
 
 # Comprehensive Implementation Plan: Project Myriad
+
 ## Evolution to Human-Like Cognition (35% → 85-90%)
 
 **Document Version:** 1.0  
@@ -21,11 +22,13 @@ This document covers Sprint 1 of the Myriad-Mind implementation plan, focusing o
 ## Executive Summary
 
 ### Vision
+
 Transform Project Myriad from a sophisticated reactive AI system (35-40% human-like cognition) into a proactive, self-aware cognitive architecture (85-90% human-like cognition) through systematic implementation of 8 critical architectural enhancements over 24 weeks.
 
 ### Current State Assessment
 
 **✅ Achievements (What Works Well):**
+
 - Complete biomimetic neurogenesis pipeline operational
 - Hebbian learning with adaptive connection strengthening
 - Enhanced graph intelligence with smart agent discovery
@@ -34,6 +37,7 @@ Transform Project Myriad from a sophisticated reactive AI system (35-40% human-l
 - Autonomous learning engine (5-phase system)
 
 **❌ Critical Gaps (What's Missing):**
+
 1. **Production Infrastructure** - No orchestrator as true microservice, missing monitoring stack
 2. **Resource Governance** - Unbounded agent creation (potential for 3000 agents), no cleanup policies
 3. **Schema Enforcement** - Graph schema documented but constraints/indexes not enforced
@@ -46,6 +50,7 @@ Transform Project Myriad from a sophisticated reactive AI system (35-40% human-l
 ### Expected Outcomes
 
 By implementing this plan, Project Myriad will achieve:
+
 - **Production-ready infrastructure** with proper monitoring, security, and resource management
 - **Scalable architecture** supporting thousands of agents with proper lifecycle management
 - **Human-like conversation** with multi-turn context and reference resolution
@@ -95,6 +100,7 @@ graph TD
 ### Phase 1.1: Orchestrator Microservice Extraction (Week 1)
 
 #### Current Problem
+
 - Orchestrator exists as [`app.py`](../../src/myriad/services/orchestrator/app.py:1) but Integration Tester ([`integration_tester/app.py`](../../src/myriad/services/integration_tester/app.py:1)) still acts as gateway
 - Unclear service boundaries and single point of failure
 - Cannot scale orchestrator independently
@@ -106,12 +112,14 @@ graph TD
 File: [`src/myriad/services/orchestrator/app.py`](../../src/myriad/services/orchestrator/app.py:1)
 
 Current state: File exists but needs verification of:
+
 - Health endpoint implementation
 - Metrics endpoint
 - Process endpoint accepting both formats
 - Status endpoint
 
 **Action Items:**
+
 ```python
 # Verify these endpoints exist in app.py:
 # - GET /health
@@ -138,6 +146,7 @@ def metrics():
 File: [`docker-compose.yml`](../../docker-compose.yml:1)
 
 Add orchestrator service entry:
+
 ```yaml
 orchestrator:
   build:
@@ -176,6 +185,7 @@ orchestrator:
 File: [`src/myriad/services/integration_tester/app.py`](../../src/myriad/services/integration_tester/app.py:1)
 
 Modify to call orchestrator HTTP API instead of embedded library:
+
 ```python
 # Replace direct import:
 # from orchestration.orchestrator import process_tasks
@@ -198,6 +208,7 @@ def run_orchestration():
 ```
 
 **Success Criteria:**
+
 - ✅ Orchestrator runs as independent service on port 5010
 - ✅ Integration Tester successfully calls orchestrator via HTTP
 - ✅ All existing tests pass
@@ -208,7 +219,9 @@ def run_orchestration():
 ### Phase 1.2: Resource Limits for Neurogenesis (Week 2)
 
 #### Current Problem
+
 From [`dynamic_lifecycle_manager.py`](../../src/myriad/core/lifecycle/dynamic_lifecycle_manager.py:524-562):
+
 - No CPU/memory limits on agent containers
 - No maximum concurrent agent limit
 - No lifecycle policies (idle timeout, TTL)
@@ -221,6 +234,7 @@ From [`dynamic_lifecycle_manager.py`](../../src/myriad/core/lifecycle/dynamic_li
 File: [`src/myriad/core/lifecycle/dynamic_lifecycle_manager.py`](../../src/myriad/core/lifecycle/dynamic_lifecycle_manager.py:1)
 
 Add configuration constants after imports (around line 22):
+
 ```python
 # Resource Management Configuration
 MAX_CONCURRENT_AGENTS = int(os.environ.get("MAX_DYNAMIC_AGENTS", "20"))
@@ -234,6 +248,7 @@ AGENT_MAX_AGE_HOURS = int(os.environ.get("AGENT_MAX_AGE_HOURS", "24"))
 **1.2.2 Modify DynamicLifecycleManager Class (Day 2-3)**
 
 At line 445, modify `__init__`:
+
 ```python
 def __init__(self):
     self.agents: Dict[str, DynamicAgent] = {}
@@ -262,6 +277,7 @@ def __init__(self):
 **1.2.3 Add Capacity Check to create_agent (Day 3)**
 
 Modify [`create_agent()`](../../src/myriad/core/lifecycle/dynamic_lifecycle_manager.py:457) at line 457:
+
 ```python
 def create_agent(self, concept: str, intent: str, research_data: Dict[str, Any], region: str = "General") -> Optional[DynamicAgent]:
     """Create a new dynamic agent for a concept with capacity management"""
@@ -289,6 +305,7 @@ def create_agent(self, concept: str, intent: str, research_data: Dict[str, Any],
 **1.2.4 Add Resource Limits to Docker Run (Day 4)**
 
 Modify [`_build_and_start_agent()`](../../src/myriad/core/lifecycle/dynamic_lifecycle_manager.py:524) at line 539:
+
 ```python
 # Start container with resource limits
 run_result = subprocess.run([
@@ -312,6 +329,7 @@ run_result = subprocess.run([
 **1.2.5 Add Lifecycle Management Loop (Day 5)**
 
 Add new method to DynamicLifecycleManager class (after line 622):
+
 ```python
 def _lifecycle_management_loop(self):
     """Background loop for agent lifecycle management"""
@@ -376,6 +394,7 @@ def record_agent_usage(self, agent_id: str):
 File: [`src/myriad/services/orchestrator/orchestrator.py`](../../src/myriad/services/orchestrator/orchestrator.py:793)
 
 After line 813, add usage tracking:
+
 ```python
 result = response.json()
 
@@ -393,6 +412,7 @@ _update_agent_performance_metrics(agent_url, concept, intent, start_time, result
 ```
 
 **Success Criteria:**
+
 - ✅ Agent creation respects MAX_CONCURRENT_AGENTS limit
 - ✅ Agents have CPU and memory constraints
 - ✅ Idle agents automatically shut down after timeout
@@ -406,6 +426,7 @@ _update_agent_performance_metrics(agent_url, concept, intent, start_time, result
 **Next:** [Sprint 2: Schema Enforcement & Monitoring](implementation-sprint-2.md) - Graph schema constraints, production monitoring stack, and health checks
 
 **Related Documentation:**
+
 - [Project Index](../INDEX.md)
 - [Architecture Overview](../architecture/)
 - [Protocols](../protocols/)
