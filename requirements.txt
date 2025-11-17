@@ -1,7 +1,0 @@
-flask
-requests
-pytest
-spacy
-nltk
-docker
-neo4j
