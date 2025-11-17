@@ -25,6 +25,10 @@ Comprehensive overview of the Myriad-Mind system architecture adapted for C# and
 
 The Myriad Cognitive Architecture is a fundamental departure from the paradigm of monolithic, large-scale AI models. It is founded on the principle that true, scalable, and explainable intelligence is not born from a single, all-knowing entity, but emerges from the dynamic collaboration of countless, hyper-specialized, and minimalist agents.
 
+### Bridging Efficiency and Deep Reasoning
+
+The architecture addresses a fundamental challenge: how to maintain the efficiency of specialized retrieval while providing the deep reasoning capabilities of large language models. This is achieved through a dual-path processing architecture inspired by Global Workspace Theory (GWT) from cognitive science.
+
 ### Guiding Principles
 
 Our guiding principles are inspired by neurobiology:
@@ -43,9 +47,13 @@ Our guiding principles are inspired by neurobiology:
 
 4. **Efficiency and Resource Frugality**
 
-   The system must be computationally efficient. Querying "What is 2+2?" should activate a tiny, near-instantaneous function agent, not a multi-billion parameter LLM.
+   The system must be computationally efficient. Querying "What is 2+2?" should activate a tiny, near-instantaneous function agent, not a multi-billion parameter LLM. However, complex queries requiring deep reasoning justify targeted use of intensive computational resources through the Cognitive Workspace.
 
-5. **Biomimetic Learning**
+5. **Dual-Path Processing**
+
+   Simple queries use a fast, efficient retrieval path. Complex queries requiring reasoning, synthesis, or novel problem-solving activate the Cognitive Workspace for deep processing. This ensures optimal resource allocation.
+
+6. **Biomimetic Learning**
 
    Learning occurs through Hebbian principles: "agents that fire together, wire together." Connection weights strengthen with successful collaboration.
 
@@ -105,7 +113,8 @@ The Myriad architecture is a multi-tiered, decentralized system of ASP.NET Core 
 ┌─────────────────────────────────────────────────────────────┐
 │                    Core Cognitive Layer                       │
 │  - Input Processor (ASP.NET Core Service)                   │
-│  - Orchestrator (Central Service)                            │
+│  - Orchestrator (Central Service with Path Routing)         │
+│  - Cognitive Workspace (Ephemeral Deep Reasoning)            │
 │  - Output Processor (ASP.NET Core Service)                   │
 │  - Synthesizer (Integration Logic)                           │
 └─────────────────────────────────────────────────────────────┘
@@ -373,14 +382,28 @@ public class InMemoryMessageQueue
 1. **Orchestrator Service**
    - **Location**: `src/Myriad.Services.Orchestrator/`
    - **Port**: 5000
-   - **Purpose**: Central coordination, agent discovery, task routing
+   - **Purpose**: Central coordination, agent discovery, dual-path routing
    - **Key Classes**:
      - `OrchestratorService.cs` - Main service logic
+     - `QueryComplexityAnalyzer.cs` - Determines processing path
      - `AgentDiscoveryEngine.cs` - Graph-based discovery
+     - `WorkspaceActivator.cs` - Cognitive Workspace management
      - `NeurogenesisCoordinator.cs` - Unknown concept handling
      - `HebbianUpdater.cs` - Connection strengthening
 
-2. **GraphDB Manager Service**
+2. **Cognitive Workspace Service**
+   - **Location**: `src/Myriad.Services.CognitiveWorkspace/`
+   - **Port**: 5012
+   - **Purpose**: Deep reasoning and creative synthesis for complex queries
+   - **Key Classes**:
+     - `CognitiveWorkspaceManager.cs` - Workspace lifecycle
+     - `IterativeSynthesisEngine.cs` - Core reasoning engine
+     - `PatternRecognizer.cs` - Identifies patterns across agent models
+     - `CausalAnalyzer.cs` - Analyzes cause-effect relationships
+     - `CounterfactualSimulator.cs` - Explores "what if" scenarios
+     - `HypothesisRefiner.cs` - Iteratively improves reasoning
+
+3. **GraphDB Manager Service**
    - **Location**: `src/Myriad.Services.GraphDatabase/`
    - **Port**: 5008
    - **Purpose**: Graph database interface
@@ -391,7 +414,7 @@ public class InMemoryMessageQueue
      - `GraphTraversal.cs` - Traversal algorithms
      - `PersistenceEngine.cs` - JSON-based persistence
 
-3. **Input Processor Service**
+4. **Input Processor Service**
    - **Location**: `src/Myriad.Services.InputProcessor/`
    - **Port**: 5003
    - **Purpose**: Query parsing and understanding
@@ -402,7 +425,7 @@ public class InMemoryMessageQueue
      - `AmbiguityResolver.cs` - Disambiguation
      - `TaskGenerator.cs` - Task list creation
 
-4. **Output Processor Service**
+5. **Output Processor Service**
    - **Location**: `src/Myriad.Services.OutputProcessor/`
    - **Port**: 5004
    - **Purpose**: Response synthesis and formatting
@@ -414,7 +437,7 @@ public class InMemoryMessageQueue
 
 ### Intelligence & Learning
 
-5. **Enhanced Graph Intelligence**
+6. **Enhanced Graph Intelligence**
    - **Location**: `src/Myriad.Core.Intelligence/`
    - **Type**: Class Library
    - **Key Classes**:
@@ -424,7 +447,7 @@ public class InMemoryMessageQueue
      - `PerformanceTracker.cs` - Metrics tracking
      - `ContextAnalyzer.cs` - Query context analysis
 
-6. **Autonomous Learning Engine**
+7. **Autonomous Learning Engine**
    - **Location**: `src/Myriad.Core.Learning/`
    - **Type**: Class Library
    - **Key Classes**:
@@ -434,7 +457,7 @@ public class InMemoryMessageQueue
      - `SelfOptimizer.cs` - Performance improvement
      - `CrossDomainLearner.cs` - Knowledge transfer
 
-7. **Dynamic Lifecycle Manager**
+8. **Dynamic Lifecycle Manager**
    - **Location**: `src/Myriad.Core.Lifecycle/`
    - **Type**: Class Library
    - **Key Classes**:
@@ -446,7 +469,7 @@ public class InMemoryMessageQueue
 
 ### Agent Network
 
-8. **Static Agents**
+9. **Static Agents**
    - **Location**: `src/Myriad.Agents.Static/`
    - **Examples**:
      - `LightbulbDefinitionAgent/` - Fact-base agent
@@ -457,7 +480,7 @@ public class InMemoryMessageQueue
      - `IAgent.cs` - Agent interface
      - `AgentCapability.cs` - Capability definition
 
-9. **Dynamic Agents**
+10. **Dynamic Agents**
    - **Location**: `dynamic_agents/` (runtime generation)
    - **Generated from Templates**:
      - `templates/FactBaseBasicTemplate.cs`
@@ -467,7 +490,7 @@ public class InMemoryMessageQueue
 
 ### Common Libraries
 
-10. **Myriad.Common**
+11. **Myriad.Common**
     - **Location**: `src/Myriad.Common/`
     - **Purpose**: Shared types and utilities
     - **Key Classes**:
@@ -481,18 +504,24 @@ public class InMemoryMessageQueue
 
 ## Process Flow
 
-### Standard Query Processing
+### Dual-Path Query Processing Architecture
+
+The system features two distinct processing pathways, intelligently selected based on query complexity:
+
+### Path 1: Fast Retrieval (Simple Queries)
+
+**Used For**: Definitions, facts, calculations, known information retrieval
 
 ```
 User Query (HTTP POST)
     ↓
 [Input Processor Service]
-    ↓ (Enhanced Task List)
+    ↓ (Complexity: LOW, Task List Generated)
 [Enhanced Graph Intelligence]
     ↓ (Relevant Agent List with Scores)
-[Orchestrator Service]
+[Orchestrator Service - Fast Path Selected]
     ↓ (Parallel HTTP Requests via Task.WhenAll)
-[Agent Network]
+[Agent Network - Data Retrieval]
     ↓ (Individual Agent Responses)
 [Response Synthesizer]
     ↓ (Integrated Response)
@@ -501,34 +530,125 @@ User Query (HTTP POST)
 User Response (HTTP Response)
 ```
 
-### C# Async Pattern Example
+**Performance**: < 500ms, minimal compute
+
+### Path 2: Deep Reasoning (Complex Queries)
+
+**Used For**: Novel problems, hypothetical scenarios, cross-domain synthesis, causal reasoning
+
+```
+User Query (HTTP POST) - "Based on Industrial Revolution, predict impact of teleportation"
+    ↓
+[Input Processor Service]
+    ↓ (Complexity: HIGH, Deep Reasoning Required)
+[Orchestrator Service - Workspace Path Selected]
+    ↓
+[Cognitive Workspace Activated]
+    ↓
+[Agent Broadcasting Initiated]
+    ↓ (Agents project models, not just data)
+    ↓ (Industrial_Revolution_AI: societal change models)
+    ↓ (Physics_AI: physical constraints)
+    ↓ (Sociology_AI: urban development patterns)
+    ↓ (Economics_AI: market disruption models)
+    ↓ (Ethics_AI: ethical frameworks)
+[Iterative Synthesis Engine]
+    ↓ (Pattern Recognition across models)
+    ↓ (Causal Chain Analysis)
+    ↓ (Simulation: "what if commute is instant?")
+    ↓ (Second-order effects identification)
+    ↓ (Hypothesis refinement cycles)
+[Emergent Solution Generated]
+    ↓ (Novel insights from collaborative reasoning)
+[Output Processor Service]
+    ↓ (Formatted Deep Analysis)
+[Cognitive Workspace Dissolved]
+    ↓ (Resources released)
+User Response (HTTP Response)
+```
+
+**Performance**: 2-10 seconds, high compute, justified by problem complexity
+
+### C# Async Pattern Example - Dual Path Processing
 
 ```csharp
 public async Task<AgentResponse> ProcessQueryAsync(string query, CancellationToken cancellationToken)
 {
-    // 1. Parse query
+    // 1. Parse query and assess complexity
     var taskList = await _inputProcessor.ProcessAsync(query, cancellationToken);
+    var complexity = await _complexityAnalyzer.AnalyzeAsync(taskList, cancellationToken);
     
-    // 2. Discover agents
+    // 2. Route based on complexity
+    if (complexity.Level == ComplexityLevel.High && complexity.RequiresDeepReasoning)
+    {
+        return await ProcessViaDeepReasoningAsync(taskList, cancellationToken);
+    }
+    else
+    {
+        return await ProcessViaFastPathAsync(taskList, cancellationToken);
+    }
+}
+
+private async Task<AgentResponse> ProcessViaFastPathAsync(
+    TaskList taskList,
+    CancellationToken cancellationToken)
+{
+    // Standard fast retrieval path
     var relevantAgents = await _graphIntelligence.DiscoverAgentsAsync(
-        taskList.PrimaryConcept, 
+        taskList.PrimaryConcept,
         taskList.PrimaryIntent,
         cancellationToken);
     
-    // 3. Execute tasks in parallel
-    var agentTasks = relevantAgents.Select(agent => 
+    var agentTasks = relevantAgents.Select(agent =>
         ExecuteAgentTaskAsync(agent, taskList, cancellationToken));
     
     var agentResponses = await Task.WhenAll(agentTasks);
     
-    // 4. Update Hebbian weights
     await UpdateHebbianWeightsAsync(agentResponses, cancellationToken);
     
-    // 5. Synthesize and format
     var synthesized = await _synthesizer.SynthesizeAsync(agentResponses, cancellationToken);
     var formatted = await _outputProcessor.FormatAsync(synthesized, cancellationToken);
     
     return formatted;
+}
+
+private async Task<AgentResponse> ProcessViaDeepReasoningAsync(
+    TaskList taskList,
+    CancellationToken cancellationToken)
+{
+    // Activate Cognitive Workspace for deep reasoning
+    var workspace = await _workspaceActivator.CreateWorkspaceAsync(cancellationToken);
+    
+    try
+    {
+        // Discover agents for broadcasting
+        var foundationalAgents = await _graphIntelligence.DiscoverFoundationalAgentsAsync(
+            taskList.Concepts,
+            cancellationToken);
+        
+        // Agents broadcast models, not just data
+        var broadcasts = foundationalAgents.Select(agent =>
+            agent.BroadcastModelAsync(workspace.Id, taskList, cancellationToken));
+        
+        await Task.WhenAll(broadcasts);
+        
+        // Iterative synthesis in workspace
+        var reasoning = await workspace.SynthesisEngine.ReasonAsync(
+            taskList.Query,
+            cancellationToken);
+        
+        // Format deep analysis
+        var formatted = await _outputProcessor.FormatDeepAnalysisAsync(
+            reasoning,
+            cancellationToken);
+        
+        return formatted;
+    }
+    finally
+    {
+        // Always clean up workspace
+        await _workspaceActivator.DissolveWorkspaceAsync(workspace.Id, cancellationToken);
+    }
 }
 ```
 

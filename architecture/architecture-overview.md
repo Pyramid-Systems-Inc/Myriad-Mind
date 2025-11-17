@@ -19,7 +19,7 @@
 
 ## System Architecture
 
-The Myriad architecture is a multi-tiered, decentralized system of microservices built on ASP.NET Core. Data flows through a series of specialized processors, activating concept agents as needed.
+The Myriad architecture is a multi-tiered, decentralized system of microservices built on ASP.NET Core. The system features a dual-path processing architecture: a fast path for efficient information retrieval and a deep reasoning path using the Cognitive Workspace for complex synthesis and novel problem-solving.
 
 ### Architectural Layers
 
@@ -41,6 +41,7 @@ The Myriad architecture is a multi-tiered, decentralized system of microservices
 │                    Core Cognitive Layer                       │
 │  - Input Processor (Sensory Cortex)                         │
 │  - Orchestrator (Central Nervous System)                     │
+│  - Cognitive Workspace (Prefrontal Cortex)                   │
 │  - Output Processor (Motor Cortex)                           │
 │  - Synthesizer (Integration)                                 │
 └─────────────────────────────────────────────────────────────┘
@@ -178,10 +179,22 @@ POST /api/learn              // Learning endpoint
 
 #### Orchestrator (Central Nervous System)
 
+- **Query Complexity Assessment**: Determines fast path vs deep reasoning
 - **Graph Traversal**: Agent discovery via knowledge graph
 - **Parallel Dispatch**: Concurrent agent activation
+- **Workspace Activation**: Triggers Cognitive Workspace for complex queries
 - **Neurogenesis Coordinator**: Unknown concept handling
 - **Result Aggregation**: Response collection
+
+#### Cognitive Workspace (Prefrontal Cortex)
+
+**Theoretical Foundation**: Inspired by Global Workspace Theory (GWT) from cognitive science
+
+- **Broadcasting Mechanism**: Agents project models and frameworks, not just data
+- **Iterative Synthesis Engine**: Deep reasoning through simulation and analysis
+- **Emergent Solutions**: Novel insights from collaborative agent processing
+- **Ephemeral Architecture**: Exists only during complex query processing
+- **Resource Management**: Intensive compute usage justified by problem complexity
 
 #### Output Processor (Motor Cortex)
 
@@ -312,7 +325,21 @@ public interface IGeneratorAgent
 
 ## Component Interaction
 
-### Standard Query Flow
+### Dual-Path Processing Architecture
+
+The system intelligently routes queries through two distinct paths based on complexity:
+
+**Fast Path (Simple Queries)**:
+- Direct retrieval and synthesis
+- Minimal compute, sub-second responses
+- Used for definitions, facts, calculations
+
+**Deep Reasoning Path (Complex Queries)**:
+- Cognitive Workspace activation
+- Intensive synthesis and reasoning
+- Novel problem-solving and creative synthesis
+
+### Fast Path Query Flow (Information Retrieval)
 
 ```
 User Query
@@ -321,7 +348,7 @@ User Query
     ↓ (Parsed Query + Intent + Task List)
 [Enhanced Graph Intelligence]
     ↓ (Relevant Agents with Relevance Scores)
-[Orchestrator]
+[Orchestrator - Fast Path Decision]
     ↓ (Parallel HTTP Requests)
 [Agent Network]
     ↓ (Individual Responses)
@@ -329,6 +356,31 @@ User Query
     ↓ (Integrated Response)
 [Output Processor]
     ↓ (Formatted Answer)
+User Response
+```
+
+### Deep Reasoning Path Query Flow (Cognitive Workspace)
+
+```
+User Query (Complex/Novel)
+    ↓
+[Input Processor]
+    ↓ (Complexity Detection + Intent)
+[Orchestrator - Workspace Activation]
+    ↓
+[Cognitive Workspace Created]
+    ↓
+[Agent Broadcasting]
+    ↓ (Agents project models & frameworks)
+[Iterative Synthesis Engine]
+    ↓ (Pattern recognition, simulation, causal analysis)
+    ↓ (Counterfactual exploration, hypothesis refinement)
+[Emergent Solution Generated]
+    ↓
+[Output Processor]
+    ↓ (Formatted Deep Analysis)
+[Workspace Dissolved]
+    ↓
 User Response
 ```
 
@@ -577,11 +629,18 @@ volumes:
 - Response Time: 50-200ms
 - Resource Usage: Low (few fact-base agents)
 
-**Complex Queries** (e.g., "Why was lightbulb important for factories?"):
+**Complex Queries - Fast Path** (e.g., "Why was lightbulb important for factories?"):
 
 - Agents Activated: 5-10
 - Response Time: 200-500ms
 - Resource Usage: Moderate (multiple agents + synthesis)
+
+**Complex Queries - Deep Reasoning Path** (e.g., "Based on Industrial Revolution principles, what would be the societal impact of personal teleportation?"):
+
+- Agents Activated: 10-20 (broadcasting mode)
+- Response Time: 2-10 seconds
+- Resource Usage: High (Cognitive Workspace + Iterative Synthesis)
+- Cognitive Workspace: Ephemeral, dissolved after use
 
 **Neurogenesis Events** (Unknown concept):
 

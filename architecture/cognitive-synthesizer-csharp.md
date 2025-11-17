@@ -24,6 +24,15 @@ Comprehensive design for transforming raw agent data into human-like, well-organ
 
 ## Executive Summary
 
+### Relationship to Cognitive Workspace
+
+This document describes the **Cognitive Synthesizer**, which operates within the Output Processor to transform agent responses into human-like narratives. This is distinct from but complementary to the **Cognitive Workspace**:
+
+- **Cognitive Workspace**: Handles deep reasoning for complex queries (pattern recognition, causal analysis, simulation)
+- **Cognitive Synthesizer**: Transforms any set of agent responses (from either processing path) into well-structured, coherent narratives
+
+Both work together to provide high-quality responses: the Workspace enables deep thinking, while the Synthesizer ensures effective communication.
+
 ### The Challenge
 
 The current Output Processor excels at **aggregating facts** from specialized agents but lacks the ability to **weave them into coherent narratives** that mimic human explanation. Users receive disconnected facts rather than well-structured, extensive answers.
@@ -50,12 +59,19 @@ Related Topics: Thomas Edison, Industrial Revolution, Factory Labor
 
 ### Proposed Solution
 
-Implement a **Four-Stage Cognitive Synthesizer** that transforms aggregated data through specialized micro-agents:
+Implement a **Four-Stage Cognitive Synthesizer** that transforms aggregated data through specialized micro-agents. This works for responses from both the Fast Path (simple retrieval) and Deep Reasoning Path (Cognitive Workspace):
 
 1. **Stage 1: Thematic Analyzer** - Groups raw facts into logical themes
 2. **Stage 2: Narrative Weaver** - Constructs coherent narrative with transitions
 3. **Stage 3: Summarizer & Expander** - Creates layered response with related topics
 4. **Stage 4: Final Formatter** - Polishes output with confidence-modulated language
+
+### Processing Flow Integration
+
+```
+Fast Path Query → Agent Responses → Cognitive Synthesizer → Formatted Output
+Deep Reasoning Path → Cognitive Workspace → Synthesis Results → Cognitive Synthesizer → Formatted Output
+```
 
 ### Key Benefits
 
@@ -202,7 +218,8 @@ Sources: Lightbulb_Definition_AI, Factory_History_AI
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              Orchestrator Collected Results                  │
+│         Collected Results (from Fast Path OR                 │
+│         Cognitive Workspace Deep Reasoning)                  │
 │  {                                                           │
 │    "task_1": {"data": "Lightbulb definition..."},           │
 │    "task_2": {"data": "Factory history..."},                │

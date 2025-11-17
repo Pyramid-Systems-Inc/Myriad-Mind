@@ -382,8 +382,8 @@ namespace Myriad.Services.InputProcessor
 
 #### 4. Output Processor Service
 
-**Framework**: ASP.NET Core  
-**Port**: 5004  
+**Framework**: ASP.NET Core
+**Port**: 5004
 **Purpose**: Response synthesis and formatting
 
 ```csharp
@@ -416,6 +416,220 @@ namespace Myriad.Services.OutputProcessor
                 Confidence = synthesized.Confidence,
                 Sources = agentResponses.Select(r => r.AgentId).ToList(),
                 Metadata = formatted.Metadata
+            };
+        }
+    }
+}
+```
+
+#### 5. Cognitive Workspace Service
+
+**Framework**: ASP.NET Core
+**Port**: 5012
+**Purpose**: Deep reasoning for complex queries via Global Workspace Theory
+
+**Project Structure**:
+
+```
+src/Myriad.Services.CognitiveWorkspace/
+├── Program.cs                          // Main entry point
+├── CognitiveWorkspaceManager.cs       // Workspace lifecycle
+├── IterativeSynthesis/
+│   ├── ISynthesisEngine.cs            // Engine interface
+│   ├── IterativeSynthesisEngine.cs    // Core reasoning
+│   ├── PatternRecognizer.cs           // Cross-model patterns
+│   ├── CausalAnalyzer.cs              // Cause-effect chains
+│   ├── CounterfactualSimulator.cs     // What-if scenarios
+│   └── HypothesisRefiner.cs           // Iterative improvement
+├── Broadcasting/
+│   ├── BroadcastCoordinator.cs        // Agent broadcast management
+│   └── ModelIntegrator.cs             // Model combination
+└── Models/
+    ├── WorkspaceRequest.cs
+    ├── BroadcastedModel.cs
+    └── ReasoningResult.cs
+```
+
+**Key Implementation**:
+
+```csharp
+namespace Myriad.Services.CognitiveWorkspace
+{
+    public class CognitiveWorkspaceManager
+    {
+        private readonly IIterativeSynthesisEngine _synthesisEngine;
+        private readonly IBroadcastCoordinator _broadcaster;
+        private readonly ILogger<CognitiveWorkspaceManager> _logger;
+        private readonly ConcurrentDictionary<string, WorkspaceSession> _activeSessions;
+        
+        public CognitiveWorkspaceManager(
+            IIterativeSynthesisEngine synthesisEngine,
+            IBroadcastCoordinator broadcaster,
+            ILogger<CognitiveWorkspaceManager> logger)
+        {
+            _synthesisEngine = synthesisEngine;
+            _broadcaster = broadcaster;
+            _logger = logger;
+            _activeSessions = new ConcurrentDictionary<string, WorkspaceSession>();
+        }
+        
+        /// <summary>
+        /// Create and activate a new Cognitive Workspace
+        /// </summary>
+        public async Task<string> CreateWorkspaceAsync(CancellationToken cancellationToken)
+        {
+            var workspaceId = Guid.NewGuid().ToString();
+            var session = new WorkspaceSession
+            {
+                Id = workspaceId,
+                CreatedAt = DateTime.UtcNow,
+                BroadcastedModels = new ConcurrentBag<BroadcastedModel>()
+            };
+            
+            _activeSessions.TryAdd(workspaceId, session);
+            _logger.LogInformation("Cognitive Workspace {WorkspaceId} created", workspaceId);
+            
+            return workspaceId;
+        }
+        
+        /// <summary>
+        /// Accept agent model broadcast into workspace
+        /// </summary>
+        public async Task BroadcastModelAsync(
+            string workspaceId,
+            string agentId,
+            Dictionary<string, object> model,
+            CancellationToken cancellationToken)
+        {
+            if (!_activeSessions.TryGetValue(workspaceId, out var session))
+            {
+                throw new InvalidOperationException($"Workspace {workspaceId} not found");
+            }
+            
+            var broadcast = new BroadcastedModel
+            {
+                AgentId = agentId,
+                Model = model,
+                BroadcastedAt = DateTime.UtcNow
+            };
+            
+            session.BroadcastedModels.Add(broadcast);
+            _logger.LogInformation(
+                "Agent {AgentId} broadcasted model to workspace {WorkspaceId}",
+                agentId, workspaceId);
+        }
+        
+        /// <summary>
+        /// Perform deep reasoning via Iterative Synthesis Engine
+        /// </summary>
+        public async Task<ReasoningResult> ReasonAsync(
+            string workspaceId,
+            string query,
+            CancellationToken cancellationToken)
+        {
+            if (!_activeSessions.TryGetValue(workspaceId, out var session))
+            {
+                throw new InvalidOperationException($"Workspace {workspaceId} not found");
+            }
+            
+            _logger.LogInformation(
+                "Starting deep reasoning in workspace {WorkspaceId} with {ModelCount} broadcasted models",
+                workspaceId, session.BroadcastedModels.Count);
+            
+            // Run iterative synthesis
+            var result = await _synthesisEngine.SynthesizeAsync(
+                query,
+                session.BroadcastedModels.ToList(),
+                cancellationToken);
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Dissolve workspace and release resources
+        /// </summary>
+        public async Task DissolveWorkspaceAsync(
+            string workspaceId,
+            CancellationToken cancellationToken)
+        {
+            if (_activeSessions.TryRemove(workspaceId, out var session))
+            {
+                var duration = DateTime.UtcNow - session.CreatedAt;
+                _logger.LogInformation(
+                    "Cognitive Workspace {WorkspaceId} dissolved after {Duration}ms",
+                    workspaceId, duration.TotalMilliseconds);
+            }
+        }
+    }
+    
+    public class WorkspaceSession
+    {
+        public required string Id { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public required ConcurrentBag<BroadcastedModel> BroadcastedModels { get; init; }
+    }
+}
+```
+
+**Iterative Synthesis Engine**:
+
+```csharp
+namespace Myriad.Services.CognitiveWorkspace.IterativeSynthesis
+{
+    public class IterativeSynthesisEngine : IIterativeSynthesisEngine
+    {
+        private readonly IPatternRecognizer _patternRecognizer;
+        private readonly ICausalAnalyzer _causalAnalyzer;
+        private readonly ICounterfactualSimulator _simulator;
+        private readonly IHypothesisRefiner _refiner;
+        private readonly ILogger<IterativeSynthesisEngine> _logger;
+        
+        public async Task<ReasoningResult> SynthesizeAsync(
+            string query,
+            List<BroadcastedModel> models,
+            CancellationToken cancellationToken)
+        {
+            var cycles = new List<RefinementCycle>();
+            var currentHypothesis = GenerateInitialHypothesis(query, models);
+            
+            // Iterative refinement (3-5 cycles)
+            for (int cycle = 0; cycle < 5; cycle++)
+            {
+                // Pattern Recognition
+                var patterns = await _patternRecognizer.IdentifyPatternsAsync(
+                    models, currentHypothesis, cancellationToken);
+                
+                // Causal Analysis
+                var causalChains = await _causalAnalyzer.AnalyzeCausalityAsync(
+                    models, patterns, cancellationToken);
+                
+                // Counterfactual Simulation
+                var simulations = await _simulator.SimulateAsync(
+                    query, models, causalChains, cancellationToken);
+                
+                // Refine Hypothesis
+                currentHypothesis = await _refiner.RefineAsync(
+                    currentHypothesis, patterns, causalChains, simulations, cancellationToken);
+                
+                cycles.Add(new RefinementCycle
+                {
+                    CycleNumber = cycle,
+                    PatternsFound = patterns.Count,
+                    CausalChains = causalChains.Count,
+                    Hypothesis = currentHypothesis
+                });
+                
+                // Check for convergence
+                if (HasConverged(cycles))
+                    break;
+            }
+            
+            return new ReasoningResult
+            {
+                FinalHypothesis = currentHypothesis,
+                Confidence = CalculateConfidence(cycles),
+                RefinementCycles = cycles,
+                EmergentInsights = ExtractInsights(cycles)
             };
         }
     }
@@ -859,6 +1073,27 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
+    restart: unless-stopped
+  
+  cognitive-workspace:
+    build:
+      context: ./src/Myriad.Services.CognitiveWorkspace
+      dockerfile: Dockerfile
+    ports:
+      - "5012:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - MAX_REFINEMENT_CYCLES=5
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+        reservations:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
     restart: unless-stopped
 
 volumes:

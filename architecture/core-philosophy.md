@@ -25,6 +25,16 @@ The Myriad Cognitive Architecture represents a fundamental departure from the pa
 
 Rather than attempting to encode all knowledge and reasoning into a single massive model, the Myriad architecture distributes intelligence across a network of specialized agents, each representing a minimal unit of knowledge or function. Complex reasoning emerges from the orchestrated collaboration of these simple components.
 
+### Bridging Efficient Retrieval with Deep Reasoning
+
+A fundamental challenge in cognitive architecture is balancing efficiency with capability. The Myriad architecture addresses this through a dual-path processing model:
+
+**Fast Path**: Radical specialization enables near-instantaneous retrieval of known information with minimal computational cost.
+
+**Deep Reasoning Path**: For novel, complex queries requiring synthesis and reasoning, the architecture activates a Cognitive Workspace inspired by Global Workspace Theory (GWT) from cognitive science. This provides LLM-level reasoning capabilities while maintaining the core philosophy of emergent intelligence through agent collaboration.
+
+This dual approach ensures simple queries receive rapid responses while complex problems get the deep processing they require, optimizing resource allocation across the spectrum of cognitive tasks.
+
 ---
 
 ## Design Paradigm
@@ -115,21 +125,66 @@ Our guiding principles are directly inspired by neurobiology and the architectur
 
 ### 4. Efficiency and Resource Frugality
 
-**Biological Model**: The brain is remarkably energy-efficient. Simple tasks like basic arithmetic activate only small regions of the brain, not the entire cortex.
+**Biological Model**: The brain is remarkably energy-efficient. Simple tasks like basic arithmetic activate only small regions of the brain, not the entire cortex. However, complex novel problems can activate widespread regions for intensive processing.
 
-**Myriad Implementation**: The system must be computationally efficient. Querying "What is 2+2?" should activate a tiny, near-instantaneous function agent, not a multi-billion parameter LLM.
+**Myriad Implementation**: The system features dual-path processing for optimal resource allocation:
+
+**Fast Path** (Simple Queries):
+- Querying "What is 2+2?" activates only `Addition_Function_AI`
+- Near-instantaneous response, minimal compute
+- Used for definitions, facts, calculations
+
+**Deep Reasoning Path** (Complex Queries):
+- Novel problems activate the Cognitive Workspace
+- Intensive synthesis justifies higher resource usage
+- Used for hypotheticals, cross-domain reasoning, causal analysis
 
 **Example**:
 
-- Simple query: "2 + 2" → Activates only `Addition_Function_AI` (microseconds, minimal resources)
-- Complex query: "Explain relativity" → Activates `Physics_AI`, `Mathematics_AI`, `Einstein_AI`, etc.
+- Simple: "2 + 2" → Fast Path → `Addition_Function_AI` (microseconds, minimal resources)
+- Medium: "Explain relativity" → Fast Path → Multiple agents (milliseconds, low resources)
+- Complex: "Based on Industrial Revolution, predict impact of teleportation" → Deep Reasoning Path → Cognitive Workspace (seconds, high resources, justified)
 
 **Benefits**:
 
-- **Cost Effective**: Pay only for what you use
+- **Cost Effective**: Resources scale with query complexity
 - **Fast Response**: Simple queries return instantly
-- **Scalable**: Can handle millions of concurrent simple queries
-- **Environmentally Responsible**: Minimal energy consumption per query
+- **Deep Reasoning Available**: Complex problems get intensive processing
+- **Scalable**: Handle millions of simple queries while supporting deep reasoning
+- **Environmentally Responsible**: No sledgehammer-to-crack-a-nut inefficiency
+
+### 5. Global Workspace Theory (Cognitive Workspace)
+
+**Theoretical Foundation**: Inspired by Global Workspace Theory from cognitive science, which posits that consciousness emerges when specialized brain regions broadcast information to a central "global workspace" for joint processing and integration.
+
+**Myriad Implementation**: The Cognitive Workspace is an ephemeral, high-computation environment activated for queries requiring deep reasoning, synthesis, or solving novel problems.
+
+**Key Characteristics**:
+
+- **Broadcasting Mechanism**: Agents project their entire models and frameworks into the workspace, not just data
+- **Iterative Synthesis**: Pattern recognition, causal analysis, simulation, and hypothesis refinement
+- **Emergent Solutions**: Novel insights emerge from intensive collaborative processing
+- **Ephemeral Nature**: Exists only for the duration of a complex query, then dissolved
+- **Resource Justification**: Intensive compute is justified by problem complexity
+
+**Example**:
+
+Query: "Based on principles of the Industrial Revolution, what would be the societal impact of inventing personal teleportation?"
+
+- `Industrial_Revolution_AI` broadcasts: Models of societal upheaval from technological change
+- `Economics_AI` broadcasts: Supply chain disruption models, labor market patterns
+- `Sociology_AI` broadcasts: Urban development models, social stratification dynamics
+- `Physics_AI` broadcasts: Energy requirements, physical constraints
+- `Ethics_AI` broadcasts: Ethical evaluation frameworks
+
+The Iterative Synthesis Engine combines these models, runs simulations, identifies second-order effects, and generates a reasoned analysis that no single agent could produce.
+
+**Benefits**:
+
+- **True Reasoning**: Enables causal inference, counterfactual thinking, planning
+- **Maintains Philosophy**: Reasoning still emerges from collaborating specialists
+- **Explainable**: Synthesis process can be traced through agent contributions
+- **Targeted Compute**: Heavy resources used only when justified
 
 ---
 
@@ -163,6 +218,15 @@ Knowledge is stored as a graph, not a table:
 - **Edges**: Represent relationships with weights
 - **Traversal**: Finding answers becomes a graph traversal problem
 - **Learning**: Hebbian learning strengthens frequently-used connections
+
+### Dual-Path Processing Architecture
+
+Intelligent routing based on query complexity:
+
+- **Fast Path**: Direct retrieval for simple queries (definitions, facts)
+- **Deep Reasoning Path**: Cognitive Workspace for complex synthesis
+- **Automatic Selection**: Input Processor detects complexity level
+- **Resource Optimization**: Match computational cost to problem complexity
 
 ### Event-Driven Communication (Future State)
 
@@ -208,14 +272,26 @@ Resource consumption scales with complexity:
 
 ## Summary
 
-The Myriad Cognitive Architecture is built on four biological principles:
+The Myriad Cognitive Architecture is built on six biological principles:
 
 1. **Radical Specialization**: Minimal, focused agents
 2. **Emergent Intelligence**: Collaboration creates understanding
 3. **Dynamic Growth**: Learning through agent creation
 4. **Resource Efficiency**: Match resources to task complexity
+5. **Dual-Path Processing**: Fast retrieval and deep reasoning pathways
+6. **Global Workspace Integration**: GWT-inspired deep reasoning for complex queries
 
-These principles guide every architectural decision, from microservice design to communication protocols, creating a system that is efficient, explainable, scalable, and truly intelligent.
+These principles guide every architectural decision, from microservice design to communication protocols, creating a system that is efficient, explainable, scalable, capable of both rapid retrieval and deep reasoning, and truly intelligent.
+
+### The Innovation
+
+Unlike monolithic LLMs that apply maximum compute to every query, or pure retrieval systems that cannot reason, Myriad provides the best of both worlds:
+
+- **Efficiency**: Simple queries get instant answers with minimal resources
+- **Capability**: Complex queries get deep reasoning through the Cognitive Workspace
+- **Explainability**: All reasoning traces back to agent collaborations
+- **Scalability**: System handles millions of simple queries while supporting intensive reasoning
+- **Evolution**: Continuous growth through neurogenesis and Hebbian learning
 
 ---
 

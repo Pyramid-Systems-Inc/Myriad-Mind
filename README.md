@@ -31,39 +31,49 @@ The Myriad architecture is inspired by neurobiology. Each "Myriad Agent" is like
 - **Radical Specialization:** An agent for "the concept of gravity" only knows about gravity.
 - **Emergent Intelligence:** Complex answers are synthesized from the simple outputs of many collaborating agents.
 - **Dynamic Growth ("Neurogenesis"):** The system learns by creating and integrating new agents, not by retraining a massive model.
+- **Dual-Path Processing:** Simple queries use a fast retrieval path; complex queries activate a Cognitive Workspace for deep reasoning inspired by Global Workspace Theory.
 
 ## High-Level Architecture
 
 The system routes a user query to a network of agents, synthesizes their responses, and generates a final answer.
 
 ```mermaid
-graph LR
-    subgraph Input/Output Layer
-        UserInput(User Query) --> IP[Input Processor];
-        OP[Output Processor] --> FinalAnswer(Formatted Answer);
+graph TD
+    UserInput(User Query) --> IP(Input Processor);
+    IP -- Parsed Query --> O(Orchestrator);
+
+    subgraph Fast Path - Information Retrieval
+        O -- "Simple Query" --> S(Synthesizer);
+        A1(Gravity_AI) --> S;
+        A2(Calculus_AI) --> S;
     end
 
-    subgraph Core Cognitive Layer
-        IP -- Parsed & Routed Query --> O(Orchestrator);
-        O -- "Activate Agent A" --> A1(Agent A);
-        O -- "Activate Agent B" --> A2(Agent B);
-        A1 -- {data} --> S(Synthesizer);
-        A2 -- {data} --> S;
-        S -- Synthesized Data --> OP;
+    subgraph Deep Reasoning Path - Cognitive Workspace
+        O -- "Complex Query" --> CW(Cognitive Workspace);
+        CW -- Contains --> ISE(Iterative Synthesis Engine);
+        A1 -- "Broadcasts Data" --> CW;
+        A2 -- "Broadcasts Data" --> CW;
+        A3(Ethics_AI) -- "Broadcasts Model" --> CW;
+        CW -- "Deeply Synthesized Result" --> OP(Output Processor);
     end
+    
+    O --> A1;
+    O --> A2;
+    O --> A3;
 
-    subgraph Agent Network
-        A1("Specialized Agent")
-        A2("Specialized Agent")
-    end
+    S -- "Synthesized Data" --> OP;
+    OP --> FinalAnswer(Formatted Answer);
+
+    style CW fill:#fff2cc,stroke:#333,stroke-dasharray: 5 5
 ```
 
 ## Key Components (C# Implementation)
 
-- **Input Processor Service** - ASP.NET Core service that deconstructs natural language queries into keywords and intent using custom C# algorithms (no external NLP libraries).
-- **Orchestrator Service** - The central nervous system (ASP.NET Core). It is **intentionally unintelligent**. Receives keywords, looks up agents in custom graph database, and dispatches requests using `HttpClient`.
+- **Input Processor Service** - ASP.NET Core service that deconstructs natural language queries, detects complexity, and determines processing path using custom C# algorithms (no external NLP libraries).
+- **Orchestrator Service** - The central nervous system (ASP.NET Core). Routes queries through Fast Path (simple retrieval) or Deep Reasoning Path (Cognitive Workspace) based on complexity.
+- **Cognitive Workspace** - Ephemeral deep reasoning environment inspired by Global Workspace Theory. Provides intensive synthesis for complex queries through pattern recognition, causal analysis, and iterative refinement.
 - **Myriad Agents** - The heart of the system. Independent ASP.NET Core microservices, each embodying a single concept. Built using Minimal APIs with hardcoded knowledge in C# `Dictionary` structures.
-- **Output Processor Service** - Receives data packets from agents and assembles them using LINQ and string interpolation into coherent, human-readable answers.
+- **Output Processor Service** - Receives data packets from agents (from either path) and assembles them using LINQ and string interpolation into coherent, human-readable answers.
 - **Custom Graph Database** - Built from scratch using `ConcurrentDictionary` and custom traversal algorithms. No external database dependencies.
 - **Dynamic Lifecycle Manager** - Module responsible for "neurogenesis"—creating, compiling, and deploying new C# agents on the fly using Roslyn and Docker SDK for .NET.
 

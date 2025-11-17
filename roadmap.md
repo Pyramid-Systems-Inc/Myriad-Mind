@@ -101,27 +101,38 @@
 
 Once the core architectural pattern is validated, development will shift towards evolving the system to more closely mirror the brain's parallel, decentralized, and adaptive nature, as outlined in the Architectural Blueprint.
 
-**Phase 4: Enhancing Performance and Intelligence**
+**Phase 4: Dual-Path Processing and Cognitive Workspace**
+
+* **Goal:** Implement the Cognitive Workspace for deep reasoning on complex queries, creating a dual-path processing architecture.
+* **Step 4.1: Complexity Detection:** Extend the Input Processor with complexity analysis to determine whether a query requires Fast Path (simple retrieval) or Deep Reasoning Path (Cognitive Workspace).
+* **Step 4.2: Cognitive Workspace Service:** Create the `Myriad.Services.CognitiveWorkspace` microservice (Port 5012) with workspace lifecycle management, agent broadcasting coordination, and the Iterative Synthesis Engine.
+* **Step 4.3: Dual-Path Routing:** Update the Orchestrator to route queries based on complexity - simple queries use the existing fast path, while complex queries activate the Cognitive Workspace.
+* **Step 4.4: Broadcasting Mechanism:** Implement agent broadcasting capability where agents can project their models and frameworks into the workspace (not just return data).
+* **Step 4.5: Iterative Synthesis Engine:** Build the core reasoning engine with pattern recognition, causal analysis, counterfactual simulation, and hypothesis refinement capabilities.
+* **Step 4.6: Demonstrate Deep Reasoning:** Test with complex queries like "Based on Industrial Revolution principles, predict the impact of personal teleportation" and verify emergent reasoning.
+
+**Phase 5: Enhancing Performance and Intelligence**
 
 * **Goal:** Improve system speed and begin implementing more dynamic learning mechanisms.
-* **Step 4.1: Asynchronous Communication:** Rearchitect the Orchestrator to use C#'s `async`/`await` pattern with `Task.WhenAll`, allowing it to query all agents in parallel instead of sequentially. This is a critical step for scalability.
-* **Step 4.2: Implement Synaptic Strengthening:** For every successful query, log the co-activation of agents. Use this data to implement a basic weighting system that prioritizes frequently-used agent pairings.
-* **Step 4.3: Demonstrate Ambiguity Resolution:** Implement the "drive" example from the design document, creating an `Ambiguity_Resolution_AI` to prove the system can handle more complex inputs.
+* **Step 5.1: Asynchronous Communication:** Rearchitect the Orchestrator to use C#'s `async`/`await` pattern with `Task.WhenAll`, allowing it to query all agents in parallel instead of sequentially. This is a critical step for scalability.
+* **Step 5.2: Implement Synaptic Strengthening:** For every successful query, log the co-activation of agents. Use this data to implement a basic weighting system that prioritizes frequently-used agent pairings.
+* **Step 5.3: Demonstrate Ambiguity Resolution:** Implement the "drive" example from the design document, creating an `Ambiguity_Resolution_AI` to prove the system can handle more complex inputs.
 
-**Phase 5: Decentralization and Dynamic Growth**
+**Phase 6: Decentralization and Dynamic Growth**
 
 * **Goal:** Reduce the Orchestrator's role as a central hub and implement true "neurogenesis."
-* **Step 5.1: Agent-to-Agent Communication:** Enable agents to call other relevant agents directly, creating "reflex arcs" that bypass the central Orchestrator for common, localized tasks.
-* **Step 5.2: Implement the Lifecycle Manager:** Build the "factory for factories"—an AI module that can be triggered to:
+* **Step 6.1: Agent-to-Agent Communication:** Enable agents to call other relevant agents directly, creating "reflex arcs" that bypass the central Orchestrator for common, localized tasks.
+* **Step 6.2: Implement the Lifecycle Manager:** Build the "factory for factories"—an AI module that can be triggered to:
   * Instantiate a new, blank agent container.
   * Assign it a network address.
   * Perform a basic web scrape to populate it with foundational knowledge.
   * Register the new agent with the Orchestrator.
-* **Step 5.3: Prove Neurogenesis:** Demonstrate the system's ability to learn a novel concept by asking it a query for which no agent exists, and verifying that a new agent is created and can answer a basic follow-up question.
+* **Step 6.3: Prove Neurogenesis:** Demonstrate the system's ability to learn a novel concept by asking it a query for which no agent exists, and verifying that a new agent is created and can answer a basic follow-up question.
 
-**Phase 6: Transition to an Advanced State**
+**Phase 7: Transition to an Advanced State**
 
 * **Goal:** Evolve the system's core components into a truly advanced, graph-based cognitive architecture.
-* **Step 6.1: Event-Driven Architecture:** Begin migrating from a direct-call model to a custom message broker (built from scratch using TCP/IP and C# concurrent collections). Components will now publish and subscribe to event streams, fully decoupling them.
-* **Step 6.2: Implement the Digital Connectome:** Replace the simple `AI_REGISTRY` with a custom graph database (built from scratch using `ConcurrentDictionary` and custom graph algorithms in C#). Agents become nodes, and their learned relationships (from Synaptic Strengthening) become weighted edges. Orchestration now becomes a graph traversal algorithm.
-* **Step 6.3: Agent Fine-Tuning:** Introduce the first Type-C/D agents (e.g., a simple `Sentiment_AI`) and build a feedback mechanism that allows user input to trigger a micro-training loop on that specific agent, enabling continuous, targeted learning.
+* **Step 7.1: Event-Driven Architecture:** Begin migrating from a direct-call model to a custom message broker (built from scratch using TCP/IP and C# concurrent collections). Components will now publish and subscribe to event streams, fully decoupling them.
+* **Step 7.2: Implement the Digital Connectome:** Replace the simple `AI_REGISTRY` with a custom graph database (built from scratch using `ConcurrentDictionary` and custom graph algorithms in C#). Agents become nodes, and their learned relationships (from Synaptic Strengthening) become weighted edges. Orchestration now becomes a graph traversal algorithm.
+* **Step 7.3: Agent Fine-Tuning:** Introduce the first Type-C/D agents (e.g., a simple `Sentiment_AI`) and build a feedback mechanism that allows user input to trigger a micro-training loop on that specific agent, enabling continuous, targeted learning.
+* **Step 7.4: Enhance Cognitive Workspace:** Integrate formal symbolic logic and strategic planning capabilities into the Iterative Synthesis Engine to enable true AGI-level reasoning as outlined in the AGI Enhancements document.

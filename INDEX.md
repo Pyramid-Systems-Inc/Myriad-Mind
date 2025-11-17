@@ -39,13 +39,14 @@
 
 | Document | Focus Area | Key Topics |
 |----------|------------|------------|
-| [Core Philosophy](architecture/core-philosophy.md) | Design principles | Biological inspiration, architectural tenets |
-| [System Overview](architecture/system-overview-csharp.md) | Complete architecture | Components, technology stack, implementation status |
+| [Core Philosophy](architecture/core-philosophy.md) | Design principles | Biological inspiration, dual-path processing, GWT foundation |
+| [System Overview](architecture/system-overview-csharp.md) | Complete architecture | Dual-path architecture, components, technology stack |
 | [Graph Intelligence](architecture/graph-intelligence-csharp.md) | Knowledge representation | Custom graph DB, Hebbian learning, multi-layer context |
 | [Microservices](architecture/microservices-csharp.md) | Service architecture | Service catalog, communication patterns, deployment |
 | [Neurogenesis](architecture/neurogenesis-csharp.md) | Dynamic learning | Agent creation, templates, autonomous learning |
 | [Context Understanding](architecture/context-understanding-csharp.md) | Conversation memory | Session management, reference resolution, user profiling |
 | [Cognitive Synthesizer](architecture/cognitive-synthesizer-csharp.md) | Output generation | Four-stage synthesis, narrative weaving, layered responses |
+| [AGI Enhancements](architecture/agi-enhancements-overview.md) | AGI roadmap | Deep reasoning, attention, meta-cognition, world models |
 | [Production Deployment](architecture/production-deployment-csharp.md) | Scalability & ops | Kubernetes, cognitive tiers, knowledge substrate |
 
 ---
@@ -67,7 +68,8 @@
                     ↓
 ┌─────────────────────────────────────────────┐
 │         Core Cognitive Layer                 │
-│  (Input/Output Processor, Orchestrator)      │
+│  (Orchestrator, Cognitive Workspace,         │
+│   Input/Output Processor)                    │
 └─────────────────────────────────────────────┘
                     ↓
 ┌─────────────────────────────────────────────┐
@@ -83,11 +85,12 @@
 
 ### Core Components
 
-1. **Orchestrator Service** - Central coordination (Port 5000)
-2. **GraphDB Manager** - Custom graph database service (Port 5008)
-3. **Input Processor** - Query parsing and understanding (Port 5003)
-4. **Output Processor** - Response synthesis (Port 5004)
-5. **Agent Network** - Specialized microservices (Ports 5001+)
+1. **Orchestrator Service** - Central coordination and dual-path routing (Port 5000)
+2. **Cognitive Workspace** - Deep reasoning for complex queries (Port 5012)
+3. **GraphDB Manager** - Custom graph database service (Port 5008)
+4. **Input Processor** - Query parsing, complexity detection (Port 5003)
+5. **Output Processor** - Response synthesis (Port 5004)
+6. **Agent Network** - Specialized microservices (Ports 5001+)
 
 ---
 
@@ -121,14 +124,15 @@
 
 **Core Concepts:**
 
-- [Core Philosophy](architecture/core-philosophy.md) - Biological inspiration, guiding principles
+- [Core Philosophy](architecture/core-philosophy.md) - Biological inspiration, guiding principles, dual-path processing
 - [Design Principles](architecture/core-philosophy.md#design-paradigm) - From monolithic to distributed
+- [Global Workspace Theory](architecture/core-philosophy.md#5-global-workspace-theory-cognitive-workspace) - Cognitive Workspace foundation
 
 **System Design:**
 
-- [Architecture Overview](architecture/system-overview-csharp.md) - Complete system architecture
-- [Component Catalog](architecture/system-overview-csharp.md#component-catalog) - All services and libraries
-- [Process Flow](architecture/system-overview-csharp.md#process-flow) - Query processing flow
+- [Architecture Overview](architecture/system-overview-csharp.md) - Complete system architecture with dual-path processing
+- [Component Catalog](architecture/system-overview-csharp.md#component-catalog) - All services including Cognitive Workspace
+- [Process Flow](architecture/system-overview-csharp.md#process-flow) - Dual-path query processing flow
 
 ### Implementation Details
 
@@ -165,6 +169,14 @@
 - [Narrative Weaving](architecture/cognitive-synthesizer-csharp.md#stage-2-narrative-weaver-ai) - Creating flowing narratives
 - [Layered Responses](architecture/cognitive-synthesizer-csharp.md#stage-3-summarizer--expander-ai) - Summary + details + related topics
 - [Confidence Modulation](architecture/cognitive-synthesizer-csharp.md#stage-4-final-formatter-with-confidence-modulation) - Language adaptation
+- [Workspace vs Synthesizer](architecture/cognitive-synthesizer-csharp.md#architectural-distinctions) - Complementary roles
+
+**Deep Reasoning:**
+
+- [Cognitive Workspace](design%20and%20concept.md#35-the-cognitive-workspace-the-prefrontal-cortex) - GWT-inspired deep reasoning
+- [Fast Path vs Deep Path](design%20and%20concept.md#4-process-flows-fast-path-vs-deep-reasoning) - Dual processing pathways
+- [Iterative Synthesis](design%20and%20concept.md#42-deep-reasoning-flow-creative-synthesis-via-cognitive-workspace) - Pattern recognition and causal analysis
+- [AGI Enhancements](architecture/agi-enhancements-overview.md) - Path to full AGI capabilities
 
 **Production Deployment:**
 
@@ -264,13 +276,16 @@
 
 **Completed:**
 
-- ✅ Comprehensive architecture documentation (8 core documents)
+- ✅ Comprehensive architecture documentation (9 core documents)
 - ✅ C#/.NET technology stack definition
 - ✅ Zero-dependency implementation strategy
 - ✅ Detailed development roadmap
+- ✅ Dual-path processing architecture (Fast Path + Cognitive Workspace)
+- ✅ Global Workspace Theory integration
 - ✅ Production deployment architecture
 - ✅ Context understanding system design
 - ✅ Cognitive synthesis pipeline design
+- ✅ AGI enhancement roadmap
 
 ### Next Steps: Foundation Phase
 
@@ -419,9 +434,11 @@ This is an architecture definition and educational project. The focus is on impl
 
 **Documentation Stats:**
 
-- 📄 8 Architecture Documents
-- 🔧 200+ Code Examples
+- 📄 9 Architecture Documents
+- 🔧 250+ Code Examples
 - 📊 Complete Implementation Roadmaps
 - 🏗️ Production-Ready Designs
+- 🧠 Dual-Path Processing Architecture
+- 🌐 Global Workspace Theory Integration
 
 [Back to README](README.md) | [Start with Core Philosophy](architecture/core-philosophy.md)

@@ -10,8 +10,10 @@
 
 This document outlines **12 critical architectural enhancements** that transform Myriad from an intelligent information retrieval system into a true **Artificial General Intelligence (AGI)** architecture. Each enhancement addresses a fundamental gap between current capabilities and human-level cognitive function.
 
-**Current State**: Sophisticated multi-agent information system  
+**Current State**: Sophisticated multi-agent information system with dual-path processing (Fast Path + Cognitive Workspace)
 **Target State**: AGI with reasoning, learning, self-awareness, and autonomy
+
+**Note**: The Cognitive Workspace (inspired by Global Workspace Theory) has already been integrated into the core architecture, addressing fundamental deep reasoning capabilities. This document outlines additional enhancements to achieve full AGI capabilities.
 
 ---
 
@@ -35,7 +37,7 @@ This document outlines **12 critical architectural enhancements** that transform
 
 | # | Enhancement | Current State | AGI Target | Impact |
 |---|-------------|---------------|------------|--------|
-| 1 | [Deep Reasoning Engine](#1-deep-reasoning-engine) | Keyword matching | Symbolic logic, causal inference, planning | **Critical** - Enables actual "thinking" |
+| 1 | [Deep Reasoning Engine](#1-deep-reasoning-engine) | Cognitive Workspace (basic synthesis) | Symbolic logic, causal inference, planning | **High** - Enhance existing reasoning |
 | 2 | [Attention Mechanism](#2-attention-mechanism) | All agents equal | Selective focus, working memory limits | **High** - Enables prioritization |
 | 3 | [Meta-Cognitive Layer](#3-meta-cognitive-layer) | No self-awareness | Knows what it knows, uncertainty handling | **High** - Self-awareness |
 
@@ -83,20 +85,25 @@ This document outlines **12 critical architectural enhancements** that transform
 - Create new agents dynamically (neurogenesis)
 - Learn connection strengths (Hebbian learning)
 - Synthesize human-like responses
+- **Dual-path processing** - Fast retrieval and deep reasoning paths
+- **Deep synthesis** - Cognitive Workspace for complex queries
+- **Pattern recognition** - Identify patterns across agent models
+- **Iterative refinement** - Multi-cycle hypothesis improvement
+- **Broadcast-based collaboration** - Agents share models, not just data
 
-### What Current Myriad Cannot Do ❌
+### What Current Myriad Cannot Do (Remaining Gaps) ❌
 
-- **Think** - Cannot reason logically or solve novel problems
-- **Understand Causality** - Cannot model cause-effect relationships
-- **Plan** - Cannot decompose goals into sub-tasks
-- **Focus** - Cannot prioritize or filter distractions
+- **Formal Logic** - Cannot perform symbolic theorem proving
+- **Explicit Causality** - Limited causal modeling (basic only)
+- **Strategic Planning** - Cannot decompose long-term goals systematically
+- **Selective Attention** - Cannot manage working memory constraints
 - **Know Itself** - Cannot assess own knowledge or uncertainty
-- **Simulate** - Cannot imagine "what if" scenarios
+- **Physical Simulation** - Cannot run detailed "what if" scenarios
 - **Learn from Few Examples** - Requires many exposures
 - **Set Goals** - Cannot act autonomously
 - **See or Hear** - Text-only, no sensory grounding
 - **Improve Itself** - Cannot modify own architecture
-- **Understand Time** - Cannot reason about sequences
+- **Temporal Reasoning** - Cannot reason about sequences systematically
 - **Feel** - No emotional or social awareness
 
 ---
@@ -105,46 +112,56 @@ This document outlines **12 critical architectural enhancements** that transform
 
 ### 1. Deep Reasoning Engine
 
-**Gap**: System retrieves information but cannot *reason* logically or solve novel problems.
+**Current State**: The Cognitive Workspace provides basic deep reasoning through iterative synthesis, pattern recognition, and collaborative agent processing. However, it lacks formal symbolic logic and structured planning capabilities.
 
-**Current Behavior**:
+**Gap**: While the system can synthesize complex insights through the Cognitive Workspace, it cannot perform formal logical deductions, theorem proving, or systematic planning.
+
+**Current Behavior with Cognitive Workspace**:
 
 ```
 Query: "If all birds fly, and a penguin is a bird, can penguins fly?"
-Current: Retrieves "birds fly" and "penguin is bird" but cannot perform logical deduction
-Result: Confused or contradictory response
+Current:
+- Cognitive Workspace activated
+- Pattern recognition identifies potential contradiction
+- Agents broadcast relevant models
+- Synthesis produces: "The general rule has exceptions; penguins are flightless birds"
+Result: Reasonable response through synthesis, but not formal logical reasoning
 ```
 
-**AGI Behavior**:
+**Enhanced AGI Behavior**:
 
 ```
 Query: Same question
-AGI: Detects logical contradiction between premise and known fact
-    → Identifies exception to rule
-    → Explains: "While the general rule states birds fly, penguins are an exception..."
+Enhanced AGI:
+- Applies formal first-order logic
+- Detects logical contradiction via theorem proving
+- Constructs formal proof of exception
+- Explains: "Formally, the premise 'all birds fly' is invalid.
+            The correct logical form includes exceptions:
+            ∀x(Bird(x) ∧ ¬Flightless(x) → CanFly(x))"
 ```
 
-**Components to Add**:
+**Components to Add** (Enhance Cognitive Workspace):
 
-1. **Symbolic Logic Engine**
+1. **Symbolic Logic Engine** (Integrate with Synthesis Engine)
    - First-order predicate logic
    - Theorem proving
-   - Contradiction detection
-   - Logical inference
+   - Contradiction detection via formal methods
+   - Logical inference rules
 
-2. **Causal Reasoning**
-   - Causal graph representation
+2. **Enhanced Causal Reasoning** (Extend Current Causal Analysis)
+   - Structural Causal Models (SCMs)
    - Pearl's do-calculus
-   - Counterfactual reasoning
+   - Formal counterfactual reasoning
    - Intervention analysis
 
-3. **Planning System**
+3. **Strategic Planning System** (New Component)
    - STRIPS-style planning
    - Hierarchical Task Network (HTN)
    - Goal decomposition
    - Plan verification
 
-4. **Analogical Reasoning**
+4. **Analogical Reasoning** (Extend Pattern Recognition)
    - Structure mapping
    - Cross-domain analogy
    - Transfer learning
@@ -219,7 +236,9 @@ public class DeepReasoningEngine
 }
 ```
 
-**Implementation Priority**: **CRITICAL** - This is the #1 gap preventing true intelligence
+**Integration Strategy**: Enhance the existing Iterative Synthesis Engine within the Cognitive Workspace to include formal reasoning capabilities alongside its current synthesis approach.
+
+**Implementation Priority**: **HIGH** - Extends existing Cognitive Workspace capabilities
 
 **See**: [`reasoning-engine-csharp.md`](reasoning-engine-csharp.md) for complete implementation
 
