@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Myriad.Services.Orchestrator;
 using Xunit;
 
 namespace Myriad.Tests.Unit

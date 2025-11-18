@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Myriad.Services.Orchestrator\Myriad.Services.Orchestrator.csproj" />
     <ProjectReference Include="..\..\src\Myriad.Agents.Static.Lightbulb\Myriad.Agents.Static.Lightbulb.csproj" />
+    <ProjectReference Include="..\..\src\Myriad.Common\Myriad.Common.csproj" />
   </ItemGroup>
 
 </Project>
