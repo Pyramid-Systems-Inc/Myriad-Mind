@@ -1,22 +1,44 @@
 # Phase 4: Advanced Features - Human-Like Capabilities
 
-**Duration**: 4-5 weeks  
-**Goal**: Context understanding, cognitive synthesis, and neurogenesis  
+**Duration**: 4-5 weeks
+**Goal**: Context understanding, cognitive synthesis, and neurogenesis
 **Prerequisites**: Phase 3 complete
 
 ---
 
 ## Objectives
 
-✅ Context understanding (conversation memory)  
-✅ Reference resolution (pronouns)  
-✅ Cognitive synthesizer (4-stage output)  
-✅ Dynamic lifecycle manager (neurogenesis)  
-✅ Multi-turn conversations
+✅ **4-Layer Context System** - Session, User, World, and Discourse context
+✅ **Reference Resolution** - Pronouns and entity tracking with salience
+✅ **4-Stage Cognitive Synthesizer** - Thematic analysis → Narrative weaving → Summarization → Formatting
+✅ **Dynamic Lifecycle Manager** - Full neurogenesis pipeline (5 phases)
+✅ **5-Phase Autonomous Learning** - Bootstrap → Research → Development → Optimization → Validation
+✅ **Multi-turn Conversations** - Session memory and entity tracking
 
 ---
 
-## Step 1: Session Context Manager
+## Architecture References
+
+This phase implements components from:
+- [`context-understanding-csharp.md`](../architecture/context-understanding-csharp.md) - 4-layer context architecture
+- [`cognitive-synthesizer-csharp.md`](../architecture/cognitive-synthesizer-csharp.md) - 4-stage synthesis pipeline
+- [`neurogenesis-csharp.md`](../architecture/neurogenesis-csharp.md) - Dynamic agent creation
+- [`graph-intelligence-csharp.md`](../architecture/graph-intelligence-csharp.md) - Enhanced discovery
+
+---
+
+## Step 1: Multi-Layer Context System
+
+### Overview: 4-Layer Context Architecture
+
+Following [`context-understanding-csharp.md`](../architecture/context-understanding-csharp.md), implement comprehensive context understanding:
+
+1. **Session Context (Working Memory)** - Immediate conversation state
+2. **User Context (Episodic Memory)** - Long-term user profile
+3. **World Context (Semantic Memory)** - General knowledge
+4. **Discourse Context** - Conversation flow and structure
+
+### 1.1: Session Context Manager
 
 **File**: `src/Myriad.Core.Context/SessionContext.cs`
 
@@ -141,7 +163,50 @@ public class SessionContextManager
 }
 ```
 
-**Acceptance**: Session context persists across multiple requests
+### 1.2: User Context Manager (Graph-Based)
+
+**File**: `src/Myriad.Core.Context/UserContextManager.cs`
+
+```csharp
+public class UserContextManager
+{
+    private readonly IGraphDatabase _graphDb;
+    
+    public async Task<UserNode> GetOrCreateUserAsync(string userId, CancellationToken ct)
+    {
+        // Find or create user profile in graph
+        var users = await _graphDb.FindNodesAsync(
+            n => n is UserNode un && un.UserId == userId, ct);
+        
+        if (users.Any()) return users.First() as UserNode;
+        
+        // Create new user with preferences
+        var newUser = new UserNode
+        {
+            UserId = userId,
+            Preferences = new UserPreferences(),
+            ExpertiseLevels = new Dictionary<string, float>()
+        };
+        
+        await _graphDb.UpsertNodeAsync(newUser, ct);
+        return newUser;
+    }
+    
+    public async Task<string> CreateConversationAsync(
+        string userId, string sessionId, CancellationToken ct)
+    {
+        // Create conversation node and link to user
+    }
+    
+    public async Task AddTurnToConversationAsync(
+        string conversationId, ConversationTurn turn, CancellationToken ct)
+    {
+        // Link turn to conversation in graph
+    }
+}
+```
+
+**Acceptance**: Session context persists across multiple requests, user profiles stored in graph
 
 ---
 

@@ -136,3 +136,158 @@ Once the core architectural pattern is validated, development will shift towards
 * **Step 7.2: Implement the Digital Connectome:** Replace the simple `AI_REGISTRY` with a custom graph database (built from scratch using `ConcurrentDictionary` and custom graph algorithms in C#). Agents become nodes, and their learned relationships (from Synaptic Strengthening) become weighted edges. Orchestration now becomes a graph traversal algorithm.
 * **Step 7.3: Agent Fine-Tuning:** Introduce the first Type-C/D agents (e.g., a simple `Sentiment_AI`) and build a feedback mechanism that allows user input to trigger a micro-training loop on that specific agent, enabling continuous, targeted learning.
 * **Step 7.4: Enhance Cognitive Workspace:** Integrate formal symbolic logic and strategic planning capabilities into the Iterative Synthesis Engine to enable true AGI-level reasoning as outlined in the AGI Enhancements document.
+
+---
+
+### **AGI Enhancement Phases: Towards Artificial General Intelligence**
+
+The following phases transform Myriad from an intelligent information system into a true AGI with human-level cognitive capabilities. **Total Timeline: 30-46 additional weeks** (based on [`agi-enhancements-overview.md`](architecture/agi-enhancements-overview.md))
+
+**Phase 8: Tier 1 - Foundation for Thinking (Weeks 1-12)**
+
+* **Goal:** Establish core AGI cognitive capabilities: reasoning, attention, and self-awareness
+* **Step 8.1: Deep Reasoning Engine (Weeks 1-4)**
+  * Extend Cognitive Workspace with symbolic logic engine (first-order predicate logic, theorem proving)
+  * Implement Pearl's Structural Causal Models (SCMs) for causal reasoning
+  * Add STRIPS-style planning system for strategic goal decomposition
+  * Build analogical reasoning framework for cross-domain knowledge transfer
+  * **Deliverable:** System can perform formal logic, causal inference, and multi-step planning
+
+* **Step 8.2: Attention Mechanism (Weeks 5-8)**
+  * Implement selective attention with saliency detection and relevance weighting
+  * Add working memory constraints (7±2 items) with rehearsal and chunking
+  * Build dynamic attention routing with focus switching
+  * Integrate bottom-up and top-down attention control
+  * **Deliverable:** System manages cognitive resources like human working memory
+
+* **Step 8.3: Meta-Cognitive Layer (Weeks 9-12)**
+  * Build knowledge inventory system for self-awareness of capabilities
+  * Implement Bayesian uncertainty quantification with confidence calibration
+  * Add consistency checking and contradiction detection
+  * Create theory of mind (basic) for user knowledge modeling
+  * **Deliverable:** System knows what it knows and handles uncertainty gracefully
+
+**Phase 9: Tier 2 - Rich Understanding (Weeks 13-24)**
+
+* **Goal:** Enable world understanding, advanced memory, and temporal reasoning
+* **Step 9.1: World Model (Weeks 13-18)**
+  * Implement Structural Causal Models (SCMs) with DAG construction
+  * Build simplified physics simulation engine for kinematic modeling
+  * Add forward models for state prediction and outcome simulation
+  * Create inverse models for cause inference and goal recognition
+  * **Deliverable:** System understands cause-effect and can run "what if" simulations
+
+* **Step 9.2: Advanced Memory System (Weeks 19-21)**
+  * Implement memory consolidation (hippocampus → neocortex transfer)
+  * Add sleep-like replay mechanism for strengthening important memories
+  * Build memory reconsolidation (update when recalled)
+  * Create interference management for similar memories
+  * **Deliverable:** True learning with long-term retention and memory optimization
+
+* **Step 9.3: Temporal Reasoning (Weeks 22-24)**
+  * Implement temporal logic (before, after, during, while relationships)
+  * Add event understanding (start, end, duration modeling)
+  * Build process models using state machines and workflows
+  * Create sequential reasoning for event chain analysis
+  * **Deliverable:** System reasons about time, sequences, and processes
+
+**Phase 10: Tier 3 - Autonomous Intelligence (Weeks 25-36)**
+
+* **Goal:** Enable self-directed behavior, multimodal understanding, and self-evolution
+* **Step 10.1: Goal System (Weeks 25-28)**
+  * Build hierarchical goal framework (high-level → sub-goals decomposition)
+  * Implement intrinsic motivation (curiosity drive, exploration bonus)
+  * Add multi-objective optimization with conflict resolution
+  * Create autonomous goal planning and execution
+  * **Deliverable:** System can set and pursue its own goals autonomously
+
+* **Step 10.2: Multimodal Perception (Weeks 29-32)**
+  * Integrate computer vision pipeline (image understanding, object recognition)
+  * Add audio processing (speech recognition, sound classification)
+  * Build cross-modal learning for linking text ↔ images ↔ sounds
+  * Implement grounded language connecting words to percepts
+  * **Deliverable:** System processes visual and audio input, not just text
+
+* **Step 10.3: Self-Improvement Loop (Weeks 33-36)**
+  * Build self-critique system to evaluate own outputs
+  * Implement bug detection for finding reasoning errors
+  * Add neural architecture search for structure optimization
+  * Create recursive self-improvement with safety constraints
+  * **Deliverable:** System autonomously improves its own capabilities
+
+**Phase 11: Tier 4 - Human-Level Capabilities (Weeks 37-46)**
+
+* **Goal:** Achieve human-level communication and social intelligence
+* **Step 11.1: Deep Language Understanding (Weeks 37-40)**
+  * Implement semantic parsing for compositional semantics
+  * Add pragmatic understanding (Gricean maxims, implicature)
+  * Build context grounding for deictic resolution
+  * Create discourse models for coherence and topic tracking
+  * **Deliverable:** Natural language understanding with pragmatics
+
+* **Step 11.2: Emotional Intelligence (Weeks 41-43)**
+  * Build emotion recognition via sentiment and affect detection
+  * Implement empathy modeling with perspective-taking
+  * Add emotional regulation for appropriate response modulation
+  * Create mood tracking for long-term emotional state modeling
+  * **Deliverable:** System understands and responds to emotions appropriately
+
+* **Step 11.3: Social Intelligence (Weeks 44-46)**
+  * Implement theory of mind for belief/desire attribution
+  * Add social reasoning for norm understanding and role recognition
+  * Build collaborative planning with joint attention and shared goals
+  * Create cultural models for context-appropriate behavior
+  * **Deliverable:** System engages in natural social collaboration
+
+**Phase 12: Integration & Validation (Weeks 47-50)**
+
+* **Goal:** Integrate all AGI components and validate human-level performance
+* **Step 12.1: System Integration:** Connect all 12 enhancement modules into unified architecture
+* **Step 12.2: Performance Validation:** Test against AGI benchmarks and success metrics
+* **Step 12.3: Safety & Alignment:** Implement safety constraints and value alignment
+* **Step 12.4: Production Hardening:** Optimize for production deployment at scale
+* **Deliverable:** Complete AGI system ready for real-world deployment
+
+---
+
+### **Success Metrics for AGI Capabilities**
+
+**Tier 1 Metrics:**
+- Reasoning Accuracy: >90% on formal logic problems
+- Attention Efficiency: 40% reduction in processing time for complex queries
+- Self-Awareness: 85% accurate uncertainty calibration
+
+**Tier 2 Metrics:**
+- Causal Prediction: >80% accuracy on intervention outcomes
+- Memory Retention: 10x improvement in important fact recall
+- Temporal Reasoning: Correctly sequence 95% of event chains
+
+**Tier 3 Metrics:**
+- Goal Achievement: 75% success on self-set goals
+- Multimodal Integration: 90% accuracy on cross-modal tasks
+- Self-Improvement: 20% monthly performance gains
+
+**Tier 4 Metrics:**
+- Language Understanding: Pass pragmatic comprehension tests
+- Emotional Appropriateness: 85% human rating on empathy
+- Social Intelligence: Successfully navigate multi-agent scenarios
+
+**Overall AGI Metrics:**
+- Generalization: Transfer learning across 10+ domains
+- Creativity: Generate novel solutions rated useful by humans
+- Adaptability: Learn new tasks from <5 examples
+- Robustness: Maintain performance under 90% of edge cases
+
+---
+
+**Total Development Timeline:**
+- **MVP:** 4 weeks (Phases 1-3)
+- **Advanced Features:** 18-21 weeks (Phases 4-7)
+- **AGI Capabilities:** 30-46 weeks (Phases 8-12)
+- **Grand Total:** ~52-71 weeks (12-16 months) for complete AGI system
+
+For detailed implementation strategies, see:
+- [`architecture/agi-enhancements-overview.md`](architecture/agi-enhancements-overview.md)
+- [`architecture/agi-gap-analysis.md`](architecture/agi-gap-analysis.md)
+- [`architecture/agi-implementation-strategies.md`](architecture/agi-implementation-strategies.md)
+- [`architecture/agi-brain-inspired-mechanisms.md`](architecture/agi-brain-inspired-mechanisms.md)
