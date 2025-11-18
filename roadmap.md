@@ -1,4 +1,4 @@
-### **MVP Development Roadmap: Project Myriad - C#/.NET Edition**
+### MVP Development Roadmap: Project Myriad - C#/.NET Edition
 
 **Project Goal:** To build a functional prototype that validates the core architecture of orchestrating multiple, minimalist, specialized AI agents to answer a query.
 **Implementation:** C# 10+ / .NET 6.0+ with **zero external dependencies** (all components built from scratch)
