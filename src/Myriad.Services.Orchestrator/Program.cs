@@ -17,6 +17,8 @@ var app = builder.Build();
 var registry = app.Services.GetRequiredService<AgentRegistry>();
 // Register the Lightbulb Agent we created (assuming it runs locally on 5001)
 registry.RegisterAgent("Lightbulb_AI", "http://localhost:5001");
+// Register the Factory Agent (assuming it runs locally on 5002)
+registry.RegisterAgent("Factory_AI", "http://localhost:5002");
 // --------------------------------------------------------
 
 app.MapGet("/health", () => new

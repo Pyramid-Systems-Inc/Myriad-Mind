@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using Myriad.Common;
+using System.Net.Http.Json;
 
 namespace Myriad.Services.Orchestrator
 {
@@ -39,6 +41,27 @@ namespace Myriad.Services.Orchestrator
                 _logger.LogError(ex, "Failed to ping Agent {AgentName}", agentName);
                 return false;
             }
+        }
+
+        public async Task<AgentResponse?> QueryAgentAsync(string agentName, AgentRequest request)
+        {
+            var url = _registry.GetAgentUrl(agentName);
+            if (string.IsNullOrEmpty(url)) return null;
+
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync($"{url}/process", request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<AgentResponse>();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to query Agent {AgentName}", agentName);
+            }
+            return null;
         }
     }
 }

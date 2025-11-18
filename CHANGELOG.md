@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `OrchestratorService` logic to ping agents via HTTP
-- Unit tests for service logic using Test Fakes
-- Integration tests for dependency injection verification
-- `Lightbulb_AI` microservice skeleton (Port 5001)
-- `AgentRegistry` implementation
+- **Core Protocol**: Created `Myriad.Common` library with `AgentRequest` and `AgentResponse` records.
+- **Orchestrator**: Implemented `QueryAgentAsync` to perform HTTP POST requests to agents.
+- **Agents**:
+  - Implemented intelligence in `Lightbulb_AI` (hardcoded knowledge base).
+  - Created `Factory_AI` microservice with pre-electrical industrial knowledge.
+- **Testing**: Added unit tests for Protocol serialization and multi-agent integration.
+- **Documentation**: Created `PROTOCOL.md` defining the JSON interface.
 
 ## [0.0.1] - 2025-11-18
 
